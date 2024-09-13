@@ -18,10 +18,10 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'recaudacion_dev',
-        'USER': 'sateg',
-        'PASSWORD': 'sateg_2021',
-        'HOST': '172.31.113.187',
+        'NAME': '****',
+        'USER': '****',
+        'PASSWORD': '****',
+        'HOST': '0.0.0.0',
         'PORT': '5432',
     }
 
