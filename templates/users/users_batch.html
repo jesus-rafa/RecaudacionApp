@@ -1,0 +1,49 @@
+{% extends 'base_new.html' %}
+{% load static %}
+
+{% block title %} Batch {% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+      <div class="page-title-box">
+          <h4 class="page-title">Batch</h4>
+      </div>
+  </div>
+</div> 
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+            {{ message|safe }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <form action="{% url 'users_app:batch-users' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Archivo CSV</label>
+                                <div class="input-group input-group-merge">
+                                   {{ Formulario }}
+                                </div>
+                            </div>
+
+                            <div class="text-center d-grid">
+                                <button class="btn btn-primary" type="submit"> Ejecutar </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+</div>
+{% endblock content %}
+

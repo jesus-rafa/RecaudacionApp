@@ -1,0 +1,113 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Turnar Oficio</h4>
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+        <form id="form_recibidos" action="{% url 'oficios_app:turnar-oficio' id_oficio %}" method="POST"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.fecha_vencimiento }}
+                            <label for="id_fecha_vencimiento">Fecha Vencimiento:</label>
+                            <input id="hffecha_vencimiento" type="hidden" value="{{ fecha_vencimiento|date:'d/m/Y' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                           
+                            {{ form.comentarios }}
+                            <label for="id_comentarios" >Comentarios:</label>
+                            <input id="hfcomentarios" type="hidden" value="{{ comentarios }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Turnar a:</label>
+                            <select id="turnar_a" class="form-control select2-multiple" data-toggle="select2"
+                                data-width="100%" multiple="multiple" data-placeholder="Turnar a">
+                                {% for row in usuarios %}
+                                <option 
+                                    value="{{ row.id }}" 
+                                    {% for copia in turnar_a %}
+                                        {% if row.id == copia.user.id %}
+                                        selected
+                                        {% endif %}
+                                    {% endfor %}
+                                    >
+                                    {{row.get_user}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <input name="turnar_a" type="hidden" value="">
+                            <input id="hfturnar_a" type="hidden" value="{{ turnar_a }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Copiar a:</label>
+                            <select id="copiar_a" class="form-control select2-multiple" data-toggle="select2"
+                                data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                {% for row in usuarios %}
+                                <option 
+                                    value="{{ row.id }}" 
+                                    {% for copia in copiar_a %}
+                                        {% if row.id == copia.user.id %}
+                                        selected
+                                        {% endif %}
+                                    {% endfor %}
+                                    >
+                                    {{row.get_user}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <input name="copiar_a" type="hidden" value="">
+                            <input id="hfcopiar_a" type="hidden" value="{{ copiar_a }}">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn fondo-boton" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btGuardar" class="btn fondo-boton">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        $('#form_recibidos').submit(function(e) {
+
+            var lista_cc = $("#copiar_a").val();
+            $("[name='copiar_a']").val(lista_cc.join(","));
+
+            var lista_turnar = $("#turnar_a").val();
+            $("[name='turnar_a']").val(lista_turnar.join(","));    
+
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+</script>

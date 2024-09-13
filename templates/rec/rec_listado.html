@@ -1,0 +1,97 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+
+{% block title %} REC Listado {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">REC Listado</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-10 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">Contribuyente</span>
+                        <input type="text" class="form-control input-lg" id="kword" name="kword" onkeyup="mayus(this);" placeholder="RFC / CURP / Nombre" aria-describedby="basic-addon1">
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary btn" 
+                            target="_blank" 
+                            value="Buscar"> 
+                            <i class="fa fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="table" class="table table-sm table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>RFC</th>
+                                <th>Nombre</th>
+                                <th>CURP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in rec %}
+                            <tr>
+                                <td>
+                                    <a href="/lista-rec/?kword={{ row.RFC }}"
+                                        title="REC" tabindex="0" data-plugin="tippy"
+                                        data-tippy-placement="top"  class="btn btn-primary waves-effect waves-light btn-sm" target="_self">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                    {% if permite_consultar_expediente %}
+                                        <a href="{% url 'rec_app:resumen-ejecutivo' row.RFC %}"
+                                            title="Resumen Ejecutivo" tabindex="0" data-plugin="tippy"
+                                            data-tippy-placement="top"  class="btn btn-success waves-effect waves-light btn-sm" target="_self">
+                                            <i class="mdi mdi-chart-bar"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>{{ row.RFC }}</td>
+                                <td>{{ row.NOMBRE }}</td>
+                                <td>{{ row.CURP }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+		
+	});
+
+    function mayus(e) {
+        e.value = e.value.toUpperCase();
+    }
+
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,525 @@
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title pt-4 " style="margin-left: 30px;">Detalle: </h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+       
+            <div class="modal-body p-4 ">
+                
+                <div class="row mx-auto mb-2">
+                    <div class="col">
+                        <label style="font-size: 11px;">Fecha Carga:</label>
+                        <br>
+                        <label><b>{{detail.created|date:'d/m/Y H:i a'}}</b></label>
+                    </div>
+                    
+                    {% if historial %}
+                    <div class="col">
+                        <label style="font-size: 11px;">Historial:</label>
+                        <br>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Cuenta</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in historial %}
+                                <tr>
+                                    <!-- <td>{{ row.rfc }}</td> -->
+                                    <td>{{ row.numero_cuenta }}</td>
+                                    <td>{{ row.created|date:'d/m/Y H:i a'}}</td>
+                                </tr>                                
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    <div class="col">
+                        <label style="font-size: 11px;">RFC:</label>
+                        <br>
+                        <label><b>{{detail.rfc}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Tipo de Persona:</label>
+                        <br>
+                        <label><b>{{detail.tipo_persona}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Número de Cuenta:</label>
+                        <br>
+                        <label><b>{{detail.numero_cuenta}}</b></label>
+                    </div>
+                </div>
+                
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Contribuyente:</label>
+                        <br>
+                        <label><b>{{detail.PersonaFisica}}</b></label>
+                    </div>
+                    <div class="col">
+                        <label style="font-size: 11px;">Curp:</label>
+                        <br>
+                        <label><b>{{detail.Curp}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Nacionalidad:</label>
+                        <br>
+                        <label><b>{{detail.nacionalidad}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Fecha de Nacimiento:</label>
+                        <br>
+                        <label><b>{{detail.FechaNacimiento|date:'d/m/Y'}}</b></label>
+                        
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Sexo:</label>
+                        <br>
+                        <label><b>{{detail.Sexo}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Correo Electronico:</label>
+                        <br>
+                        <label><b>{{detail.Correo}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Calle:</label>
+                        <br>
+                        <label><b>{{detail.calle}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Número Externo:</label>
+                        <br>
+                        <label><b>{{detail.numero_ext}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Número Interno:</label>
+                        <br>
+                        <label><b>{{detail.numero_int}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Colonia:</label>
+                        <br>
+                        <label><b>{{detail.colonia}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Municipio:</label>
+                        <br>
+                        <label><b>{{detail.municipio}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Ciudad:</label>
+                        <br>
+                        <label><b>{{detail.ciudad}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Estado:</label>
+                        <br>
+                        <label><b>{{detail.estado}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">CP:</label>
+                        <br>
+                        <label><b>{{detail.cp}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Télefono:</label>
+                        <br>
+                        <label><b>{{detail.Telefono}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Adeudo:</label>
+                        <br>
+                        <label><b>$ {{detail.adeudo|intcomma}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Fecha Alta:</label>
+                        <br>
+                        <label><b>{{detail.fecha_alta|date:'d/m/Y'}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Fécha Último de Pago:</label>
+                        <br>
+                        <label><b>{{detail.fecha_ultimo_pago|date:'d/m/Y'}}</b></label>
+                    </div>
+                </div>
+
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Usuario:</label>
+                        <br>
+                        <label><b>{{detail.usuario}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Interlocutor:</label>
+                        <br>
+                        <label><b>{{detail.interlocutor}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Objeto Contrato:</label>
+                        <br>
+                        <label><b>{{detail.objeto_contrato}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Clave:</label>
+                        <br>
+                        <label><b>{{detail.clave}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Sub Clave:</label>
+                        <br>
+                        <label><b>{{detail.SubClave}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Importe Baja:</label>
+                        <br>
+                        <label><b>$ {{detail.importe_baja|intcomma}}</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row mx-auto mb-2">
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Periodo:</label>
+                        <br>
+                        <label><b>{{detail.periodo}}</b></label>
+                    </div>
+                    
+                    <div class="col">
+                        <label style="font-size: 11px;">Ejercicio:</label>
+                        <br>
+                        <label><b>{{detail.ejercicio}}</b></label>
+                    </div>
+
+                    <div class="col">
+                        <label style="font-size: 11px;">Area:</label>
+                        <br>
+                        <label><b>{{detail.area}}</b></label>
+                        <br>
+                        <label><b>({% get_user_info detail.usuario %})</b></label>
+                    </div>
+                </div>
+
+                <hr>
+
+                
+
+                <!-- <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-08" id="home-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link active">
+                            Seguimiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-08" id="profile-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            Archivos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#portfolio-08" id="portfolio-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            Pagos
+                        </a>
+                    </li>
+                </ul> -->
+
+                <!-- <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-08">
+                        <div class="table-responsive mt-15">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Fecha</th>
+                                        <th>Comentarios</th>
+                                        <th>Etapa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   
+                                    <tr>
+                                        <td></td>
+                                        <td>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-08">
+                        <div class="table-responsive mt-15">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Comentarios</th>
+                                        <th>Archivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-secondary rounded">
+                                                    <a href="{{ archivo.archivo.url }}" target="_blank">
+                                                        <i class="mdi mdi-file-outline text-secondary font-18"></i>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="portfolio-08">
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="text-center text-md-center">
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="text-center text-md-right">
+                                        <strong><label class="text-success recaudado" title="Total Recaudado"
+                                                tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left"></label></strong>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="progress">
+                                <div class="progress bg-primary progress-payments" role="progressbar" aria-valuenow=""
+                                    aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                                <div class="progress-bar bg-warning progress-accesorios" role="progressbar"
+                                    aria-valuenow="" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                                <div class="progress-bar bg-danger progress-recargos" role="progressbar"
+                                    aria-valuenow="" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+
+                            </div>
+                        </div>
+                        <label>Presuntiva</label>
+
+                        <div class="table-responsive mt-15">
+                            <table id="Table_payments" class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Periodo/Ejercicio</th>
+                                        <th>Impuesto</th>
+
+                                        <th>Actualizaciones</th>
+                                        <th>Recargos</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                       
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                       
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="col1"> </td>
+                                        <td class="col2"> </td>
+                                        <td class="col3"> </td>
+                                    </tr>
+                                    
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <br>
+
+                            <label>Otros pagos</label>
+                            <table id="Table_payments_2" class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Periodo/Ejercicio</th>
+                                        <th>Impuesto</th>
+
+                                        <th>Actualizaciones</th>
+                                        <th>Recargos</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        
+                                                       
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td> 
+                                        <td class="col1"> </td>
+                                        <td class="col2"> </td>
+                                        <td class="col3"> </td>
+                                    </tr>
+                                  
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        
+
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                   
+                                </tfoot>
+
+                            </table>
+                        </div>
+                    </div>
+                </div> -->
+               
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        
+    </div>
+</div>
+
+
+{% block extrajs %}
+
+
+
+{% endblock extrajs %}

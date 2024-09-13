@@ -1,0 +1,280 @@
+{% block head %}
+<style>
+button{
+  cursor:pointer;
+}
+.chip-group{
+  display:flex;
+  flex-wrap:wrap;
+}
+.chip.chip-checkbox > .chip-add-icon::after {
+  content:"add"
+}
+.chip.chip-checkbox.active > .chip-add-icon::after {
+  content:"done"
+}
+.chip > * {
+  margin-right:2px;
+  margin-left:2px;
+  color: #757373;
+}
+.chip input {
+  display: none;
+}
+.chip.chip-checkbox,
+.chip.chip-toggle,
+.chip.clickable{
+  cursor: pointer;
+}
+.chip.active {
+  background-color: #d3d2d2;
+  border-color:#c3c2c2;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.12)
+}
+.chip:hover, .chip:focus {
+  background-color: #e3e2e2;
+}
+.chip:active:focus{
+  background-color: #d3d2d2;  
+}
+.chip button{
+  border:none;
+  margin-top:0;
+  margin-bottom:0;
+  padding:0;
+  background:none;
+  display:inline-flex;
+}
+.chip {
+  transition: all 0.3s ease-in-out;
+  background-color: #fff;
+  border-radius: 30px;
+  border: 1px solid #d3d2d2;
+  display: inline-flex;
+  align-items:center;
+  padding: 4px 6px 4px 6px;
+  margin-right:6px;
+  margin-bottom:6px;
+}
+.chip i.material-icons {
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
+{% endblock head %}
+
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>{% for menu in actividad %} {{ menu.actividad }} {{ menu.tipo_tramite }} {% endfor %}</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_alta_visita_detalle" action="{% url 'promocion_app:alta-visita-detalle' idVisita idActividad %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                {% for campo in TransactForm %}
+
+                    <div class="form-group col-md-12">
+                        <label>{{ campo.etiqueta }}</label>
+                       
+                        {% if campo.tipo_control == 'text' %}         
+                            <input class="form-control" 
+                                type="{{ campo.tipo_control }}" 
+                                name="{{ campo.campo }}"
+                                {% if campo.is_required == True %} required {% endif %}>
+
+                        {% elif campo.tipo_control == 'textarea' %}   
+                            
+                            <ul id="list_{{ campo.campo }}"></ul>
+                            <input class="form-control" 
+                                type="text" 
+                                id="txt_{{ campo.campo }}" 
+                                placeholder="Enter ...">
+
+                            <input type="hidden" name="{{ campo.campo }}" value="">
+                            <!-- <textarea class="form-control"
+                                name="{{ campo.campo }}" 
+                                {% if campo.is_required == True %} required {% endif %} 
+                                rows="6" cols="50">
+                            </textarea> -->
+                                
+                        {% elif campo.tipo_control == 'select' %}
+                            <select class="form-control"
+                                name="{{ campo.campo }}">
+                                {% for combo in opcion %}
+                                    
+                                    {% if campo.consulta|upper == combo.codigo|upper %}
+                                        <option value="{{ combo.valor }}">{{ combo.comentario }}</option>
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                            </select>
+
+                        {% elif campo.tipo_control == 'select_multiple' %}
+
+                            <div class="form-row">
+                                <div class="form-group col-md-5">
+                                </div>
+                                <div class="form-group col-md-5">
+                                    <div class="checkbox checbox-switch switch-primary">
+                                        <label>
+                                            <input 
+                                                type="checkbox" 
+                                                id="ckTodos_{{ campo.campo }}"
+                                                value="Todos" />
+                                                <span></span>
+                                                <b>Todos</b>
+                                        </label>  
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ul>
+                                {% for combo in opcion %}
+                                    {% if campo.consulta|upper == combo.codigo|upper %}
+                                        <div class="checkbox checbox-switch switch-primary">
+                                            <label>
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="{{ campo.campo }}"
+                                                    value="{{ combo.valor }}" />
+                                                    <span></span>
+                                                    <b>{{ combo.comentario }}</b>
+                                            </label>  
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul> 
+
+                            <input type="hidden" name="{{ campo.campo }}" value="">
+
+                            <!-- <div class="text-center">
+                                <input type="checkbox" id="ckTodos_{{ campo.campo }}" value="Todos">Todos<br>
+                            </div>
+                            
+                            <ul>
+                            {% for combo in opcion %}
+                                {% if campo.consulta|upper == combo.codigo|upper %}
+                                    <input type="checkbox" 
+                                        name="{{ campo.campo }}"
+                                        value="{{ combo.valor }}">{{ combo.comentario }}<br>
+                                {% endif %}
+                            {% endfor %}
+                            </ul> 
+                            <input type="hidden" name="{{ campo.campo }}" value=""> -->
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btGuardar" type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(function () {
+        var multiple = [];
+       
+        {% for campo in TransactForm %}
+            {% if campo.tipo_control == 'select_multiple' %}
+                $('#ckTodos_{{ campo.campo }}').click(function () {    
+                    $("[name='{{ campo.campo }}']").prop('checked', this.checked);    
+                });
+            {% endif %}
+        {% endfor %}
+            
+        $('#form_alta_visita_detalle').submit(function(e) {
+
+            {% for campo in TransactForm %}
+                {% if campo.tipo_control == 'textarea' %}
+
+                    $("[name='{{ campo.campo }}']").val(items_{{ campo.campo }}.join("|"));
+
+                {% elif campo.tipo_control == 'select_multiple' %}
+                
+                    multiple = [];
+                    $.each($("input[name='{{ campo.campo }}']:checked"), function(){
+                        multiple.push($(this).val());
+                    });
+
+                    $("[name='{{ campo.campo }}']").val(multiple.join(","));
+                
+                {% endif %}
+            {% endfor %}
+            
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+
+    {% for campo in TransactForm %}
+        {% if campo.tipo_control == 'textarea' %}
+
+        var txt_{{ campo.campo }} = document.getElementById('txt_{{ campo.campo }}');
+        var list_{{ campo.campo }} = document.getElementById('list_{{ campo.campo }}');
+        var items_{{ campo.campo }} = [];
+
+        txt_{{ campo.campo }}.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                let val = txt_{{ campo.campo }}.value;
+                if (val !== '') {
+                    if (items_{{ campo.campo }}.indexOf(val) >= 0) {
+                        txt_{{ campo.campo }}.value = '';
+                        alert('Ya existe!');
+                            
+                    } else {
+                        items_{{ campo.campo }}.push(val);
+                        render_{{ campo.campo }}();
+                        txt_{{ campo.campo }}.value = '';
+                        txt_{{ campo.campo }}.focus();
+                    }
+                } else {
+                    alert('Ingresa un dato!');
+                }
+            }
+        });
+
+        function render_{{ campo.campo }}() {
+            list_{{ campo.campo }}.innerHTML = '';
+            items_{{ campo.campo }}.map((item, index) => {
+                list_{{ campo.campo }}.innerHTML += `<div class="chip" tabindex="-1">
+                                        <span>${item}</span>
+                                        <button 
+                                            type="button" 
+                                            title="Borrar" 
+                                            aria-label="Borrar" 
+                                            onclick="$(this).parent().remove();">
+                                            <a href="javascript: remove_{{ campo.campo }}('${item}')">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </button>
+                                    </div>`;
+            });
+        }
+
+        function remove_{{ campo.campo }}(val) {
+            let index = items_{{ campo.campo }}.indexOf(val);
+            items_{{ campo.campo }}.splice(index, 1);
+        }
+
+        {% endif %}
+    {% endfor %}
+</script>
+{% endblock extrajs %}
+
+
+

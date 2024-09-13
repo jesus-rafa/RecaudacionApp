@@ -1,0 +1,85 @@
+{% load static %}
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+
+<div class="modal-dialog modal-dialog-centered modal-full-width" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Visitas</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+            <div class="col-xl-12 mb-30">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="datatable2" class="table table-sm table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Programa</th>
+                                        <th>Direccion</th>
+                                        <th>Ciudad</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Fin</th>
+                                        <th>Total Contribuyentes</th>
+                                        <th>Responsable</th>
+                                        <th>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for evento in desarrollo %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'promocion_app:actualizaciones-admin' evento.id %}"
+                                                class="btn btn-link" target="_blank">
+                                                {{ evento.id_evento.nombre }}
+                                            </a>
+                                        </td>
+                                        <td>{{ evento.id_evento.id_programa }}</td>
+                                        <td>{{ evento.id_evento.direccion }}</td>
+                                        <td>{{ evento.id_evento.ciudad }}</td>
+                                        <td>
+                                            {{ evento.fecha_inicio|date:'d/m/Y' }}
+                                        </td>
+                                        <td>
+                                            {{ evento.fecha_fin|date:'d/m/Y' }}
+                                        </td>
+                                        <td>
+                                            <div class="text-center">
+                                                {{ evento.sum_rfc }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% for user in evento.responsables.all %}
+                                                {{ user.get_full_name }}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% if evento.estatus == 'NUEVO' %}
+                                            <span class="badge bg-success">{{ evento.estatus }}</span>
+                                            {% elif evento.estatus == 'EN PROCESO' %}
+                                            <span class="badge bg-success">{{ evento.estatus }}</span>
+                                            {% elif evento.estatus == 'CONCLUIDO' %}
+                                            <span class="badge bg-danger">{{ evento.estatus }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+
+    </div>
+</div>

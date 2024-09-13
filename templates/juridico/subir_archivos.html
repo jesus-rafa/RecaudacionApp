@@ -1,0 +1,183 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- <link href="{% static 'assets/libs/toastr/build/toastr.min.css' %}" rel="stylesheet" type="text/css" /> -->
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Archivos</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+            <h4 class="text-center text-success"><strong>Los archivos se guardan en automático y se visualizan en la
+                    lista.</strong></h4>
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-2">
+                        <div class="card">
+                            <form action="{% url 'juridico_app:subir-archivos-juridico' pk %}" method="post"
+                                class="dropzone" id="myAwesomeDropzone" data-plugin="dropzone"
+                                data-previews-container="#file-previews"
+                                data-upload-preview-template="#uploadPreviewTemplate" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                <div class="fallback">
+                                    {{ form.anexos }}
+                                </div>
+
+                                <div class="dz-message needsclick">
+                                    <i class="h1 text-muted dripicons-cloud-upload"></i>
+                                    <h4>Arrastra archivos o Da click para cargar.</h4>
+                                </div>
+                            </form>
+
+                            <!-- Preview -->
+                            <div class="dropzone-previews mt-3" id="file-previews"></div>
+                        </div> <!-- end card-->
+                    </div>
+                </div><!-- end col -->
+            </div>
+
+            <div class="mostrar-archivos">
+                <div class="archivos">
+                    {{ files }}
+
+                </div>
+            </div>
+
+            <!-- file preview template -->
+            <div class="d-none" id="uploadPreviewTemplate">
+                <div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="btClose" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar Panel</button>
+        </div>
+
+    </div>
+</div>
+{% block extrajs %}
+<!-- Plugins js -->
+<script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+<script src="{% static 'assets/libs/dropify/js/dropify.min.js' %}"></script>
+<!-- Init js-->
+<script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+
+<!-- <script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script> -->
+
+<script>
+    $(document).ready(function () {
+        var flag = false; // Si hay algun error se activa;
+
+        var myDropzone = Dropzone.forElement("#myAwesomeDropzone");
+        myDropzone.on("queuecomplete", function (file) {
+            if (flag == false){
+                $('.mostrar-archivos').empty();
+                Recuperar_Archivos();
+
+                toastr.success("", "Archivos Cargados Exitosamente!", {
+                    "positionClass": "toast-top-center",
+                    "closeButton": true
+                });
+                
+            }else{
+                flag = false;
+            }
+                    
+        });
+
+        myDropzone.on("error", function (file, error) {
+            flag = true;
+
+            toastr.error("", error, {
+                "positionClass": "toast-top-center",
+                "closeButton": true
+            });
+
+            this.removeFile(file);
+        });
+
+        Recuperar_Archivos();
+    });
+
+    function Recuperar_Archivos() {
+        ;
+
+        $.ajax({
+            url: '{% url 'juridico_app:get-files-juridico' pk %}',
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                var myArray = $.map(data, function (value, index) {
+
+                    value = '<div id="archivo_' + value.id + '" class="card mt-1 mb-0 shadow-none border">' +
+                        '<div class="p-2">' +
+                            '<div class="row align-items-center">' +
+                                '<div class="col-auto">' +
+                                    '<div class="avatar-sm">' +
+                                        '<span class="avatar-title bg-light text-secondary rounded">' +
+                                            '<i class="far fa-file font-18"></i>' +
+                                        '</span>' +
+                                    '</div>' +
+                                '</div>' +
+                                '<div class="col ps-0">' +
+                                    '<a href="' + value.url + '" target="_blank" class="text-muted fw-bold">' +
+                                    value.nombre +
+                                '</a>' +
+                                '<p class="mb-0">' + humanFileSize(value.size) + '</p>' +
+                                '<p class="mb-0"></p>' +
+                                '</div>' +
+                                    '<div class="col-auto">' +
+                                        '<a onclick="Eliminar_Archivo(' + value.id +')" class="btn btn-link btn-lg text-muted">' +
+                                        '<i class="dripicons-cross"></i>' +
+                                        '</a>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>'
+
+                    return $('.mostrar-archivos').append(value);
+                });
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function humanFileSize(size) {
+        var i = Math.floor( Math.log(size) / Math.log(1024) );
+        return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    };
+
+    function Eliminar_Archivo(myID) {
+
+        var url = "{% url 'juridico_app:eliminar-archivo-juridico' 0 %}";
+        $.ajax({
+            url: url.replace('0', myID),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                $('#archivo_' + myID).remove();
+
+                toastr.success("", "Archivo Eliminado!", {
+                    "positionClass": "toast-top-center",
+                    "closeButton": true
+                });
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    }
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,185 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Cartas Invitacion {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Cartas Invitacion</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group">
+                        
+                        <span class="input-group-text" id="basic-addon1">RFC</span>
+                        <input type="text" class="form-control input-lg" id="kword" name="kword" placeholder="RFC o Nombre..." aria-describedby="basic-addon1">
+                        <div class="text-center">
+                            <div class="row">
+        
+                                    <i class="mdi-24px mdi mdi-help-circle text-primary" title="La Busqueda por RFC, abarca todos los años." tabindex="0"
+                                        data-plugin="tippy" data-tippy-placement="bottom"></i>
+                                
+                            </div>
+                        </div>
+                        
+                        <span class="input-group-text" id="basic-addon1">Año</span>
+                        <select name="year" id="year" class="form-control" data-toggle="select2" data-width="100%">
+                            {% for item in year %}
+                                <option value="{{ item.year }}">{{item.year}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="submit" class="btn btn-primary btn" target="_blank" value="Buscar"> <i
+                            class="fa fa-search"></i> Buscar</button>
+
+                       
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table mb-0 table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Remesa</th>
+                                <th>Fecha Envio</th>
+                                <th>Folio</th>
+                                <th>RFC</th>
+                                <th>Programa</th>
+                                <!-- <th>Resultado</th> -->
+                                <th>Estatus</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for carta in cartas %}
+                            <tr>
+                                <td>{{ carta.remesa }}</td>
+                                <td>{{ carta.fecha_envio|date:'d/m/Y' }}</td>
+                                <td>{{ carta.folio }}</td>
+                                <td>{{ carta.rfc }}</td>
+                                <td>{{ carta.programa }}</td>
+                                <!-- <td>{{ carta.resultado }}</td> -->
+                                <td>{{ carta.estatus }}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="table" class="table mb-0 table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Remesa</th>
+                                <th>Programa</th>
+                                <th>Fecha Envio</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for carta in todas %}
+                            <tr>
+                                <td>{{ carta.remesa }}</td>
+                                <td>{{ carta.programa }}</td>
+                                <td>{{ carta.fecha_envio|date:'d/m/Y' }}</td>
+                                <td class="format">
+                                    <div class="text-right">
+                                        {{ carta.total }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'rec_app:excel' carta.programa %}"
+                                        title="Descargar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                        class="btn btn-success btn-sm" target="_blank">
+                                        <i class="far fa-file-excel"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                
+                                <th></th>
+                                <th></th>
+                                <th>Total</th>
+                                <th class="format_total">
+                                    <div class="text-right">
+                                        {{ total_cartas }}
+                                    </div>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        let searchParams = new URLSearchParams(window.location.search);
+        let year = searchParams.get('year');
+
+        let fecha_actual = new Date();
+        let year_value;
+
+        if(year !== null)
+            year_value = String(year); 
+        else
+            year_value = String(fecha_actual.getFullYear());
+        $("#year option[value='" + year_value + "']").attr('selected', 'selected');
+
+
+        $('#table').find('.format').each(function (index, element) {
+            var number = $(element).text()
+            $(this).text(number.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+        });
+
+        var number = $('.format_total').text();
+		$('.format_total').text(number.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+
+    });
+</script>
+{% endblock extrajs %}

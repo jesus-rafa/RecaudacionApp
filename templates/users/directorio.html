@@ -1,0 +1,131 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+
+{% block title %} Directorio {% endblock title %}
+
+{% block head %}
+<!-- <style>
+    .avatar {
+        filter: grayscale(100%);
+    }
+</style> -->
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+
+            </div>
+            <h4 class="page-title">Directorio</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="dropdown float-end" style="top: 40px;">
+                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="mdi mdi-dots-vertical"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a href="javascript:void(0);" class="dropdown-item">
+                            <i class="mdi mdi-download"></i> Descargar CSV</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-floating col-md-12">
+                        <input id="search1" type="text" class="float-label form-control input-rec" placeholder=".">
+                        <label>Buscar</label>
+                    </div>
+                </div>
+
+                <div class="table-responsive pt-3">
+                    <table id="datatable1" class="table table-hover m-0 table-centered dt-responsive nowrap w-100"
+                        id="datatable1">
+                        <thead>
+                            <tr>
+                                <td class="all">Nombre</td>
+                                <td class="all">Correo</td>
+                                <td class="all">Telefono</td>
+                                <td class="all">Extensión</td>
+                                <td class="all">Unidad</td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for info in directorio %}
+                            <tr>
+                                <td>
+                                    <a href="javascript: void(0);" class="text-body">
+
+                                        {% if info.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ info.avatar }}" alt="contact-img"
+                                            title="{{ info.full_name }}" class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ info.full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+
+                                        {{ info.full_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ info.email }}
+                                </td>
+
+                                <td>
+                                    {% if info.telefono %}
+                                    {{ info.telefono|slice:"0:3" }} {{ info.telefono|slice:"3:6" }}
+                                    {{ info.telefono|slice:"6:"}}
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if info.ext %}
+                                    {{ info.ext }}
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ info.unidad }}
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div><!-- end col -->
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        // Directorio
+        render_table('#datatable1', '#search1', []);
+
+    });
+</script>
+{% endblock extrajs %}

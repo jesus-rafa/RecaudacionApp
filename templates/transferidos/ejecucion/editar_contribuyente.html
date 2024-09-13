@@ -1,0 +1,119 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'transferidos_app:editar-ejecucion' object.id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    {{ form.fecha }}
+                    {{ form.folio }}
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.rfc }}
+                            <label>{{ form.rfc.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.nombre }}
+                            <label>{{ form.nombre.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">                            
+                            {{ form.direccion }}
+                            <label>{{ form.direccion.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.programa.label }}</label>
+                            {{ form.programa }}
+                            <input id="hfProgram" type="hidden" value="{{ selected_program }}">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.metodo_envio.label }}</label>
+                            {{ form.metodo_envio }}
+                            <input id="hfMethod" type="hidden" value="{{ selected_method }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.ejercicio.label }}</label>
+                            {{ form.ejercicio }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.periodo.label }}</label>
+                            {{ form.periodo }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.presuntiva.label }}</label>
+                            {{ form.presuntiva }}
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label id="lbComentarios">{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-secondary gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<!-- <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script> -->
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script>
+    $(function(){
+        $('select').selectize({
+            create: true,
+            sortField: "text",
+        });
+    });
+</script>
+{% endblock extrajs %}

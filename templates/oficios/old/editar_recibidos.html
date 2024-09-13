@@ -1,0 +1,119 @@
+{% load tags %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Editar Oficio Recibido</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'oficios_app:editar-recibidos' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Folio:</label>
+                        {{ form.folio }}
+                        
+                    </div>
+                   
+                    <div class="form-group col-md-3">
+                        <label>Fecha Recibido:</label>
+                        {{ form.fecha }}
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label>Fecha Respuesta:</label>
+                        {{ form.fecha_respuesta }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Remitente:</label>
+                        {{ form.remitente }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Puesto:</label>
+                        {{ form.puesto }}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dependencia:</label>
+                    {{ form.dependencia }}
+                </div>
+                <div class="form-group">
+                    <label>Asunto:</label>
+                    {{ form.asunto }}
+                </div>
+               
+                
+                <div class="form-row">
+				<div class="form-group col-md-5">
+                        <label>Area:</label>
+                        <!-- {{ form.area }} -->
+						<select name="area" id="id_area" class="form-control">
+                        {% for item in area %}
+                            <option value="{{ item.id }}">{{ item.comentario }}</option>
+                        {% endfor %}
+						</select>
+                        <input id="hfArea" type="hidden" value="{{ selected_area }}">
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label>Para:</label>
+                        <!-- {{ form.para }} -->
+						<select name="para" id="id_para" class="form-control">
+                        {% for item in para %}
+                            <option value="{{ item.id }}" data-chained="{{ item.area }}">{{item.nombres}} {{item.apellidos}} ({{ item.username }})</option>
+                        {% endfor %}
+						{% for item in todos %}
+                            <option value="{{ item.id }}" data-chained="46">{{item.nombres}} {{item.apellidos}} ({{ item.username }})</option>
+                        {% endfor %}
+						</select>
+                        <!-- <input id="hfUser" class="form-control" type="text" value="{ get_user_info selected_user }"> -->
+                        <input id="hfPara" type="hidden" value="{{ selected_para }}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>Firma:</label>
+                        {{ form.firma }}
+                        <input id="hfFirm" type="hidden" value="{{ selected_firm }}">
+                    </div>
+                    
+                </div>
+
+               
+                <div class="form-group">
+                    <label>Comentarios:</label>
+                    {{ form.comentarios }}
+                </div>
+                <div class="form-group">
+                    <label>Archivo:</label>
+                    {{ form.pdf }}
+                </div>
+                
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+	
+		//var d = new Date();
+		//var strDate = d.getDate() + "/" + (d.getMonth()+1)  + "/" + d.getFullYear();
+		//alert(strDate);
+		
+        $('#id_para').chained('#id_area');
+		
+		//$('#fecha_respuesta').html(strDate);
+
+    });
+</script>

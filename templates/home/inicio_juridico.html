@@ -1,0 +1,775 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+{% block title %} Inicio {% endblock title %}
+
+{% block head %}
+<style>
+  .icon-vigilancia{
+    color: #0069c0;
+  }
+  .icon-programacion{
+    color: #6e7079;
+  }
+  .icon-padrones{
+    color: #2196f3;
+  }
+  
+  .icon-entrevista{
+    color: #6e7079;
+  }
+  .icon-notificadas{
+    color: #2196f3;
+  }
+  .icon-autorizadas{
+    color: #0069c0;
+  }
+  .icon-concluidas{
+	color: #969aa2;
+  }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div style="display: none;" id="gif" class="text-center col-md-12">
+  <img src="{% static 'images/confetti-25.gif' %}" alt="">
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <form method="GET">
+                    <div class="row mb-2 ">
+                        <div class="form-floating col">
+                            <input type="text" 
+                            id="inicio" 
+                            class="form-control input-rec date-picker-default" 
+                            name="inicio"
+                            placeholder="."
+                            readonly="true"
+                            data-date-format='dd/mm/yyyy' >                               
+                            <label>Inicio:</label>
+                        </div>
+                        <div class="form-floating col">
+                            <input type="text" 
+                            id="fin" 
+                            class="form-control input-rec date-picker-default" 
+                            name="fin"
+                            placeholder="."
+                            readonly="true"
+                            data-date-format='dd/mm/yyyy'>
+                            <label>Fin:</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <h4 class="page-title">Inicio</h4>
+            <!-- <div class="row mb-2">
+                <div class="form-floating col">
+                    <input type="text" 
+                    id="inicio" 
+                    class="form-control input-rec date-picker-default" 
+                    name="inicio"
+                    placeholder="."
+                    readonly="true"
+                    data-date-format='dd/mm/yyyy' >                               
+                    <label>Inicio:</label>
+                </div>
+                <div class="form-floating col">
+                    <input type="text" 
+                    id="fin" 
+                    class="form-control input-rec date-picker-default" 
+                    name="fin"
+                    placeholder="."
+                    readonly="true"
+                    data-date-format='dd/mm/yyyy'>
+                    <label>Fin:</label>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-30">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="text-center">
+                    <div class="avatar-sm bg-soft-secondary rounded">
+                        <i class="fe-book-open avatar-title font-22 text-secondary"></i>
+                    </div>
+                </div>
+                {% for row in avance_juicios %}
+                <h5 class="card-title">Juicios</h5>
+                <h4 class="total_cartas">{{row.juicios_ }}</h4>
+                
+                <!-- <div class="row">
+                    <div class="col-6 col-sm-6 mb-15">
+                        <div class="counter counter-small">
+                            <h4 class="text-secondary cartas">{{row.estatal_ }}</h4>
+                            <label class="text-capitalize mt-0">Estatal</label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-6 mb-15">
+                        <div class="counter counter-small">
+                            <h4 class="text-secondary correos">{{row.federal_ }}</h4>
+                            <label class="text-capitalize mt-0">Federal</label>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br> -->
+                <div class="row mt-20">
+                    <div class="col-md-6 mb-20">
+                        <h4 class="text-secondary cartas">{{row.estatal_ }}</h4>
+                        <p class="mb-10">Estatal</p>
+                        <div class="progress progress-small">
+                            <div class="skill2-bar bg-info" role="progressbar"
+                                style="width: {{row.avance_estatal_|unlocalize}}%"
+                                aria-valuenow="{{row.avance_estatal_|unlocalize}}" aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                        <p class="mt-10 text-info">{{row.avance_estatal_|unlocalize}}%</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="text-secondary correos">{{row.federal_ }}</h4>
+                        <p class="mb-10">Federal</p>
+                        <div class="progress progress-small">
+                            <div class="skill2-bar bg-info" role="progressbar"
+                                style="width: {{row.avance_federal_|unlocalize}}%"
+                                aria-valuenow="{{row.avance_federal_|unlocalize}}" aria-valuemin="0"
+                                aria-valuemax="100">
+                            </div>
+                        </div>
+                        <p class="mt-10 text-info">{{row.avance_federal_|unlocalize}}%</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Avance Mensual de Juicios</h5>
+                <div id="morris-bar-juicios" style="height: 320px;"></div>
+                <div class="text-center">
+                    <ul class="list-inline card-detail-list m-b-0">
+                        <li class="list-inline-item">
+                            <i class="fa fa-circle mr-2 icon-vigilancia"></i>FEDERALES
+                        </li>
+                        <li class="list-inline-item">
+                            <i class="fa fa-circle mr-2 icon-entrevista"></i>ESTATALES
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> Sentencias 1ra. instancia en numero
+                </h4>
+                <div id="morris-sentencias-primera"></div>
+                <h5 class=""> Recibidas: {% for row in avance_sentencias_primera %} {{ row.sentencias_recibidas_}} <br><br> Favorable: {{ row.porcentaje_favorables_|floatformat}} % {% endfor %} </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> Sentencias 1ra. instancia en monto
+                </h4>
+                <div id="morris-sentencias-primera-monto"></div>
+                <h5 class=""> {% for row in avance_sentencias_primera %} Favorable: {{ row.porcentaje_favorables_m_|floatformat}} % {% endfor %} <br><br><br> </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> Sentencias 2da. instancia en numero
+                </h4>
+                <div id="morris-sentencias-segunda"></div>
+                <h5 class=""> Recibidas: {% for row in avance_sentencias_segunda %} {{ row.sentencias_recibidas_}} <br><br> Favorable: {{ row.porcentaje_favorables_|floatformat}} % {% endfor %} </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> Sentencias 2da. instancia en monto
+                </h4>
+                <div id="morris-sentencias-segunda-monto"></div>
+                <h5 class=""> {% for row in avance_sentencias_segunda %} Favorable: {{ row.porcentaje_favorables_m_|floatformat}} % {% endfor %} <br><br><br> </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> RR numero
+                </h4>
+                <div id="morris-firmeza"></div>
+                <h5 class=""> Recibidas: {% for row in context_firmeza %} {{ row.firmeza_recibidas_}} <br><br> Favorable: {{ row.porcentaje_favorables_|floatformat}} % {% endfor %} </h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title negritas centrado"> RR monto
+                </h4>
+                <div id="morris-firmeza-monto"></div>
+                <h5 class=""> {% for row in context_firmeza %} Favorable: {{ row.porcentaje_favorables_m_|floatformat}} % {% endfor %} <br><br><br> </h5>
+            </div>
+        </div>
+    </div>
+   
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                        <h5 class="card-title">Notificación y contestación</h5>
+                    </div>
+                </div>
+                <div class="table-responsive mt-15">
+                    <table id="Table_Programs" class="table center-aligned-table table-sm mb-0">
+                        <thead>
+                            <tr class="text-dark" style="border-bottom: white;">
+                                <th colspan="1">Pendientes</th>
+                                <th colspan="2">Notificadas</th>
+                                <th colspan="1">Contestadas</th>
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in notificacion_contestacion %}
+                            <tr>
+                                <td class="text-warning">
+                                    <strong>{{ row.juicios_pendientes_|unlocalize }}</strong>
+                                </td>
+                                <td class="text-success">
+                                    <strong>{{ row.juicios_capturados_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-secondary">
+                                    <strong>{{ row.monto_juicios_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.juicios_contestados_|unlocalize|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+<!--                             <tr>
+                                <th>Total</th>
+                                <th class="total text-success"></th>
+                                <th class="total text-secondary"></th>
+                                <th class="total text-primary"></th>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                        <h5 class="card-title">Sentencias 1ra instancia</h5>
+                    </div>
+                </div>
+                <div class="table-responsive mt-15">
+                    <table id="Table_Programs" class="table center-aligned-table table-sm mb-0">
+                        <thead>
+                            <tr class="text-dark" style="border-bottom: white;">
+                                <th colspan="2">Pendientes</th>
+                                <th colspan="2">Sobreseimiento</th>
+                                <th colspan="2">Validez</th>
+                                <th colspan="2">Validez parcial</th>
+                                <th colspan="2">Nulidad lisa y llana</th>
+                                <th colspan="2">Nulidad para efectos</th>
+                            </tr>
+                            <tr>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in avance_sentencias_primera %}
+                            <tr>
+                                <td class="text-warning">
+                                    <strong>{{ row.juicios_|unlocalize }}</strong>
+                                </td>
+                                <td class="text-success">
+                                    <strong>{{ row.juicios_monto_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-secondary">
+                                    <strong>{{ row.sobreseimiento_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.sobreseimiento_m_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.validez_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.validez_monto_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.validez_parcial|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.validez_parcial_m_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.nulidad_lisa_llana|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.nulidad_lisa_llana_m_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.nulidad_efectos_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.nulidad_efectos_m|unlocalize|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                        <h5 class="card-title">Sentencias 2da instancia</h5>
+                    </div>
+                </div>
+                <div class="table-responsive mt-15">
+                    <table id="Table_Programs" class="table center-aligned-table table-sm mb-0">
+                        <thead>
+                            <tr class="text-dark" style="border-bottom: white;">
+                                <th colspan="2">Pendientes</th>
+                                <th colspan="2">Impugnadas</th>
+                                <th colspan="8" class="centrado">Amparos</th>
+                                <th colspan="8" class="centrado">Recurso de revision</th>
+
+                                <!-- <th colspan="2">Niega amparo</th>
+                                <th colspan="2">Sobrese</th>
+                                <th colspan="2">Desecha</th>
+                                <th colspan="2">Concede amparo</th> -->
+                            </tr>
+                            <tr style="border-bottom: white;">
+                                <th rowspan="2" style="border-bottom-color: #dee2e6;">N°</th>
+                                <th rowspan="2" style="border-bottom-color: #dee2e6;">Monto</th>
+                                <th rowspan="2" style="border-bottom-color: #dee2e6;">N°</th>
+                                <th rowspan="2" style="border-bottom-color: #dee2e6;">Monto</th>
+                                <th colspan="2">Niega amparo</th>
+                                <th colspan="2">Sobrese</th>
+                                <th colspan="2">Desecha</th>
+                                <th colspan="2">Concede amparo</th>
+                                <th colspan="2">Fundado</th>
+                                <th colspan="2">Infundado</th>
+                                <th colspan="2">Desecha</th>
+                                <th colspan="2">Sin materia</th>
+                            </tr>
+                            <tr>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                                <th>N°</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in avance_sentencias_segunda %}
+                            <tr>
+                                <td class="text-primary">
+                                    <strong>{{ row.juicios_|unlocalize }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.juicios_monto_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.impugnadas_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.impugnadas_monto_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.niega_amparo_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.niega_amparo_m_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.sobrese_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.sobrese_m_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.desecha_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.desecha_m_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.concede_amparo_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.concede_amparo_m_|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.fundado_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.fundado_m|default:"0"|default_if_none:0|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.infundado_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.infundado_m|default:"0"|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.recurso_desecha_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.recurso_desecha_m|default:"0"|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.sin_materia_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-primary">
+                                    <strong>{{ row.sin_materia_m|default:"0"|unlocalize|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-6 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                        <h5 class="card-title">Firmeza</h5>
+                    </div>
+                </div>
+                <div class="table-responsive mt-15">
+                    <table id="Table_Programs" class="table center-aligned-table table-sm mb-0">
+                        <thead>
+                            <tr class="text-dark" style="border-bottom: white;">
+                                <th>Notificada</th>
+                                <th>Monto</th>
+                                <th>Resolucion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in firmeza_listado %}
+                            <tr>
+                                <td class="text-warning">
+                                    <strong>{{ row.firmeza_|unlocalize }}</strong>
+                                </td>
+                                <td class="text-success">
+                                    <strong>{{ row.firmeza_m_|unlocalize|intcomma }}</strong>
+                                </td>
+                                <td class="text-secondary">
+                                    <strong>{{ row.resolucion_|unlocalize|intcomma }}</strong>
+                                </td>
+                            </tr>
+                            {% endfor %}
+<!--                             <tr>
+                                <th>Total</th>
+                                <th class="total text-success"></th>
+                                <th class="total text-secondary"></th>
+                                <th class="total text-primary"></th>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>   
+</div>
+
+
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/morris.js06/morris.min.js' %}"></script>
+<script src="{% static 'assets/libs/raphael/raphael.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/morris.init.js' %}"></script>
+
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+
+<!-- Plugins js-->
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        })
+        //.datepicker("setDate", new Date()); Para asignar el valor fecha del dia 
+        $('.date-picker-default').css("background-color", "transparent");
+      let searchParams = new URLSearchParams(window.location.search);
+      let inicio = searchParams.get('inicio');
+      let fin = searchParams.get('fin');
+      let fecha_actual = new Date();
+      let value;
+      if(inicio !== null && fin !== null){
+          value = String(inicio)
+          value1 = String(fin)
+      }
+      else{
+          value = String('01/01/'+fecha_actual.getFullYear());
+          value1 = String('31/12/'+fecha_actual.getFullYear());
+      }
+
+      //$("#year option[value='" + value + "']").attr('selected', 'selected')
+      $("#inicio").val(value);
+      $("#fin").val(value1);
+      $("#inicio").change(function() {
+        $("#fin").val(null);                      
+      });
+      $("#fin").change(function() {
+        if ( $("#fin").val() < $("#inicio").val() ){
+            toastr.error('Corrige el plazo');
+            return;
+        }     
+
+        this.form.submit();
+              
+      });
+	
+      var total_cartas = $('.total_cartas').text();
+      $('.total_cartas').text(total_cartas.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+      
+      var cartas = $('.cartas').text();
+      $('.cartas').text(cartas.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+      
+      var correos = $('.correos').text();
+      $('.correos').text(correos.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+		
+		
+		Morris.Bar({
+            element: 'morris-bar-juicios',
+            data: [
+			{% for avance in avance_mensual_Juicios %}
+				{ y: 
+					{% if avance.periodo_ == 1.0 %}
+						'Ene {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 2.0 %}
+						'Feb {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 3.0 %}
+						'Mar {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 4.0 %}
+		    			'Abr {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 5.0 %}
+						'May {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 6.0 %}
+						'Jun {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 7.0 %}
+						'Jul {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 8.0 %}
+						'Ago {{ avance.total_|unlocalize }}',
+					{% elif avance.periodo_ == 9.0 %}
+						'Sep {{ avance.total_|unlocalize }}',
+                    {% elif avance.periodo_ == 10.0 %}
+						'Oct {{ avance.total_|unlocalize }}',
+                    {% elif avance.periodo_ == 11.0 %}
+						'Nov {{ avance.total_|unlocalize }}',
+                    {% elif avance.periodo_ == 12.0 %}
+						'Dic {{ avance.total_|unlocalize }}',
+					{% endif %}
+					a: {{avance.federal_|unlocalize}},
+					b: {{avance.estatal_|unlocalize}},
+				},
+			{% endfor %}
+            ],
+            xkey: 'y',
+            ykeys: ['a','b'],
+            stacked: true,
+            labels: ['Federales', 'Estatales'],
+            hideHover: 'auto',
+            resize: true,
+            gridLineColor: '#efefef',
+            barColors: ['#0069c0', '#6e7079']
+        });
+			
+		Get_Advance();
+
+    /* GRAFICAS CON FUNCIONES ESPECIFICAS */
+
+    Morris.Donut({
+      element: 'morris-sentencias-primera',
+      data: [
+        {% for row in avance_sentencias_primera %}
+			{label: "Favorables", value: {{row.favorables_}} },
+            {label: "Desfavorables", value: {{row.no_favorables_}}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+
+    Morris.Donut({
+      element: 'morris-sentencias-primera-monto',
+      data: [
+        {% for row in avance_sentencias_primera %}
+			{label: "Favorables", value: {{row.favorables_m_}} },
+            {label: "Desfavorables", value: {{row.no_favorables_m_}}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+
+    Morris.Donut({
+      element: 'morris-sentencias-segunda',
+      data: [
+        {% for row in avance_sentencias_segunda %}
+			{label: "Favorables", value: {{row.favorables_}} },
+            {label: "Desfavorables", value: {{row.no_favorables_}}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+
+    Morris.Donut({
+      element: 'morris-sentencias-segunda-monto',
+      data: [
+        {% for row in avance_sentencias_segunda %}
+			{label: "Favorables", value: {{ row.favorables_m_|default_if_none:0 }} },
+            {label: "Desfavorables", value: {{ row.no_favorables_m_|default_if_none:0 }}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+
+    Morris.Donut({
+      element: 'morris-firmeza',
+      data: [
+        {% for row in context_firmeza %}
+			{label: "Favorables", value: {{row.favorables_}} },
+            {label: "Desfavorables", value: {{row.no_favorables_}}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+
+    Morris.Donut({
+      element: 'morris-firmeza-monto',
+      data: [
+        {% for row in context_firmeza %}
+			{label: "Favorables", value:  {{ row.favorables_m_|default_if_none:0 }} },
+            {label: "Desfavorables", value:  {{ row.no_favorables_m_|default_if_none:0 }}  },
+		{% endfor %}
+      ],
+      resize: true,
+      colors: ['#0D47A1','#a10d37','#64B5F6']
+    });
+       
+    });
+	
+    
+	function Get_Advance(){
+        var total_presuntiva = 0;
+        var total_padrones = 0;
+        var total_programacion = 0;
+		    var total_vigilancia = 0;
+        var total_total = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_Programs').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        $('#Table_Programs').find('.total').each(function (index, element) {
+            var total = getSum(index + 1);
+            $(this).text(total);
+        });
+
+    }
+
+
+</script>
+{% endblock extrajs %}

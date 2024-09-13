@@ -1,0 +1,200 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                                            {% comment %} "Add_Modal('{% url 'juridico_app:alta-demanda' %}')" {% endcomment %}
+                                            {% comment %} "Add_Modal('{% url 'juridico_app:alta-demanda' %}')" {% endcomment %}
+                {% comment %} <button id="btNew" onclick='location.href="{% url 'juridico_app:alta-demanda' %}"'
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Demanda
+                </button> 
+                <button id="btNew1" onclick="Add_Modal('{% url 'juridico_app:alta-mouse' %}')"
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Mouse
+                </button>  {% endcomment %}
+                <a href="{% url 'juridico_app:juridico' %}" 
+                    class="btn btn-primary  rounded-pill">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">{% block titulo %} {% endblock titulo %}</h4>
+        </div>
+    </div>
+</div>
+
+{% comment %} <div class="" id = "addSection" >
+    {% include 'juridico/alta_demanda.html' %} 
+</div> {% endcomment %}
+{% comment %} <hr> {% endcomment %}
+
+<div class="col-xl-12">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="header-title">Datos de Juicio</h4>
+            <form id="form_alta_demanda" action="{% url 'juridico_app:edita-demanda' demanda.id %}" method="POST"
+                        enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="row mb-2">
+                                <div class="col">                                 
+                                    <label>Tipo de Juicio:</label>
+                                    {{ form.juicio }}
+                                </div>
+                                <div class="col">
+                                    <label>Subtipo:</label>
+                                    {{ form.subtipo }}
+                                </div>
+                                <div class="col">
+                                    <label>No. Carpeta:</label>
+                                    {{ form.carpeta }}
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">                                
+                                <div class="col">
+                                    <label>No. Expediente:</label>
+                                    {{ form.expediente }}
+                                </div>
+                                <div class="col">
+                                    <label>Tribunal:</label>
+                                    {{ form.tribunal }}
+                                </div>                   
+                                <div class="col">
+                                    <label>Fecha Aviso:</label>
+                                    {{ form.fecha_aviso }}
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Fecha Notificacion:</label>
+                                    {{ form.fecha_notificacion }}
+                                </div>
+                                <div class="col">
+                                    <label>Fecha Vencimiento Fatal:</label>
+                                    {{ form.fecha_fatal }}
+                                </div>
+                                <div class="col">
+                                    <label>Fecha Vencimiento Interno:</label>
+                                    {{ form.fecha_interno }}
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Abogado Dicatminador:</label>
+                                    {{ form.dictaminador }}
+                                </div>
+                                <div class="col">
+                                    <label>Estado Procesal:</label>
+                                    {{ form.estado_procesal }}
+                                </div>
+                            </div>
+                            <hr>
+                                {% comment %} OTRA SECCION {% endcomment %}
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Autoridad:</label>
+                                    {{ form.autoridad }}
+                                </div>
+                                <div class="col">
+                                    <label>Resolucion Impugnada:</label>
+                                    {{ form.resolucion_impg }}
+                                </div>
+                                <div class="col">
+                                    <label>Cuantia:</label>
+                                    {{ form.cuantia }}
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Materia:</label>
+                                    {{ form.materia }}
+                                </div>
+                                <div class="col">
+                                    <label>Contribuyente:</label>
+                                    {{ form.contribuyente }}
+                                </div>
+                                <div class="col">
+                                    <label>Abogado Promovente:</label>
+                                    {{ form.abogado_prom }}
+                                </div>
+                            </div>
+            
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Fecha Resolucion:</label>
+                                    {{ form.fecha_resolucion }}
+                                </div>
+                                <div class="col">
+                                    <label>Resolucion Recurrida:</label>
+                                    {{ form.resolucion_rec }}
+                                </div>
+                                <div class="col">
+                                    <label>Autoridad Recurrida:</label>
+                                    {{ form.autoridad_rec }}
+                                </div>
+                            </div>
+                            <hr>
+                            
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <label>Contestacion:</label>
+                                    {{ form.fecha_contestacion }}
+                                </div>
+                                <div class="col">
+                                    <label>Oficio:</label>
+                                    {{ form.oficio }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button id="btnAdd" type="submit" class="btn btn-primary">Actualizar</button>
+                        </div>
+
+                    </form>            
+        </div>
+    </div> <!-- end card-->
+</div> <!-- end col -->
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.date-picker-default').datepicker({
+            format: 'dd/mm/yyyy'
+        });
+        $('.date-picker-default').css("background-color", "white");
+    });
+    
+    $(function () {
+        $("#form_alta_demanda").submit(function (e) {
+            $("#btnAdd").attr("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endblock extrajs %}

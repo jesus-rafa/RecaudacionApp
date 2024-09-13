@@ -1,0 +1,191 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Agregar Detalle</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_detalle" action="{% url 'programacion_app:alta-detalle' programa_id %}" method="POST">{% csrf_token %}
+            <div class="modal-body p-4">
+
+                <div class="row" id="datos_generales">                
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            Oficio: <h4><strong id="lbOficio" class="sateg-negritas"></strong></h4>
+                            {{ form.programa_id }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            RFC: <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">  
+                    <div class="col-md-12">                                  
+                        <div class="form-floating col mb-2">
+                            {{ form.fecha }}
+                            <label id="lbFecha">{{ form.fecha.label }}</label>
+                        </div>
+
+                        <label class="text-danger" id="validar_fecha"></label>
+                    </div>
+                </div>
+
+                <div class="row" id="select_etapa">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label id="lbEtapa" clas="etiqueta-combo">Etapa</label>
+                            <select name="etapa" id="id_etapa" class="form-control selectize-select">
+                                {% for item in etapas %}
+                                    <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label id="lbEstatus" class="etiqueta-combo">Estatus</label>
+                            <select name="estatus" id="id_estatus" class="form-control selectize-select">
+                                {% for item in estatus %}
+                                    <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}    
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="transferir_ejecucion" class="col-md-12">
+                        <div class="mb-2 text-center">
+                            <label>Proponer Transferencia a Ejecución:</label>
+                            <div class="switchery-demo">
+                                <input type="checkbox" 
+                                    id="ck_ejecucion"
+                                    name="ck_ejecucion"
+                                    data-size="small"
+                                    data-plugin="switchery" 
+                                    data-color="#363636" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label id="lbComentarios">{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnGuardar" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('#transferir_ejecucion').hide();
+
+        {% if lista_estatus %}
+        const lista_estatus = {{ lista_estatus|safe }};
+
+        var selectize = $(document.getElementById('id_estatus'))[0].selectize;
+        selectize.setValue('');
+
+        if(lista_estatus !== []){
+            var estatus_inicial = lista_estatus.filter(e => e.valor == 82);
+            if (estatus_inicial != null){
+                var selectize = $(document.getElementById('id_estatus'))[0].selectize;
+                selectize.setValue('');
+                selectize.clearOptions();
+                estatus_inicial.forEach(function(elemento){
+                    selectize.addOption({value: elemento.id, text: elemento.comentario});
+                });
+                selectize.setValue(estatus_inicial[0].id);
+            }
+        }
+        
+        $('#id_etapa').change(function () {    
+            let etapa = $(this).val();
+            let estatus =  lista_estatus.filter(e => e.valor == etapa);
+            if (estatus != null){
+                let selectize = $(document.getElementById('id_estatus'))[0].selectize;
+                selectize.setValue('');
+                selectize.clearOptions();
+                estatus.forEach(function(elemento){
+                    selectize.addOption({value: elemento.id, text: elemento.comentario});
+                });
+                selectize.setValue(estatus[0].id);
+            }
+        });
+
+        $('#id_estatus').change(function () {    
+            let estatus = $(this).text();
+            if(estatus == 'PARA TRANSFERIR'){
+                $('#transferir_ejecucion').show();
+            }else{
+                $('#transferir_ejecucion').hide();
+            }
+        });
+        {% endif %}
+
+        $("#btnGuardar").click(function () {
+
+            var fecha_minima = new Date();
+            fecha_minima.setDate(fecha_minima.getDate() - 8);
+
+            var arregloFecha = $('#id_fecha').val().split("/");
+            var anio = arregloFecha[2];
+            var mes = arregloFecha[1] - 1;
+            var dia = arregloFecha[0];
+            var fecha_capturada = new Date(anio, mes, dia);
+
+            if(fecha_capturada >= fecha_minima){
+                $('#validar_fecha').html('');
+                return true;
+            }else{
+                $('#validar_fecha').show();
+                $('#validar_fecha').html('Maximo 7 dias atrás**');
+                $('#validar_fecha').fadeOut(4000);
+                return false;
+            }
+
+        });
+
+		$("#form_alta_detalle").submit(function (e) {
+
+            {% if lista_estatus %}
+            if($('#ck_ejecucion').is(':checked')){
+                let comentarios = $("[name='comentarios']").val();
+                $("[name='comentarios']").val(comentarios + ' [Se propone transferencia a EJECUCIÓN]');
+            }
+            {% endif %}
+
+            $("#btnGuardar").attr("disabled", true);
+            return true;
+        });
+
+    });
+</script>
+{% endblock extrajs %}

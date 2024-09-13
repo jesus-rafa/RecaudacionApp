@@ -1,0 +1,287 @@
+{% comment %}
+    {% load static %}
+    {% load tags %}
+    <div class="modal-dialog modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Resolutor</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            {% csrf_token %}
+            <div class="modal-body">
+                {% for row in detalle %}
+                <div class="row mb-3">
+                    <div class="col">
+                        Solicitante : <label><b>{{ row.solicitante.rfc }}</b></label>
+                    </div>
+                    <div class="col">
+                        Carpeta / Expediente : <label><b>{{ row.carpeta }}</b></label>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        Oficio : <label><b>{{ row.oficio }}</b></label>
+                    </div>
+                    <div class="col">
+                        Abogado :
+                        <label><b>{{row.abogado}}</b></label>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">            
+                    </div>
+                </div>
+                {% endfor%}
+            </div>
+            <table id="tableRequisitos" class="table table-hover m-0 table-centered dt-responsive nowrap w-100 centrado">
+                <thead>
+                    <tr>
+                        <th>Requisito</th>
+                        <th>Entregado / Revisado</th>
+                        <th>Obligatorio</th>
+                        <th>Archivo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in archivos %}
+                    <tr>
+                        <td>{{item.requisito}}</td>
+                        {% if item.archivo %}
+                        <td>
+                            <div class="icon-item">
+                                <i data-feather="check" class="icon-dual-success"></i>
+                                /
+                                {% if item.estatus == creacion %}
+                                    <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                                {% elif item.estatus == aceptado %}
+                                    <i data-feather="check" class="icon-dual-success"></i>
+                                {% else %}
+                                    <i data-feather="x" class="icon-dual-danger"></i>                           
+                                {% endif %}
+                            </div>                                    
+                        </td>
+                        {% else %}
+                        <td>
+                            <div class="icon-item">
+                                <i data-feather="x" class="icon-dual-danger"></i>
+                                /
+                                {% if item.estatus == creacion %}
+                                    <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                                {% elif item.estatus == aceptado %}
+                                    <i data-feather="check" class="icon-dual-success"></i>
+                                {% else %}
+                                    <i data-feather="x" class="icon-dual-danger"></i>                           
+                                {% endif %}
+                            </div>
+                        </td>
+                        {% endif %}
+                        <td>{{item.requisito.obligatorio}}</td>
+                        {% if item.archivo %}                            
+                        <td>
+                            <a href="/media/{{ item.archivo }}" title="{{ item.archivo|cut:'juridico/resolutor/' }}" class="btn btn-outline-secondary waves-effect mr-2" target="_blank" download><i class="ti-file"></i></a></td>
+                        </td>
+                        {% else %}
+                        <td>
+                            <div class="icon-item">
+                                <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                            </div>
+                        </td>
+                        {%endif%}   
+                        <td>
+                            <div class="btn-group dropdown">
+                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                    {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                    {% endif %}
+                                    {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                    {% endif %}
+                                    {% if perfil_usuario == "RESOLUTORES" %}
+                                    {% endif %}
+                                    <a type="button" onclick="revision(`{% url 'juridico_app:resolutorAceptar' item %}`)" class="dropdown-item"> <!-- onclick="abrirModal(`{% url 'juridico_app:resolutorAceptar' item %}`)"  onclick="recargaModal(`{% url 'juridico_app:resolutorAceptar' item %}`)"-->
+                                        <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Aceptar</a>
+                                    <a type="button" onclick="revision(`{% url 'juridico_app:resolutorRechazar' item %}`)" class="dropdown-item"> <!--  onclick="abrirModal(`{% url 'juridico_app:resolutorRechazar' item %}`)" -->
+                                        <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Rechazar</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>   
+            <form id="form-altaDetalle" action="{% url 'juridico_app:resolutorRevision' id %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}            
+                <div class="row justify-content-center">
+                    <div class="col-md-11" style="border: 1px solid #dee2e6;">
+                        <div class="row opciones">
+                            <input type="hidden" id="resolutor" name="resolutor" value="{{id}}">
+                            <input type="hidden" id="usuario" name="usuario" value="{{usuario_id}}">
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="etiqueta-combo" for="listado_estatus">{{form.etapa.label}}</label>
+                                    {{form.etapa}}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-2">
+                                    <label class="etiqueta-combo" for="listado_etapa">{{form.estatus.label}}</label>
+                                    {{form.estatus}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <div class="form-floating col">
+                                    {{form.comentarios}}
+                                    <label id="lbComentarios">{{form.comentarios.label}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2 px-2 pull-right">
+                            <div class="col">
+                                <button type="submit" class="btn fondo-boton">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="mb-3">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#tab-01" id="tab-head-01" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link active">
+                            Seguimiento
+                        </a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a href="#tab-02" id="tab-head-02" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            DETALLE
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab-03" id="tab-head-03" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            PROCESOS
+                        </a>
+                    </li> -->
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="tab-01">
+                    {% for row in detalle_tab %}
+                    <div class="row justify-content-center">
+                        <div class="col-md-11" style="border: 1px solid #dee2e6;"> 
+                            <div class="row">
+                                <div class="col-1">
+                                    <div class="float-end">
+                                    {% get_user_avatar_id row.usuario.id as avatar %}
+                                    {% if avatar %}
+                                        <img src="{{ avatar }}" alt="{% get_user_info_id row.usuario.id %}" class="img-fluid avatar-sm rounded mt-2">
+                                    {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" title="{% get_user_info_id row.usuario.id %}" class="img-fluid avatar-sm rounded mt-2">
+                                    {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-10">
+                                    <div class="inbox-widget" data-simplebar>
+                                        <div class="inbox-item">
+                                            <p class="inbox-item-text">
+                                                {{ row.created }} | {{ row.estatus.nombre }}
+                                            </p>
+                                            {% get_user_info_id row.usuario.id %} 
+
+                                            <br>
+                                            {% get_puesto row.usuario.id as puesto %}
+                                            <p class="inbox-item-text {% if puesto == 'JEFE COBRO 2' %}text-primary{% endif %}">
+                                                {{ puesto }} 
+                                            </p>
+                                            <p class="inbox-item-text">
+                                                --
+                                            </p>
+                                            {% if row.comentarios %}
+                                                {{row.comentarios }}
+                                            {% endif %}
+                                        </div>
+                                    </div>    
+                                </div>
+                                <div class="col-1 float-end">
+                                    <div class="btn-group dropdown float-end" style="top: 15px;">
+                                        <a href="javascript: void(0);" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                            aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a onclick="Editar_Detalle('{% url 'programacion_app:editar-detalle' row.id %}', '{{row.id}}')"
+                                                class="dropdown-item" href="#">
+                                                <i class="fas fa-pen me-2 text-muted font-18 vertical-middle"></i>Editar</a>
+                                            <a onclick="Delete_Detail('{% url 'juridico_app:detalle-eliminar' row.id %}')"
+                                                class="dropdown-item" href="#"><i
+                                                    class="fas fa-times me-2 text-muted font-18 vertical-middle"></i>Eliminar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    {% block extrajs %}
+    <script src="{% static 'assets/js/app.min.js' %}"></script>   
+    <!-- <script src="{% static 'ssets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script> -->
+    <script>
+    </script>
+    {% endblock extrajs %}
+{% endcomment %}
+
+<div class="modal-dialog modal-lg" tabindex="-1" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Rechaza requisito</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        {% csrf_token %}
+        <div class="modal-body">
+        </div>
+        <form id="formRechazo"method="POST">
+            {% csrf_token %}            
+            <div class="row justify-content-center">
+                <div class="col-md-11" style="border: 1px solid #dee2e6;">
+                    <div class="row opciones">
+                        <input type="hidden" id="resolutor" name="resolutor">
+                        <input type="hidden" id="usuario" name="usuario">
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-12">
+                            <div class="form-floating col">
+                                <!-- <input type="text" id="comentarios" name="comentarios">
+                                <textarea id="comentarios" name="comentarios" rows="10" cols="10"></textarea>
+                                <label id="lbComentarios">Comentarios</label> -->
+                                <textarea name="comentarios" id="comentarios" class="form-control input-area-rec float-label" rows="3" cols="3" placeholder=" " maxlength="500">
+                                </textarea>
+                                <label for="comentarios">Motivo del rechazo</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2 px-2 pull-right">
+                        <div class="col">
+                            <button type="submit" class="btn fondo-boton">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>

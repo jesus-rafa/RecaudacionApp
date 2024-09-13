@@ -1,0 +1,977 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+{% block title %} Inicio {% endblock title %}
+
+{% block head %}
+<!-- Vue Js -->
+<style>
+  .icon-vigilancia{
+    color: #0069c0;
+  }
+  .icon-programacion{
+    color: #6e7079;
+  }
+  .icon-padrones{
+    color: #2196f3;
+  }
+  
+  .icon-entrevista{
+    color: #6e7079;
+  }
+  .icon-notificadas{
+    color: #2196f3;
+  }
+  .icon-autorizadas{
+    color: #0069c0;
+  }
+  .icon-concluidas{
+	color: #969aa2;
+  }
+</style>
+{% endblock head %}
+
+{% block content %}
+
+
+<div style="display: none;" id="gif" class="text-center col-md-12">
+  <img src="{% static 'images/confetti-25.gif' %}" alt="">
+</div>
+
+<div class="row">
+  <div class="col-12">
+      <div class="page-title-box">
+          <!-- <div class="page-title-right">
+              <form class="d-flex align-items-center mb-3">
+                  <div class="input-group input-group-sm">
+                      <input type="text" class="form-control border" id="dash-daterange">
+                      <span class="input-group-text bg-blue border-blue text-white">
+                          <i class="mdi mdi-calendar-range"></i>
+                      </span>
+                  </div>
+                  <a href="javascript: void(0);" class="btn btn-blue btn-sm ms-2">
+                      <i class="mdi mdi-autorenew"></i>
+                  </a>
+                  <a href="javascript: void(0);" class="btn btn-blue btn-sm ms-1">
+                      <i class="mdi mdi-filter-variant"></i>
+                  </a>
+              </form>
+          </div> -->
+          <h4 class="page-title">Inicio</h4>
+      </div>
+  </div>
+</div> 
+
+
+<div class="row">
+
+  <div class="col-xl-4 mb-30">
+    <div class="card">
+      <div class="card-body text-center">
+
+        
+		{% for rec in recaudado %}
+		<div class="row">
+			<div class="col-6 col-sm-6 mb-15">
+			
+				 <div class="avatar-sm bg-soft-danger rounded">
+                    <i class="fe-bar-chart-2 avatar-title font-22 text-warning"></i>
+                 </div>
+				
+			</div>
+			<div class="col-6 col-sm-6 mb-15">
+				 <div class="float-right text-right">
+                  <p class="card-text text-dark">Avance</p>
+                  <h4 class="text-success">{{rec.avance_|unlocalize}}%</h4>
+                </div>
+			</div>
+		</div>
+        
+
+        <h5 class="card-title">Recaudado</h5>
+		
+        <h4>$ {{rec.total_|unlocalize|intcomma}} </h4>
+		<input type="hidden" id="hfGif" value="{{ rec.total_|unlocalize }}"/>
+		
+        <div class="mt-15 clearfix">
+          <div class="progress progress-small">
+            <div class="skill2-bar bg-success" role="progressbar" style="width: {{rec.avance_|unlocalize}}%" aria-valuenow="{{rec.avance_|unlocalize}}"
+              aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+		<br>
+        <div class="row">
+          <div class="col-6 col-sm-6 mt-20">
+            <b>Vigilancia</b>
+            <p class="text-success">$ {{rec.vigilancia_|unlocalize|intcomma}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-20">
+            <b>Padrones</b>
+            <p class="text-info">$ {{rec.padrones_|unlocalize|intcomma}}</p>
+          </div>
+
+        </div>
+        <div class="row">
+          <div class="col-12 col-sm-12 mt-20">
+            <b>Programacion</b>
+            <p class="text-secondary">$ {{rec.programacion_|unlocalize|intcomma}}</p>
+          </div>
+        </div>
+		{% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-xl-8 mb-30">
+          <div class="card">
+            <div class="card-body">
+                <!-- <div class="tab nav-border" style="position: relative;"> -->
+                  <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                      <h5 class="card-title">Avance por Programa</h5>
+                    </div>
+                    <!-- <div class="d-block d-md-flex nav-tabs-custom"> -->
+                      <!-- <ul class="nav nav-tabs" id="myTab" role="tablist"> -->
+                        <!-- <li class="nav-item"> -->
+                          <!-- <a class="nav-link active show" id="months-tab" data-toggle="tab" href="#months" role="tab" aria-controls="months" aria-selected="true"> Months</a> -->
+                        <!-- </li> -->
+                        <!-- <li class="nav-item"> -->
+                          <!-- <a class="nav-link" id="year-tab" data-toggle="tab" href="#year" role="tab" aria-controls="year" aria-selected="false">Year </a> -->
+                        <!-- </li> -->
+                      <!-- </ul> -->
+                     <!-- </div> -->
+                   </div>
+                    <!-- <div class="tab-content" id="myTabContent"> -->
+                      <!-- <div class="tab-pane fade active show" id="months" role="tabpanel" aria-labelledby="months-tab"> -->
+					  
+					  <div class="table-responsive mt-15">
+						<table id="Table_Programs" class="table center-aligned-table mb-0">
+							<thead>
+								<tr class="text-dark">
+									<th>Programa_</th>
+									<th>Presuntiva</th>
+									<th>Padrones</th>
+									<th>Programacion</th>
+									<th>Vigilancia</th>
+									<th>Total</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for avance in avance_x_programa %}
+								<tr>
+									<td>{{ avance.programa_ }}</td>
+									<td class="col1 text-primary" text-align="right"><strong>{{ avance.presuntiva_|unlocalize|intcomma }}</strong></td>
+									<td class="col2 text-info" text-align="right"><strong>{{ avance.padrones_|unlocalize|intcomma }}</strong></td>
+									<td class="col3 text-secondary" text-align="right"><strong>{{ avance.programacion_|unlocalize|intcomma }}</strong></td>
+									<td class="col4 text-success" text-align="right"><strong>{{ avance.vigilancia_|unlocalize|intcomma }}</strong></td>
+									<td class="col5 text-primary" text-align="right"><strong>{{ avance.total_|unlocalize|intcomma }}</strong></td>
+								</tr>
+								{% endfor %}
+							</tbody>
+							<tfoot>
+								<tr>
+									<th>
+										<div class="text-right">
+											Total
+										</div>
+									</th>
+									<th class="total total_presuntiva text-primary"></th>
+									<th class="total total_padrones text-info"></th>
+									<th class="total total_programacion text-secondary"></th>
+									<th class="total total_vigilancia text-success"></th>
+									<th class="total total_total text-primary"></th>
+								</tr>
+							</tfoot>
+						</table>
+					  </div>
+					  
+                       
+						 
+                         
+                          
+                        <!-- </div>  -->
+                      <!-- <div class="tab-pane fade" id="year" role="tabpanel" aria-labelledby="year-tab"> -->
+                        
+                        
+                         
+                       
+                      <!-- </div> -->
+                    <!-- </div>  -->
+                <!-- </div> -->
+             </div>
+          </div>
+        </div>
+		
+   
+</div>
+
+
+<div class="row">
+
+	 <div class="col-xl-4 mb-30">
+    <div class="card">
+      <div class="card-body text-center">
+		{% for f in fafd %}
+		<div class="row">
+			<div class="col-6 col-sm-6 mb-15">
+				<div class="avatar-sm bg-soft-danger rounded">
+                    <i class="fe-bar-chart-2 avatar-title font-22 text-warning"></i>
+                 </div>
+			</div>
+			<div class="col-6 col-sm-6 mb-15">
+				 <div class="float-right text-right">
+                  <p class="card-text text-dark">Efectividad</p>
+                  <h4 class="text-success">{{f.efectividad_|unlocalize}}%</h4>
+                </div>
+			</div>
+		</div>
+        
+        <h5 class="card-title">Cobro Persuasivo</h5>
+		
+		<div class="row">
+		  <div class="col-6 col-sm-6 mt-15">
+		    <div class="counter counter-small">
+		     <h4 class="timer text-success" data-to="{{f.concluidos_|unlocalize}}" data-speed="5000">{{f.concluidos_|unlocalize}}</h4>
+             <label class="text-capitalize mt-0">Concluidas</label>
+			 </div>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <div class="counter counter-small">
+			  <h4 class="text-info">${{f.presuntiva_concluidas_|unlocalize}}M</h4>
+              <label class="text-capitalize mt-0">Presuntiva</label>
+			</div>
+          </div>
+        </div>
+		<div class="mt-15 clearfix">
+          <div class="progress progress-small">
+            <div class="skill2-bar bg-success" role="progressbar" style="width: {{f.efectividad_total_|unlocalize}}%" aria-valuenow="{{f.efectividad_total_|unlocalize}}"
+              aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+		 <div class="col-6 col-sm-6 mt-15">
+            <b>Seguimiento</b>
+            <p>{{f.seguimiento_|unlocalize}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <b>Presuntiva</b>
+            <p>$ {{f.presuntiva_seguimiento_|unlocalize}}M</p>
+          </div>
+        </div>
+		<div class="row">
+		 <div class="col-6 col-sm-6 mt-15">
+            <b>Por asignar</b>
+            <p>{{f.por_asignar_|unlocalize}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <b>Presuntiva</b>
+			{% if f.presuntiva_por_asignar_ %}
+            <p>$ {{f.presuntiva_por_asignar_|unlocalize}}M</p>
+			{% else %}
+			<p>$ 0M</p>
+			{% endif %}
+          </div>
+        </div>
+		<div class="row">
+		 <div class="col-6 col-sm-6 mt-15">
+            <b>Transferencias</b>
+            <p>{{f.transferencias_|unlocalize}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <b>Dias en seguimiento</b>
+            <p>{{f.dias_|unlocalize}}</p>
+          </div>
+        </div>
+   
+		{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 mb-30">
+    <div class="card">
+      <div class="card-body text-center">
+	  
+	  
+		<div class="text-center">
+			<div class="avatar-sm bg-soft-danger rounded">
+            <i class="fe-bar-chart-2 avatar-title font-22 text-warning"></i>
+        </div>
+		</div>
+        
+
+
+		{% for invitacion in avance_invitaciones %}
+        <h5 class="card-title">Invitaciones</h5>
+        <h4 class="total_cartas">{{invitacion.total_ }}</h4>
+		
+		<div class="row">
+          <div class="col-6 col-sm-6 mb-15">
+            <div class="counter counter-small">
+              <h4 class="text-secondary cartas" >{{invitacion.cartas_ }}</h4>
+              <label class="text-capitalize mt-0">Cartas</label>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 mb-15">
+            <div class="counter counter-small">
+              <h4 class="text-secondary correos">{{invitacion.correos_ }}</h4>
+              <label class="text-capitalize mt-0">Correos</label>
+            </div>
+          </div>
+        </div>
+		
+        <div class="row mt-20">
+          <div class="col-md-6 mb-20">
+            <p class="mb-10">Efectividad</p>
+            <div class="progress progress-small">
+              <div class="skill2-bar bg-info" role="progressbar" style="width: {{invitacion.efectividad_cartas_|unlocalize}}%" aria-valuenow="{{invitacion.efectividad_cartas_|unlocalize}}" aria-valuemin="0"
+                aria-valuemax="100"></div>
+            </div>
+            <p class="mt-10 text-info">{{invitacion.efectividad_cartas_|unlocalize}}%</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-10">Efectividad</p>
+            <div class="progress progress-small">
+              <div class="skill2-bar bg-info" role="progressbar" style="width: {{invitacion.efectividad_correos_|unlocalize}}%" aria-valuenow="{{invitacion.efectividad_correos_|unlocalize}}" aria-valuemin="0"
+                aria-valuemax="100"></div>
+            </div>
+            <p class="mt-10 text-info">{{invitacion.efectividad_correos_|unlocalize}}%</p>
+          </div>
+        </div>
+		{% endfor %}
+      </div>
+    </div>
+  </div>
+	
+		
+		<div class="col-xl-4 mb-30">
+    <div class="card">
+      <div class="card-body text-center">
+		{% for f in avance_fichas %}
+		<div class="row">
+			<div class="col-6 col-sm-6 mb-15">
+				 <div class="avatar-sm bg-soft-danger rounded">
+                    <i class="fe-bar-chart-2 avatar-title font-22 text-warning"></i>
+                 </div>
+			</div>
+			<div class="col-6 col-sm-6 mb-15">
+				 <div class="float-right text-right">
+                  <p class="card-text text-dark">Avance</p>
+                  <h4 class="text-success">{{f.total_|unlocalize}}%</h4>
+                </div>
+			</div>
+			<!-- <div class="col-6 col-sm-6 mb-15"> -->
+				 <!-- <div class="float-right text-right"> -->
+                  <!-- <p class="card-text text-dark">Efectividad</p> -->
+                  <!-- <h4 class="text-success">{{f.efectividad_|unlocalize}}%</h4> -->
+                <!-- </div> -->
+			<!-- </div> -->
+		</div>
+        
+        <h5 class="card-title">Analisis Fiscal Digital</h5>
+		
+        <div class="row">
+         
+           <div class="col-6 col-sm-6 mb-15">
+            <div class="counter counter-small">
+              <h4 class="timer text-success" data-to="{{f.fafd_|unlocalize}}" data-speed="5000">{{f.fafd_|unlocalize}}</h4>
+              <label class="text-capitalize mt-0">Determinaciones</label>
+            </div>
+          </div>
+          <div class="col-6 col-sm-6 mb-15">
+            <div class="counter counter-small">
+              <h4 class="text-info">${{f.presuntiva_|unlocalize}}M</h4>
+              <label class="text-capitalize mt-0">Presuntiva</label>
+            </div>
+          </div>
+        </div>
+		<div class="mt-15 clearfix">
+          <div class="progress progress-small mb-3">
+            <div class="skill2-bar bg-success" role="progressbar" style="width: {{f.porcentaje_|unlocalize}}%" aria-valuenow="{{f.porcentaje_|unlocalize}}"
+              aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="skill2-bar bg-warning" role="progressbar" style="width: {{f.porcentaje3_|unlocalize}}%" aria-valuenow="{{f.porcentaje3_|unlocalize}}"
+              aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+		  
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+		 <div class="col-6 col-sm-6 mt-15">
+            <b>Propuestas</b>
+            <p>{{f.propuesta_|unlocalize}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <b>FAFD</b>
+            <p>{{f.aprobadas_|unlocalize}}</p>
+          </div>
+         
+        </div>
+		 <div class="row">
+			 <div class="col-6 col-sm-6 mt-15">
+            <b>En Transito</b>
+            <p>{{f.transito_|unlocalize}}</p>
+          </div>
+          <div class="col-6 col-sm-6 mt-15">
+            <b class="text-warning">Informativas</b>
+            <p>{{f.informativas|unlocalize}}</p>
+          </div>
+         
+        </div>
+		
+		 <div class="row">
+			 <div class="col-6 col-sm-6 mt-15">
+            <b>Canceladas</b>
+            <p>{{f.canceladas_|unlocalize}}</p>
+          </div>
+       
+        </div>
+		
+		{% endfor %}
+      </div>
+    </div>
+  </div>
+			
+</div>
+
+<div class="row">
+  <div class="col-md-6 mb-30">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Avance Mensual</h5>
+        <div id="morris-bar-mensual" style="height: 320px;"></div>
+        <div class="text-center">
+          <ul class="list-inline card-detail-list m-b-0">
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-vigilancia"></i>Vigilancia
+            </li>
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-padrones"></i>Padrones
+            </li>
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-programacion"></i>Programación
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-30">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Avance Mensual de Oficios</h5>
+        <div id="morris-bar-fafd" style="height: 320px;"></div>
+        <div class="text-center">
+          <ul class="list-inline card-detail-list m-b-0">
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-autorizadas"></i>Autorizadas
+            </li>
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-notificadas"></i>Notificadas
+            </li>
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-entrevista"></i>Entrevista
+            </li>
+			<li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-concluidas"></i>Concluidas
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6 mb-30">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Avance Contribuyentes</h5>
+        <div id="morris-bar-contribuyentes" style="height: 320px;"></div>
+        <div class="text-center">
+          <ul class="list-inline card-detail-list m-b-0">
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-vigilancia"></i>Contribuyentes
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-30">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Avance Tramites</h5>
+        <div id="morris-bar-tramites" style="height: 320px;"></div>
+        <div class="text-center">
+          <ul class="list-inline card-detail-list m-b-0">
+            <li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-vigilancia"></i>FEDERALES
+            </li>
+			<li class="list-inline-item">
+              <i class="fa fa-circle mr-2 icon-entrevista"></i>ESTATALES
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="row"> -->
+	<!-- <div class="col-md-6 mb-30"> -->
+       <!-- <div class="card h-100"> -->
+         <!-- <div class="card-body"> -->
+           <!-- <h5 class="card-title">Trámites</h5> -->
+             <!-- <div class="chart-wrapper">  -->
+             <!-- <div id="canvas-holder" style="width: 100%; margin: 0 auto; height: 300px;"> -->
+                <!-- <canvas id="canvas-tramites" width="550"></canvas> -->
+            <!-- </div> -->
+          <!-- </div> -->
+         <!-- </div>  -->
+       <!-- </div>  -->
+    <!-- </div> -->
+<!-- </div> -->
+
+<!-- <div class="row"> -->
+  <!-- <div class="col-md-6 mb-30"> -->
+    <!-- <div class="card"> -->
+      <!-- <div class="card-body"> -->
+        <!-- <h5 class="card-title">Recaudacion por Área </h5> -->
+        <!-- <div id="morris-avance" style="height: 320px;"></div> -->
+        <!-- <div class="text-center"> -->
+          <!-- <ul class="list-inline card-detail-list m-b-0"> -->
+            <!-- <li class="list-inline-item"> -->
+				<!-- <i class="fa fa-circle mr-2 icon-vigilancia"></i>Vigilancia -->
+            <!-- </li> -->
+            <!-- <li class="list-inline-item"> -->
+              <!-- <i class="fa fa-circle mr-2 icon-padrones"></i>Padrones -->
+            <!-- </li> -->
+            <!-- <li class="list-inline-item"> -->
+              <!-- <i class="fa fa-circle mr-2 icon-programacion"></i>Programación -->
+            <!-- </li> -->
+          <!-- </ul> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+  <!-- </div> -->
+<!-- </div> -->
+
+<div class="row">
+	<div class="col-md-6 mb-30">
+       <div class="card">
+         <div class="card-body">
+           <h5 class="card-title">Trámites</h5>
+           <div id="morris-tramites" style="height: 320px;"></div>
+         </div> 
+       </div> 
+      </div>
+	  
+	  <div class="col-md-6 mb-30">
+		<div class="card card-statistics h-100">
+			<div class="card-body">
+                  <div class="d-block d-md-flex justify-content-between">
+                    <div class="d-block w-100">
+                      <h5 class="card-title">Tramites</h5>
+                    </div>
+             
+                   </div>
+					  <div class="table-responsive mt-15">
+						<table id="Table_Programs2" class="table center-aligned-table mb-0">
+							<thead>
+								<tr class="text-dark">
+									<th>Actividad</th>
+									<th>Total</th>
+									<th>Porcentaje</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for actividad in actividades %}
+								<tr>
+									<td>
+										 <i class="fa fa-circle mr-2" style="color:{% get_color forloop.counter0 %}"></i>
+										{{ actividad.actividades_ }}
+									</td>
+									<td class="col1 text-primary">
+										<strong>{{ actividad.total_|unlocalize }}</strong>
+									</td>
+									<td class="text-primary">
+										<strong>{{ actividad.porcentaje_|unlocalize }} %</strong>
+									</td>
+								
+								</tr>
+								{% endfor %}
+							</tbody>
+							<tfoot>
+								<tr>
+									<th>
+										<div class="text-right">
+											Total
+										</div>
+									</th>
+									<th class="total"></th>
+									<th>100%</th>
+								</tr>
+							</tfoot>
+							
+						</table>
+				</div>
+           </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/morris.js06/morris.min.js' %}"></script>
+<script src="{% static 'assets/libs/raphael/raphael.min.js' %}"></script>
+        <!-- Init js -->
+<script src="{% static 'assets/js/pages/morris.init.js' %}"></script>
+
+
+<script>
+    $(document).ready(function () {
+	
+		/*var value = $('#hfGif').val();
+		  if (parseFloat(value) >= 150000000){
+			$('#gif').show();
+			$('#gif').css("z-index",1);
+			$('#gif').css('position', 'absolute');
+			$('#gif').fadeOut(10000);
+		}*/
+	
+		var total_cartas = $('.total_cartas').text();
+		$('.total_cartas').text(total_cartas.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+		
+		var cartas = $('.cartas').text();
+		$('.cartas').text(cartas.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+		
+		var correos = $('.correos').text();
+		$('.correos').text(correos.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+		
+		
+
+      Morris.Bar({
+            element: 'morris-bar-mensual',
+            data: [
+				{% for avance in avance_mensual %}
+
+					{ y: 
+						{% if avance.periodo_ == 1.0 %}
+							'Ene ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 2.0 %}
+							'Feb ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 3.0 %}
+							'Mar ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 4.0 %}
+							'Abr ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 5.0 %}
+							'May ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 6.0 %}
+							'Jun ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 7.0 %}
+							'Jul ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 8.0 %}
+							'Ago ${{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 9.0 %}
+							'Sep ${{ avance.total_|unlocalize }}',
+						{% endif %}
+						
+							
+						a: {{avance.vigilancia_|unlocalize}},  
+						b: {{avance.padrones_|unlocalize}}, 
+						c: {{avance.programacion_|unlocalize}} },
+					
+				{% endfor %}
+				
+            ],
+            xkey: 'y',
+            ykeys: ['a', 'b', 'c'],
+            stacked: true,
+            labels: ['Vigilancia', 'Padrones', 'Programación'],
+            hideHover: 'auto',
+            resize: true, //defaulted to true
+            gridLineColor: '#efefef',
+            barColors: ['#0069c0','#2196f3', '#6e7079']
+        });
+		
+		 Morris.Bar({
+            element: 'morris-bar-fafd',
+            data: [
+				{% for avance in avance_mensual_fafd %}
+
+					{ y: 
+						{% if avance.periodo_ == 1.0 %}
+							'Ene',
+						{% elif avance.periodo_ == 2.0 %}
+							'Feb',
+						{% elif avance.periodo_ == 3.0 %}
+							'Mar',
+						{% elif avance.periodo_ == 4.0 %}
+							'Abr',
+						{% elif avance.periodo_ == 5.0 %}
+							'May',
+						{% elif avance.periodo_ == 6.0 %}
+							'Jun',
+						{% elif avance.periodo_ == 7.0 %}
+							'Jul',
+						{% elif avance.periodo_ == 8.0 %}
+							'Ago',
+						{% elif avance.periodo_ == 9.0 %}
+							'Sep',
+						{% endif %}
+							
+						a: {{avance.autorizadas_|unlocalize}},  
+						b: {{avance.notificadas_|unlocalize}}, 
+						c: {{avance.entrevista_|unlocalize}},
+						d: {{avance.concluidas|unlocalize}} },
+					
+				{% endfor %}
+				
+            ],
+            xkey: 'y',
+            ykeys: ['a', 'b', 'c', 'd'],
+            stacked: true,
+            labels: ['Autorizadas', 'Notificadas', 'Entrevista', 'Concluidas'],
+            hideHover: 'auto',
+            resize: true, //defaulted to true
+            gridLineColor: '#efefef',
+            barColors: ['#0069c0', '#2196f3', '#6e7079', '#969aa2']
+        });
+
+        Morris.Donut({
+            element: 'morris-tramites',
+            data: [
+				{% for actividad in actividades %}
+					
+					{label: "{{ actividad.actividades_ }}", value: {{ actividad.total_|unlocalize }} },
+						
+				{% endfor %}
+            ],
+            resize: true,
+            colors: [
+				{% for actividad in actividades %}
+					getColor({{ forloop.counter0 }}),
+				{% endfor %}
+			]
+        });
+		
+		
+		Morris.Bar({
+            element: 'morris-bar-contribuyentes',
+            data: [
+				{% for avance in avance_mensual_contribuyentes %}
+
+					{ y: 
+						{% if avance.periodo_ == 1.0 %}
+							'Ene {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 2.0 %}
+							'Feb {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 3.0 %}
+							'Mar {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 4.0 %}
+							'Abr {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 5.0 %}
+							'May {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 6.0 %}
+							'Jun {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 7.0 %}
+							'Jul {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 8.0 %}
+							'Ago {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 9.0 %}
+							'Sep {{ avance.total_|unlocalize }}',
+						{% endif %}
+						
+							
+						a: {{avance.total_|unlocalize}} 
+					},
+					
+				{% endfor %}
+            ],
+            xkey: 'y',
+            ykeys: ['a'],
+            stacked: true,
+            labels: ['Contribuyentes'],
+            hideHover: 'auto',
+            resize: true,
+            gridLineColor: '#efefef',
+            barColors: ['#0069c0']
+        });
+		
+		
+		Morris.Bar({
+            element: 'morris-bar-tramites',
+            data: [
+				{% for avance in avance_mensual_tramites %}
+
+					{ y: 
+						{% if avance.periodo_ == 1.0 %}
+							'Ene {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 2.0 %}
+							'Feb {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 3.0 %}
+							'Mar {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 4.0 %}
+							'Abr {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 5.0 %}
+							'May {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 6.0 %}
+							'Jun {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 7.0 %}
+							'Jul {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 8.0 %}
+							'Ago {{ avance.total_|unlocalize }}',
+						{% elif avance.periodo_ == 9.0 %}
+							'Sep {{ avance.total_|unlocalize }}',
+						{% endif %}
+						
+						a: {{avance.federales_|unlocalize}},
+						b: {{avance.estatales_|unlocalize}},
+						
+					},
+					
+				{% endfor %}
+            ],
+            xkey: 'y',
+            ykeys: ['a','b'],
+            stacked: true,
+            labels: ['Federales', 'Estatales'],
+            hideHover: 'auto',
+            resize: true,
+            gridLineColor: '#efefef',
+            barColors: ['#0069c0', '#6e7079']
+        });
+		
+		
+		/* Inicio grafico donut
+		var config3 = {
+			type: 'doughnut',
+			data: {
+				datasets: [{
+					data: [
+					  {% for actividad in actividades }
+						{{ actividad.total_ }},
+					  {% endfor }
+					],
+					backgroundColor: [
+						window.chartColors.red,
+						window.chartColors.orange,
+						window.chartColors.yellow,
+						window.chartColors.green,
+						window.chartColors.blue,
+						window.chartColors.red,
+						window.chartColors.orange,
+						window.chartColors.yellow,
+						window.chartColors.green,
+						window.chartColors.blue,
+					],
+					label: 'Dataset 1'
+				}]
+				labels: [
+				  {% for actividad in actividades }
+					"{{ actividad.actividades_ }}",
+				  {% endfor }
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					position: 'bottom',
+				},
+				title: {
+					display: false,
+					text: 'Tramites'
+				},
+				animation: {
+					animateScale: true,
+					animateRotate: true
+				}
+			}
+		};
+		var ctx3 = document.getElementById("canvas-tramites").getContext("2d");
+        window.myLine3 = new Chart(ctx3, config3);
+		 Fin grafico donut */
+			
+		Get_Advance();
+		Get_Advance2();
+       
+
+    });
+	
+	function getColor(index){
+		var colores = ['#0D47A1','#1565C0','#1976D2','#1E88E5','#42A5F5','#64B5F6','#90CAF9','#BBDEFB','#E3F2FD','#E3F2FD','#0D47A1','#1565C0','#1976D2','#1E88E5','#42A5F5','#64B5F6','#90CAF9','#BBDEFB','#E3F2FD','#E3F2FD','#0D47A1','#1565C0','#1976D2','#1E88E5','#42A5F5','#64B5F6','#90CAF9','#BBDEFB','#E3F2FD','#E3F2FD'];
+		//var randomColor = Math.floor(Math.random()*16777215).toString(16);
+		
+		//return "#" + randomColor
+		return colores[index];
+	}
+	
+	function assignColor(index){
+		console.log(index);
+		//$(this).css('color', getColor());
+		return $(this).style.color = getColor(index);
+	}
+	
+	function Get_Advance(){
+
+        var total_presuntiva = 0;
+        var total_padrones = 0;
+        var total_programacion = 0;
+		var total_vigilancia = 0;
+        var total_total = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_Programs').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        
+        $('#Table_Programs').find('.total').each(function (index, element) {
+            var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text(total);
+        });
+
+    }
+	
+	function Get_Advance2(){
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_Programs2').find(selector).each(function (index, element) {
+                var num = $(element).text()
+                sum += parseInt(num);
+            });
+
+            return sum;
+        };
+
+        
+        $('#Table_Programs2').find('.total').each(function (index, element) {
+            var total = getSum(index + 1);
+            $(this).text(total);
+        });
+
+    }
+	
+	
+</script>
+
+{% endblock extrajs %}

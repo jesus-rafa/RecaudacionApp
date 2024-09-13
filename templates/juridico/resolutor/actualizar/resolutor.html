@@ -1,0 +1,211 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block head %}
+<!-- <link href="{% static 'css/RecApp.scss' %}" rel="stylesheet" type="text/css" /> -->
+{% endblock head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a href="{% url 'juridico_app:panel-resolutor' %}" 
+                    class="btn waves-effect btn-volver">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Resolutor</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div id="progressbarwizard">
+                    <ul class="nav nav-tabs nav-bordered" id="nav-tabs">
+                        <li class="nav-item">
+                            <a href="#profile-tab-2" id="tab-res" aria-controls="profile-tab-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2 active"> <!-- onclick="siguiente()" -->
+                                <i class="mdi mdi-scale-balance me-1"></i>
+                                <span class="d-none d-sm-inline">Resolutor</span>
+                            </a>
+                        </li>
+                    </ul>
+                
+                    <div class="tab-content pb-3">
+                <!-- TAB RESOLUTOR -->
+                <div class="tab-pane active" id="profile-tab-2">
+                    <form id="form_alta_res" action="{% url 'juridico_app:actualiza_resolutor' resolutor.id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row mb-2">
+                            <div class="form-floating col">
+                                {{ form.carpeta }}
+                                <label class="etiqueta-combo">{{form.carpeta.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.oficio }}
+                                <label class="etiqueta-combo">{{form.oficio.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.fecha_presentacion }}
+                                <label class="etiqueta-combo">{{form.fecha_presentacion.label}}</label>
+                            </div>
+                            <!-- <div class="form-floating col">                                
+                                {{ form.fecha_resolucion }}
+                                <label class="etiqueta-combo">{{form_res.fecha_resolucion.label}}</label>
+                            </div> -->
+                            <div class="col">
+                                <label class="etiqueta-combo">{{form.concepto.label}}</label>
+                                {{ form.concepto }}
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                <label class="etiqueta-combo">{{form.solicitante.label}}</label>
+                                {{ form.solicitante }}
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.ejercicio_ini }}
+                                <label class="etiqueta-combo">{{form.ejercicio_ini.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.ejercicio_fin }}
+                                <label class="etiqueta-combo">{{form.ejercicio_fin.label}}</label>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="form-floating col">
+                                {{ form.marca }}
+                                <label class="etiqueta-combo">{{form.marca.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.modelo }}
+                                <label class="etiqueta-combo">{{form.modelo.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.serie }}
+                                <label class="etiqueta-combo">{{form.serie.label}}</label>
+                            </div>
+                            <div class="form-floating col">
+                                {{ form.placa }}
+                                <label class="etiqueta-combo">{{form.placa.label}}</label>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                <label class="etiqueta-combo">{{form.documentacion.label}}</label>
+                                {{ form.documentacion }}
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                <label class="etiqueta-combo">{{form.titular.label}}</label>
+                                {{ form.titular }}
+                            </div>
+                            <div class="col">
+                                <label class="etiqueta-combo">{{form.municipio.label}}</label>
+                                {{ form.municipio }}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <!-- <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="window.location=`{% url 'juridico_app:juridico' %}`"><i class="fa fa-ban"></i> Cancelar </button>
+                            <button id="btnAdd" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro"><i class="fa fa-plus-circle"></i> Guardar </button> -->
+                            <button id="btnAdd" type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="guardar()"><i class="fa fa-plus-circle"></i> Guardar </button>
+                        </div>
+                    </form>
+                </div>
+                    </div> <!-- tab-content -->
+                </div> <!-- end #progressbarwizard-->                
+            </div>
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script>
+    const controles =  [ 
+        {control : '#id_concepto', etiqueta:'Concepto'},
+        {control : '#id_solicitante', etiqueta:'RFC solicitante'},            
+        {control : '#id_documentacion', etiqueta:'Documentacion'},       
+        {control : '#id_titular', etiqueta:'Titular'},         
+        {control : '#id_municipio', etiqueta:'Municipio'},
+    ];
+    $('#id_ejercicio_ini').mask('0000')
+    $('#id_ejercicio_fin').mask('0000')
+
+    $(document).ready(function() {
+        
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        });
+        //cargaOpcionesDefault();
+        //asignarSolicitante();
+    });    
+    function cargaOpcionesDefault(data){
+        controles.forEach(function(elemento){
+            var campo = $(elemento.control).selectize();
+            var selCampo = campo[0].selectize;
+        });
+    }
+    function asignarSolicitante(data){
+        debugger;
+        let campo = ($('#id_solicitante').selectize())[0].selectize;
+        let id = `{{resolutor.solicitante.id}}`;
+        let rfc = `{{resolutor.solicitante.rfc}}`;
+        campo.clearOptions();
+        campo.addOption({value:id,text:rfc}); 
+        campo.addItem(id); 
+        campo.setValue(id);
+    }
+    function guardar(){
+        document.forms["form_alta_res"].submit();
+    }
+
+    // function actualiza(){
+    //     event.preventDefault();
+    //     const form = document.getElementById("form_alta_res");
+    //     f = new FormData(form)
+
+    //     fetch("{% url 'juridico_app:actualiza_resolutor' resolutor.id %}", {
+    //         method: 'POST',
+    //         headers: {
+    //             //'Content-Type': 'application/json',
+    //             'X-CSRFToken': "{{ csrf_token }}",
+    //         },
+    //         body: f
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         debugger;
+    //         location.href=`{% url 'juridico_app:panel-resolutor' %}`
+    //     })
+    //     .catch(error => {
+    //         debugger;
+    //         location.href=`{% url 'juridico_app:panel-resolutor' %}`
+    //     });
+    // }
+    // function twoForms(){
+    //     event.preventDefault();
+    //     
+    //     document.forms["form_alta_sol"].submit();
+    //     solicitanteActivo();
+    //     document.forms["form_alta_res"].submit();
+    // }
+</script>
+{% endblock extrajs %}
+
+
+

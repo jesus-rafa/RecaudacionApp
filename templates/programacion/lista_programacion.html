@@ -1,0 +1,376 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Vigilancia {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <h4><div class="text-primary">Acumulado: $ {{ acumulado|unlocalize|intcomma }}</div></h4>
+            </div>
+            <h4 class="page-title">Vigilancia</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                            Seguimiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-20" id="profile-20-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            Plan de Pagos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-40" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            Apoyo Ejecucion
+                        </a>
+                    </li>
+                </ul>
+                
+                <br>
+                <div class="tab-content">
+                        <div class="tab-pane fade active show" id="home-20">
+
+                            <div class="table-responsive">
+                                <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Programa</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Autorizacion</th>
+                                            <th>Seguimiento</th>
+                                            <th>Estatus</th>
+                                            <th>Dias Ultimo Comentario</th>
+                                            <th>Detalle</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in programacion %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'programacion_app:admin-programacion' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.oficio }}</a>
+                                            </td>
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <td>{{ programa.programa }}</td>
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="sp_date sp_auth">{{ programa.fecha_autorizacion|date:'Y/m/d' }}</span> 
+                                                {{programa.fecha_autorizacion|date:'d/m/Y' }}
+                                            </td>
+                                            <td>{{ programa.seguimiento }}</td>
+                                            <td>
+                                                {{ programa.estatus }}
+                                            </td>
+                                            <td>
+                                                {{ programa.dias }}
+                                            </td>
+                                            <td>
+                                                <button id="btDetail"
+                                                    onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')"
+                                                    title="Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_blank"><i
+                                                        class="fas fa-eye"></i> </button>
+                                                <a href="{% url 'programacion_app:ver-reporte' programa.id %}"
+                                                    title="Reporte" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_self"><i
+                                                        class="ti-file"></i></a>
+
+                                                {% if programa.plan_pago_id %}
+                                                <a href="#" class="btn btn-success btn-xs"
+                                                    target="_blank">P</i>
+                                                </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="profile-20">
+                            <div class="table-responsive">
+                                <table id="datatable4" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Programa</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Etapa</th>
+                                            <th>Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in plan_pagos %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'programacion_app:admin-programacion' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <td>{{ programa.programa }}</td>
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> 
+                                                {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                            <td>
+                                                {{ programa.estatus }}
+                                            </td>
+                                            <td>
+                                                <button id="btDetail"
+                                                    onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')"
+                                                    title="Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_blank"><i
+                                                        class="fas fa-eye"></i> </button>
+                                                <a href="{% url 'programacion_app:ver-reporte' programa.id %}"
+                                                    title="Reporte" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_self"><i
+                                                        class="ti-file"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="profile-40">
+
+                            <div class="table-responsive">
+                                <table id="datatable3" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Programa</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Etapa</th>
+                                            <th>Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in apoyo_ejecucion %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'programacion_app:admin-programacion' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <td>{{ programa.programa }}</td>
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> 
+                                                {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                            <td>
+                                                {{ programa.estatus }}
+                                            </td>
+                                            <td>
+                                                <button id="btDetail"
+                                                    onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')"
+                                                    title="Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_blank"><i
+                                                        class="fas fa-eye"></i> </button>
+                                                <a href="{% url 'programacion_app:ver-reporte' programa.id %}"
+                                                    title="Reporte" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-primary btn-xs" target="_self"><i
+                                                        class="ti-file"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<script src="{% static 'js/bootstrap-datatables/buttons.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+        var table1 = $("#datatable1").DataTable({
+            pageLength : 100,
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "csv", text: "CSV", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 9, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+
+        var table3 = data_table('#datatable3');
+
+        var table4 = data_table('#datatable4');
+		
+		var now = new Date();
+        var data_auth;
+        var diff;
+        var days;
+       
+        // table1.$('.sp_auth').each(function(index, element) {
+             
+        //     data_auth = $(element).text();
+        //     var arregloFecha = data_auth.split("/");
+        //     var anio = arregloFecha[0];
+        //     var mes = arregloFecha[1];
+        //     var dia = arregloFecha[2];
+        //     var fecha = new Date(anio, mes, dia);
+            
+        //     diff = now.getTime() - fecha.getTime();
+        //     days = Math.round(diff / (1000 * 60 * 60 * 24));
+            
+        //     if(days >= 90){
+        //         $(this).closest('tr').removeClass('odd');
+        //         $(this).closest('tr').removeClass('even');
+
+        //         $(this).closest('tr').addClass('table-danger');
+        //     }
+        // });
+		
+    });
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable){
+
+        $(myTable).DataTable({
+            pageLength : 100,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 6, 'desc' ]],
+            drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+    }
+
+</script>
+{% endblock extrajs %}

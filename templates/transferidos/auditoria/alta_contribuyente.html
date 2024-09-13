@@ -1,0 +1,627 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo Contribuyente</h4>
+        </div>
+        <form id="form_contribuyente" action="{% url 'transferidos_app:alta-contribuyente-2' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                {{ form.fecha }}
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="form-floating mb-2">
+                            {{ form.rfc }}
+                            <label>{{ form.rfc.label }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.metodo_envio.label }}</label>
+                            {{ form.metodo_envio }}
+                            <label style="display: none;" class="text-danger" id="lbMetodoEnvio">campo requerido*</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button id="btSearch" type="submit" class="btn btn-volver search"
+                            target="_blank" value="Ver"> <i class="mdi mdi-arrow-right"></i> Siguiente</button>
+                    </div>
+                </div>
+
+                <div id="dvSiguiente">
+                    <div class="row">
+                        <div style="display: none;" class="alert text-center col-md-12">
+                            <i class="fa fa-exclamation-circle text-danger"></i>
+                            <label class="text-danger">RFC ACTIVO</label>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating mb-2">
+                                {{ form.nombre }}
+                                <label>{{ form.nombre.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating mb-2">
+                                {{ form.direccion }}
+                                <label>{{ form.direccion.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label class="etiqueta-combo">Impuesto</label>
+                                {{ form.programa }}
+                                <label style="display: none;" class="text-danger" id="lbImpuesto">campo requerido*</label>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-6">
+                            <div class="mb-2">
+                                <label class="etiqueta-combo">{{ form.metodo_envio.label }}</label>
+                                {{ form.metodo_envio }}
+                                <label style="display: none;" class="text-danger" id="lbMetodoEnvio">campo requerido*</label>
+                            </div>
+                        </div> -->
+                    </div>
+    
+                    <div class="row" id="dvImpuestos">
+                        <ul id="list_impuesto"></ul>
+                    </div>
+    
+                    <div class="row justify-content-center">
+                        <div class="col-md-11">
+    
+                            <div style="display: none;" class="text-center lbPeriodos"">
+                                <label class="text-danger">
+                                    <b>Da click en el ejercicio para seleccionar todos sus periodos*</b>
+                                </label>
+                            </div>
+    
+                            <div class="table-responsive">
+                                <table id="table-impuestos" class="table table-sm">
+                                    <thead id="table-header" class="text-center">
+                                    </thead>
+                                    <tbody id="table-body" class="text-center">
+                                    </tbody>
+                                </table>
+                            </div>
+    
+                            <div class="text-center" id="dvAcciones">
+                                <div style="display: none;" class="text-center lbPeriodos">
+                                    <label class="text-danger">
+                                        <b>Da click en la celda para seleccionarla*</b>
+                                    </label>
+                                </div>
+                                
+                                <button id="btnCancelar" class="btn waves-effect btn-volver"
+                                target="_blank" value="Ver"> <i class="fa fa-times"></i> Cancelar</button>
+    
+                                <button id="btnImpuesto" class="btn waves-effect btn-volver"
+                                target="_blank" value="Ver"> <i class="fe-save"></i> Guardar Impuesto</button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                {{ form.presuntiva }}
+                                <label>{{ form.presuntiva.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-floating col">
+                                {{ form.comentarios }}
+                                <label id="lbComentarios">{{ form.comentarios.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer row p-0 m-0 py-2 px-2">
+                <div class="col">
+                    <div id="msj_fecha_cierre_oficio" class="d-none"></div>
+                </div>
+                <div class="col">
+                    <button type="submit" id="btnGuardar" class="btn btn-outline-secondary waves-effect gris-oscuro pull-right">Guardar</button>
+                    <button type="button" id="btnLimpiar" class="btn btn-outline-secondary waves-effect gris-oscuro pull-right mx-1" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    var list_impuesto = document.getElementById('list_impuesto');
+    var items_impuesto = [];
+    var myURL = "{% url 'transferidos_app:admin-impuestos-transferidos' 'A' 'B' %}";
+    var myRFC = 0; // Para nuevo contribuyente generaremos un RFC generico que sera el username
+    var myImpuesto = $(document.getElementById('id_programa'))[0].selectize;
+    var myMetodoEnvio = $(document.getElementById('id_metodo_envio'))[0].selectize;
+
+    $(document).ready(function () {
+        $('#dvImpuestos').hide();
+        $("#dvAcciones").hide();
+        $('#dvSiguiente').hide();
+
+        myImpuesto.setValue('');
+        myMetodoEnvio.setValue('');
+
+        $("#id_programa").change(function () {
+            let myTax = $('#id_programa').val();
+            clear_table();
+
+            if (myTax !== ''){
+                get_table(myURL, myRFC, myTax);
+                $("#dvAcciones").show();
+            }
+        });
+
+        $("#table-impuestos").on("click", "td", function () {
+            $(this).toggleClass("iluminar-celda");
+            $(this).toggleClass("apagar-celda");
+            $(this).hasClass('iluminar-celda') ? $(this).text('1') : $(this).text('0');
+        });
+
+        new AutoNumeric('#id_presuntiva', {
+            currencySymbolPlacement: 'p',
+            currencySymbol: '$ ',
+            maximumValue: '9999999999.99',
+            minimumValue: 0
+        });
+
+        $("#btSearch").click(function () {
+
+            if (metodo_envio !== '') {
+                // Cambio realizado del día 04/05/2023
+                if($("#msj_fecha_cierre_oficio").hasClass("d-none"))
+                {
+                    $("#msj_fecha_cierre_oficio").removeClass("d-none");
+                }
+                // Cambio realizado del día 04/05/2023
+
+                $('#lbMetodoEnvio').hide();
+
+                var RFC = $("#id_rfc").val();
+                var myURL_direccion = "{% url 'transferidos_app:get-contribuyente-2' 'RFC' %}"; // direccion del contribuyente
+                var myURL_nombre = "{% url 'rec_app:get-contribuyente-name' 'RFC' %}";  // nombre del contribuyente
+
+                $.ajax({
+                    url: myURL_nombre.replace('RFC', RFC),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (data) {
+
+                        try {
+                            $("#id_nombre").val(data[0].razon_social);
+                            $("#id_direccion").val(data[0].Direccion.toUpperCase() );
+                        }
+                        catch (err) {
+                            $("#id_nombre").val('SIN DATOS*');
+                            $("#id_direccion").val('SIN DATOS*');
+                        }
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+                $.ajax({
+                    url: myURL_direccion.replace('RFC', RFC),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (data) {
+                        if (data.length == 1){
+                            if (data[0].message === true) $(".alert").show();
+                            else $(".alert").hide();
+                        } else {
+                            if (data[1].message === true) $(".alert").show();
+                            else $(".alert").hide();
+                        }
+
+                        $('#dvSiguiente').fadeIn(2500);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                
+            } else {
+                // Cambio realizado del día 04/05/2023
+                if(!$("#msj_fecha_cierre_oficio").hasClass("d-none"))
+                {
+                    $("#msj_fecha_cierre_oficio").addClass("d-none");
+                }
+                // Cambio realizado del día 04/05/2023
+
+                $('#lbMetodoEnvio').show();
+                $('#lbMetodoEnvio').fadeOut(3000);
+
+                return false;
+            }
+
+        });
+
+        $("#btnGuardar").click(function () { 
+            let metodo_envio = $('#id_metodo_envio').val();
+
+            if (metodo_envio !== '') {
+                $('#lbMetodoEnvio').hide();
+
+                if (items_impuesto.length > 0) {
+                    $('#lbImpuesto').hide(); 
+                    return true;   
+
+                } else {
+                    $('#lbImpuesto').show();
+                    $('#lbImpuesto').fadeOut(3000);
+                    return false;
+                }
+
+            } else {
+                $('#lbMetodoEnvio').show();
+                $('#lbMetodoEnvio').fadeOut(3000);
+                return false;
+            }
+        });
+
+        $("#btnImpuesto").click(function(e) {
+            e.preventDefault();
+
+            // Validar que se seleccionen periodos
+            let valida = false;
+            $('#table-impuestos > tbody > tr').each(function(index, tr) {
+                $(tr).children().each(function (index, td) {
+                    if ($.inArray(index, [2,3,4,5,6,7,8,9,10,11,12,13])) if($(td).text() == '1') valida = true;
+                });
+            });
+
+            if (valida === true){
+                let myTax = $('#id_programa').val();
+                let myName_tax = $('#id_programa').text();
+
+                update_table(myURL, myRFC, myTax);
+
+                myImpuesto.setValue('');
+                clear_table();
+
+                if (items_impuesto.indexOf(myName_tax + '_' + myTax) == -1) {
+                    $('#dvImpuestos').show();
+                    items_impuesto.push(myName_tax + '_' + myTax);
+                    render_impuesto();
+                    $("#dvAcciones").hide();
+
+                } else {
+                    $("#dvAcciones").hide();
+                }
+
+            }else{
+                $('.lbPeriodos').show();
+                $('.lbPeriodos').fadeOut(10000);
+
+                $('#table-impuestos > thead > tr > th').each(function(index, th) {
+                    $(th).children().each(function (index, span) {
+                        $(span).addClass('flicker-header');
+
+                        setTimeout(function() {
+                            $(span).removeClass("flicker-header");
+                        }, 3000);
+
+                    });
+                });
+
+                $('#table-impuestos > tbody > tr').each(function(index, tr) {
+                    $(tr).children().each(function (index, td) {
+                        if (index > 0){
+                            $(td).removeClass('apagar-celda');
+                            $(td).addClass('flicker-body');
+
+                            setTimeout(function() {
+                                $(td).removeClass("flicker-body");
+                                $(td).addClass('apagar-celda');
+                            }, 3000);
+                        }
+
+                    });
+                });
+            }            
+            
+        });
+
+        $("#btnCancelar").click(function(e) {
+            e.preventDefault();
+
+            myImpuesto.setValue('');
+            clear_table();
+            $("#dvAcciones").hide();
+        });
+
+        $("#btnLimpiar").click(function(e) {
+            let myURL = "{% url 'transferidos_app:limpiar-impuestos' %}";
+
+            $.ajax({
+                url: myURL,
+                type: "DELETE",
+                dataType: "JSON",
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+                    //location.reload();
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+
+        });
+
+        $("#form_contribuyente").submit(function (e) {
+            // Se selecciona el primer impuesto capturado para que no se envie vacio
+            let primer_impuesto = items_impuesto[0].substring(
+                items_impuesto[0].indexOf('_') + 1, 
+                items_impuesto[0].length
+            );
+            myImpuesto.setValue(primer_impuesto);
+            remueveMascara($('#id_presuntiva'));
+            
+            $("#btnGuardar").attr("disabled", true);
+            return true;
+        });
+
+    });
+
+    function remueveMascara(campo){
+        campo.val(campo.val().replace('$','').replaceAll(',',''));
+    }
+
+    function clear_table() {
+        $("#table-header").empty();
+        $("#table-body").empty();
+    }
+
+    function get_table(myURL, myRFC, myTax) {
+
+        function get_color(value) {
+            return value == '1' ? "iluminar-celda":"apagar-celda";
+        }
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', myTax),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                let myData = [];
+                let myHeader = [];
+                let myIDs = [];
+                let myRow = [];
+                let myRow1 = [];
+                let myRow2 = [];
+                let myRow3 = [];
+                let myRow4 = [];
+                let myRow5 = [];
+
+                $.map(data, function (value, index) {
+                    myHeader.push(value.periodo);
+                    myIDs.push(value.id);
+                    myRow.push(value.ejercicio);
+                    myRow1.push(value.ejercicio_1);
+                    myRow2.push(value.ejercicio_2);
+                    myRow3.push(value.ejercicio_3);
+                    myRow4.push(value.ejercicio_4);
+                    myRow5.push(value.ejercicio_5);
+                });
+
+                myData.push(myRow);
+                myData.push(myRow1);
+                myData.push(myRow2);
+                myData.push(myRow3);
+                myData.push(myRow4);
+                myData.push(myRow5);
+
+                myHeader.forEach( function(valor) {
+                    $('#table-impuestos > thead:last').append(
+                        '<th class="periodos">' + valor + '</th>'
+                    );
+                });
+
+                myIDs.forEach( function(valor) {
+                    $('#table-impuestos > tbody:last').append(
+                        '<td class="ids">' + valor + '</td>'
+                    );
+                });
+
+                $('.ids').hide();
+
+                $.map(myData, function (value, index) {
+                    let row = '';
+                    value.forEach( function(valor) {
+                        if (valor === 0 || valor === 1)
+                            row += '<td class="'+ get_color(valor) +'">' + valor + '</td>'; 
+                        else
+                            row += '<th class="column">' + valor + '</th>'; 
+                    });
+
+                    $('#table-impuestos > tbody:last').append(
+                        '<tr>' + row + '</tr>'
+                    );
+                });
+
+                addEvents_Header();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    }
+
+    function update_table(myURL, myRFC, myTax) {
+        let myData = [];
+
+        $(".periodos").each(function(index) {
+            let myRow = {};
+
+            if (index > 0) {
+                let columns_values = Array.from($('#table-impuestos td:nth-child(' + (index + 1) + ')'));
+
+                columns_values.forEach( function(value, indice) {   
+                    if (indice == 0) myRow.id = $(value).text();
+                    if (indice == 1) myRow.ejercicio = $(value).text();
+                    if (indice == 2) myRow.ejercicio_1 = $(value).text();
+                    if (indice == 3) myRow.ejercicio_2 = $(value).text();
+                    if (indice == 4) myRow.ejercicio_3 = $(value).text();
+                    if (indice == 5) myRow.ejercicio_4 = $(value).text();
+                    if (indice == 6) myRow.ejercicio_5 = $(value).text();
+                });
+
+                myData.push(myRow);  
+            }           
+        });
+
+        //console.log(JSON.stringify(myData));
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', myTax),
+            type: "POST",
+            dataType: "JSON",
+            data: {'data': JSON.stringify(myData)},
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                //location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    }
+
+    function addEvents_Header() {
+        $(".column").each(function(indice) {
+            $(this).on("click", function(){
+                $('#table-impuestos > tbody > tr').each(function(index, tr) { 
+                    if (indice == index){
+                        $(tr).children().each(function (index, td) {
+                            if (index > 0){
+                                $(td).toggleClass("iluminar-celda");
+                                $(td).toggleClass("apagar-celda");
+                                $(td).hasClass('iluminar-celda') ? $(td).text('1') : $(td).text('0');
+                            }
+                        });
+                    }             
+                });
+            });
+        });
+    }
+
+    function render_impuesto() {
+        list_impuesto.innerHTML = '';
+        items_impuesto.map((item, index) => {
+
+            let text = item.substring(0, item.indexOf('_'));
+            let id_impuesto= item.substring(item.indexOf('_') + 1, item.length);
+
+            list_impuesto.innerHTML += 
+                `<div class="chip" tabindex="-1">
+                    <span onclick="cargar_impuesto('${id_impuesto}');">${text}</span>
+                    <button 
+                        type="button" 
+                        title="Borrar" 
+                        aria-label="Borrar" 
+                        onclick="$(this).parent().remove();">
+                        <a href="javascript: remove_impuesto('${id_impuesto}')">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </button>
+                </div>`;
+        });
+    }
+
+    function remove_impuesto(val) {
+        let index = items_impuesto.indexOf(val);
+        items_impuesto.splice(index, 1);
+
+        $("#btnCancelar").click();
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', val),
+            type: "DELETE",
+            dataType: "JSON",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                //location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function cargar_impuesto(val){
+        myImpuesto.setValue(val);
+    }
+    
+    // Cambio realizado el 04/05/2023
+    //
+
+    $("#id_metodo_envio").on("change", function() {
+        let metodo_envio = $('#id_metodo_envio').val();
+
+        if (metodo_envio !== '') {
+            let dias_plazo = 365;
+            if($("#id_metodo_envio").text() == "SEGUNDA CARTA" || $("#id_metodo_envio").text() == "CARTA INVITACION")
+            {
+                dias_plazo = 22;
+            }
+
+            setFechaEstimaCierre(dias_plazo);
+        }
+        else {
+            $("#msj_fecha_cierre_oficio").html("");
+        }
+    });
+
+    function setFechaEstimaCierre(dias_plazo) {
+        var fecha_actual = new Date();
+        var fecha_cierre = sumarDiasFecha(fecha_actual, parseInt(dias_plazo));
+        var msj = "<b style='color:red;'>¡Atención!</b><br/><small>Este oficio se cerrará en la fecha del <b><i>" + fecha_cierre + "</i></b></small>";
+
+        $("#msj_fecha_cierre_oficio").html(msj);
+    }
+    // Sumar días según el tipo de envío
+    // 22 días => Carta invitación y segunda carta
+    // 1 año => gabinete y visita
+    // 
+    // Cambio realizado el 04/05/2023
+</script>
+{% endblock extrajs %}

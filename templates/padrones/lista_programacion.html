@@ -1,0 +1,390 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Asignacion de Contribuyentes {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Asignacion de Contribuyentes</h4>
+        </div>
+    </div>
+</div>
+
+{% for group in request.user.groups.all %}
+    {% if group.name == 'JEFE PADRONES' %}
+    <input type="hidden" id="hfPermission" name="hfPermission" value="1">
+    {% endif %}
+{% endfor %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group flex-row">
+                        <div class="form-floating col-11">
+                            <!-- <span class="input-group-text"> 
+                                <i class="fas fa-search"></i>
+                            </span> -->        
+                            <input id="kword" type="text" name="kword" class="form-control input-rec" placeholder="RFC ó Nombre">
+                            <label for="">RFC ó Nombre...</label>
+                        </div>
+                        <!-- <span class="input-group-text">Contribuyente</span>
+                        <input type="text" class="form-control" id="kword" name="kword" placeholder="RFC o Nombre..."> -->
+                        <button type="submit" class="btnRecaudacionGeneral col-1" target="_blank" value="Buscar"> 
+                            <i class="fa fa-search"></i>
+                            Buscar
+                        </button>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-text">Seguimiento</span>
+                        <select class="form-select" id="user" name="user">
+                            <option value=""></option>
+                            {% for user in filter_seguimiento %}
+                            <option value="{{user.username}}">{{user.nombres}} {{user.apellidos}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="input-group-text">Programa</span>
+                        <select class="form-select" id="program" name="program">
+                            <option value=""></option>
+                            {% for programa in filter_programa %}
+                            <option value="{{programa.programa}}">{{programa.programa}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="input-group-text">Etapa</span>
+                        <select class="form-select" id="etapa" name="etapa">
+                            <option value=""></option>
+                            {% for etapa in filter_etapa %}
+                            <option value="{{etapa}}">{{etapa}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="input-group-text">Accion</span>
+                        <select class="form-select" id="estatus" name="estatus">
+                            <option value=""></option>
+                            {% for estatus in filter_estatus %}
+                            <option value="{{estatus}}">{{estatus}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="input-group-text">Area</span>
+                        <select class="form-select" id="area" name="area">
+                            <option value=""></option>
+                            {% for area in filter_area %}
+                            <option value="{{area.area}}">{{area.area}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <span class="input-group-text">Top</span>
+                        <select class="form-select" id="top" name="top">
+                            <option value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                        </select>
+
+                    </div>
+
+                   
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    <button id="btShare" type="button" class="btn btn-outline-success" 
+                        title="Asignar Contribuyentes" tabindex="0" data-plugin="tippy" data-tippy-placement="left">
+                        <i class="fe-users"></i> 
+                        <i class="fe-repeat"></i>
+                    </button>
+                </div>
+
+                <div class="dropdown float-end" style="top: 40px;">
+                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-dots-vertical"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a href="{% url 'padrones_app:excel-padrones' %}" target="_blank" class="dropdown-item">
+                            <i class="mdi mdi-download"></i> Descargar CSV</a>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable1">
+                        <thead>
+                            <tr>
+                                <td class="all no-sort" >
+                                    <input type="checkbox" name="select_all" value="1" id="example-select-all" style="pointer-events: all; cursor: pointer;">
+                                </td>
+                                <td class="col-check all">Oficio</td>
+                                <td class="all">RFC</td>
+                                <td class="all">Nombre</td>
+                                <td class="all">Programa</td>
+                                <td class="all">Presuntiva</td>
+                                <td class="all">Recaudado</td>
+                                <td class="all">Fecha Creación</td>
+                                <td class="all">Seguimiento</td>
+                                <td class="all">Etapa</td>
+                                <td class="all">Sin acciones</td>
+                                <td class="all">Area</td>
+                                <td class="none"></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for programa in programacion %}
+                            <tr>
+                                <td> {{ programa.id}} </td>
+                                <td>
+                                    <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}"
+                                        class="btn btn-link" target="_self">{{ programa.oficio }}</a>
+                                </td>
+                                <td>{{ programa.rfc }}</td>
+                                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:10 }}</td>
+                                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.programa }}">{{ programa.programa|truncatechars:10 }}</td>
+                                <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                <td>
+                                    {% if programa.recaudado != None %}
+                                    ${{ programa.recaudado|unlocalize|intcomma }}
+                                    {% endif %}
+                                </td>
+                                <td>{{programa.fecha|date:'d/m/Y' }}</td>
+                                <td>{{programa.seguimiento}}</td>
+                                <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.estatus }}">{{ programa.etapa|truncatechars:10 }}</td>
+                                <td>{{ programa.dias_sin_acciones|floatformat:"0"}}</td>
+                                <td>{{ programa.area }}</td>
+                                <td>
+                                    <div class="text-center">
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i
+                                                    class="mdi mdi-dots-horizontal"></i></a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a onclick="View_Modal('{% url 'padrones_app:ver-programacion-2' programa.id %}')" class="dropdown-item" href="#"><i
+                                                    class="fas fa-eye me-2 text-muted font-18 vertical-middle"></i>Ver detalle</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="text-center">
+                                        <button id="btDetail" onclick="View_Modal('{% url 'padrones_app:ver-programacion-2' programa.id %}')"
+                                            title="Ver Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                            class="btn btn-info btn-xs" target="_blank"><i class="fas fa-eye"></i>
+                                        </button>
+                            
+                                    </div> -->
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<!-- Plugins js-->
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'admin/js/buttons.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.sp_date').hide();
+
+        if($('#hfPermission').val() == 1){
+            $('#btShare').show();
+        }else{
+            $('#btShare').hide();
+        }
+
+		/*var table = $('#datatable1').DataTable({
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "csv", text: "CSV", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": ">",
+                    "previous": "<"
+                }
+            },
+            search: false,
+            searching: false,
+            paginate: false,
+            columnDefs: [{
+                'targets': 0,
+                'visible': true,
+                'searchable': false,
+                'orderable': false,
+                'className': 'dt-body-center',
+                'render': function (data, type, full, meta){
+                    return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                }
+            }],
+            "order": [[ 6, 'desc' ]]
+            
+
+        }); */
+
+        var table = $('#datatable1').DataTable({
+            sDom: "rtip",
+            destroy: true,
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: [0,1,2,3,4,5,6,7,8,9,10,11],                
+                },
+                {
+                    targets: 0,
+                    render: function (data, type, full, meta){
+                        return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                    }, 
+                }
+            ],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+
+        $('#example-select-all').on('click', function () {
+            // Get all rows with search applied
+            var rows = table.rows({ 'search': 'applied' }).nodes();
+            // Check/uncheck checkboxes for all rows in the table
+            $('input[type="checkbox"]', rows).prop('checked', this.checked);
+        });
+
+        $('#example tbody').on('change', 'input[type="checkbox"]', function () {
+            // If checkbox is not checked
+            if (!this.checked) {
+                var el = $('#example-select-all').get(0);
+                // If "Select all" control is checked and has 'indeterminate' property
+                if (el && el.checked && ('indeterminate' in el)) {
+                    // Set visual state of "Select all" control
+                    // as 'indeterminate'
+                    el.indeterminate = true;
+                }   
+            }
+        });
+
+        $("#btShare").click(function() {
+            var list = '';
+            var values = '';
+            var count = 0;
+
+            table.$('input[type="checkbox"]').each(function(){
+                
+                if(this.checked){
+                    count = count + 1;
+                    values = values + ',' + this.value;                    
+                }
+            });
+
+            list = values.substring(1);
+
+            Share_Modal('{% url 'padrones_app:turnar' %}', list, count);
+        });
+    });
+
+    function Share_Modal(myURL, myList, myCount) {
+        $('#mdView').load(myURL, function () {
+            
+            var entries = '';
+            if(myCount == 0){
+                entries = 'Sin RFCs seleccionados.';
+            }else if(myCount == 1){
+                entries = myCount + ' RFC seleccionado.';
+            }else{
+                entries = myCount + ' RFCs seleccionados.';
+            }
+
+            $("#id_lista").val(myList);
+            $("#lbSelected").html(entries);
+
+            $(this).modal('show');
+        });
+    }
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

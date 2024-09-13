@@ -1,0 +1,132 @@
+{% load static %}
+{% load tags %}
+
+{% for item in menu %}
+
+	{% if item.nombre != 'root' %}
+
+    {% ifchanged item.padre %} 
+    <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">{{item.padre}}</li>
+    {% endifchanged %}
+
+    {% if item.url != 'TABLEROS' %}
+    <li>
+        <a href="{{ item.url }}">
+            <i class="{{item.icono}}"></i>
+            <span class="right-nav-text">{{item.nombre}}</span>
+
+            {% if item.tags %}
+					{% if item.tags == 'get_count_folios' %}
+						<span class="badge badge-pill badge-success float-right mt-1">{% get_count_folios request.user.username %}</span>
+					{% elif item.tags == 'get_count_transfer' %}
+						<span class="badge badge-pill badge-success float-right mt-1">{% get_count_transfer %}</span>
+					{% elif item.tags == 'get_count_auditoria' %}
+						<span class="badge badge-pill badge-success float-right mt-1">{% get_count_auditoria %}</span>
+					{% elif item.tags == 'get_count_ejecucion' %}
+						<span class="badge badge-pill badge-success float-right mt-1">{% get_count_ejecucion %}</span>
+					{% endif %}
+            {% endif %}
+
+        </a>
+    </li>
+    {% endif %}
+
+    {% if item.url == 'TABLEROS' %}
+    <li>
+        <a href="javascript:void(0);" data-toggle="collapse" data-target="#elements">
+            <div class="pull-left"><i class="ti-palette"></i><span class="right-nav-text">Tablero</span></div>
+            <div class="pull-right"><i class="ti-plus"></i></div>
+            <div class="clearfix"></div>
+        </a>
+        <ul id="elements" class="collapse" data-parent="#sidebarnav">
+            <li><a href="{% url 'home_app:reporte-ingresos' %}">Recursos Fiscales</a></li>
+            <li><a href="{% url 'home_app:REC' %}">REC</a></li>
+
+            <li>
+                <a href="javascript:void(0);" data-toggle="collapse" data-target="#auth">Padron Vehicular<div
+                        class="pull-right"><i class="ti-plus"></i></div>
+                    <div class="clearfix"></div>
+                </a>
+                <ul id="auth" class="collapse">
+                    <li><a href="{% url 'home_app:padron-vehicular' %}">&nbsp;&nbsp;&nbsp;Padron Vehicular</a>
+                    </li>
+                    <li><a href="{% url 'home_app:reporte-vehicular' %}">&nbsp;&nbsp;&nbsp;Reporte Vehicular</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    {% endif %}
+	
+	{% endif %}
+
+{% endfor %}
+
+
+
+<!-- {% for path in accesos %}
+
+
+    {% if path.padre %}
+    <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">{{path.padre}}</li>
+    {% endif %}
+
+    {% if path.url != 'TABLEROS' %}
+    <li>
+        <a href="{{ path.url }}">
+            <i class="{{path.icono}}"></i>
+            <span class="right-nav-text">{{path.nombre}}</span>
+
+            {% if path.tags %}
+                <span id="spCount" class="badge badge-pill badge-success float-right mt-1">
+                    {{ path.tags }}
+                    {% get_count_folios request.user.username %}
+                </span>
+            
+            {% endif %}
+
+        </a>
+    </li>
+    {% endif %}
+
+    {% if path.url == 'TABLEROS' %}
+
+    <li>
+        <a href="javascript:void(0);" data-toggle="collapse" data-target="#elements">
+            <div class="pull-left"><i class="ti-palette"></i><span class="right-nav-text">Tablero</span></div>
+            <div class="pull-right"><i class="ti-plus"></i></div>
+            <div class="clearfix"></div>
+        </a>
+        <ul id="elements" class="collapse" data-parent="#sidebarnav">
+            <li><a href="{% url 'home_app:reporte-ingresos' %}">Recursos Fiscales</a></li>
+            <li><a href="{% url 'home_app:padron-vehicular' %}">REC</a></li>
+
+            <li>
+                <a href="javascript:void(0);" data-toggle="collapse" data-target="#auth">Padron Vehicular<div
+                        class="pull-right"><i class="ti-plus"></i></div>
+                    <div class="clearfix"></div>
+                </a>
+                <ul id="auth" class="collapse">
+                    <li><a href="{% url 'home_app:padron-vehicular' %}">&nbsp;&nbsp;&nbsp;Padron Vehicular</a>
+                    </li>
+                    <li><a href="{% url 'home_app:reporte-vehicular' %}">&nbsp;&nbsp;&nbsp;Reporte Vehicular</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+
+    {% endif %}
+
+{% endfor %} -->
+
+
+
+
+
+
+
+
+
+
+          

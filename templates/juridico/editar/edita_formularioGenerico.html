@@ -1,0 +1,199 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'custom/css/RecApp.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">{{proceso}}</h4>
+            {% comment %} <h4>{% for menu in actividad %} {{ menu.actividad }} {{ menu.tipo_tramite }} {% endfor %}</h4> {% endcomment %}
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_create" action="{% url 'juridico_app:actualiza-detalle-proceso' proceso_id formulario_id %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body p-4">
+                {% for campo in formulario %}
+
+                    <div class="col-md-12">
+                        {% for dato in ver_detalle_proceso%}
+                            <!-- <label>{{ campo.etiqueta }}</label> -->                            
+                            {% if campo.campo  == dato.dato %}
+                                {% if campo.tipo_control == 'text' or campo.tipo_control == 'date' %}
+                                    <div class="form-floating mb-2">
+                                        {% if campo.tipo_control == 'text' %}
+                                        <input class="form-control input-rec" 
+                                            type="{{ campo.tipo_control }}" 
+                                            name="{{ campo.campo }}"
+                                            placeholder="."
+                                            {% if campo.is_required == True %} required {% endif %}
+                                            value="{{ dato.valor }}">
+                                        <label>{{ campo.etiqueta }}</label>                        
+                                            
+                                        {% elif campo.tipo_control == 'textarea' %}   
+                                        
+                                        <ul id="list_{{ campo.campo }}"></ul>
+                                        <input class="form-control input-rec" 
+                                                type="text" 
+                                                id="txt_{{ campo.campo }}" 
+                                                placeholder="Enter ...">
+                                        <label>{{ campo.etiqueta }}</label>
+
+                                        <input type="hidden" name="{{ campo.campo }}" value="">
+
+                                        {% elif campo.tipo_control == 'date' %}
+                                        <input type="text" 
+                                            id="{{ campo.campo }}" 
+                                            class="form-control input-rec date-picker-default" 
+                                            name="{{ campo.campo }}"
+                                            placeholder="."
+                                            readonly="true"
+                                            data-date-format='dd/mm/yyyy'                                
+                                            {% if campo.is_required == True %} required {% endif %}
+                                            value="{{ dato.valor }}">                                                                                                
+                                        <label>{{ campo.etiqueta }}</label>
+
+                                    </div>
+                                        {% endif %}
+                                {% endif %}
+
+                                    {% if campo.tipo_control == 'textarea' %}   
+                                    <label style="transform: scale(.95) translateX(0.9rem);">{{ campo.etiqueta }}</label>
+                                    
+                                    <!-- <ul id="list_{{ campo.campo }}"></ul> -->
+                                    <textarea class="form-control input-area-rec float-label" 
+                                            id="{{campo.tipo_control}}" 
+                                            placeholder=""
+                                            rows = "5"
+                                            name="{{ campo.campo }}"
+                                            maxlength="200">{{dato.valor}}</textarea>
+
+
+                                    {%  elif campo.tipo_control == 'checkbox' %}
+                                        <div class="switchery-demo">
+                                            <!-- <b>{{ campo.etiqueta }}</b> -->
+                                            <label style="transform: scale(.95) translateX(0.9rem);padding-right: 35px;">{{ campo.etiqueta }}</label>
+                                            <input type="checkbox" 
+                                                name="{{ campo.campo }}"                                                
+                                                {% if dato.valor == 'on' %} 
+                                                    checked 
+                                                {% endif %} 
+                                                id="{{ campo.campo }}"
+                                                data-plugin="switchery" 
+                                                data-color="#1bb99a"
+                                                />
+                                        </div>
+                                        <br>
+
+                                <div class="mb-2">                                
+                                    {% elif campo.tipo_control == 'select' %}
+                                        <label class="etiqueta-combo mb-2">{{ campo.etiqueta }}</label>
+                                        <select class="form-control selectize-select"
+                                            placeholder = '{{campo.etiqueta}}'                                    
+                                            name="{{ campo.campo }}">
+                                            {% comment %} id="{{ campo.campo }}" {% endcomment %}
+                                            {% comment %} onchange="myFunction(this)"> {% endcomment %}
+                                            <!-- <option value="Seleccionar">Seleccionar</option> -->
+                                            {% for combo in opcion %}
+                                                {% comment %} {% if demandaTipo == combo.agrupador %} {% endcomment %}
+                                                {% if campo.consulta|upper == combo.agrupador|upper  or 'SELECT_DEFAULT' == combo.agrupador|upper %}
+                                                    <!-- <option value="{{ combo.id }}" {% if combo.valor == dato.valor %}selected{% endif %}>{{ combo.nombre }}</option> -->
+                                                    <option value="{{ combo.id }}">{{ combo.nombre }}</option>
+                                                {% endif %}
+                                                
+                                            {% endfor %}
+                                        </select>
+
+                                    {% elif campo.tipo_control == 'select_multiple' %}
+
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="switchery-demo">
+                                                <input type="checkbox" 
+                                                    id="ckTodos_{{ campo.campo }}"
+                                                    value="Todos"
+                                                    data-plugin="switchery" 
+                                                    data-color="#3db9dc" />
+                                                <b>Todos</b>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <ul>
+                                        {% for combo in opcion %}
+                                            {% if campo.consulta|upper == combo.codigo|upper %}
+                                                <div class="switchery-demo mb-1">
+                                                    <input type="checkbox" 
+                                                        name="{{ campo.campo }}"
+                                                        class="{{ campo.campo }}"
+                                                        value="{{ combo.valor }}"
+                                                        data-plugin="switchery" 
+                                                        data-color="#3db9dc" />
+                                                    <b>{{ combo.comentario }}</b>
+                                                </div>
+
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul> 
+
+                                    <input type="hidden" name="{{ campo.campo }}" value="">
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}           
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btGuardar" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+
+
+<!-- Plugins js-->
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        });
+        $('.date-picker-default').css("background-color", "white");
+    });
+    {% for dato in ver_detalle_proceso%}
+        {% for campo in formulario %}
+            {% if campo.tipo_control == 'select' and dato.dato == campo.campo and campo.is_visible %}                
+                var selectize = $(document.getElementsByName('{{ campo.campo }}'))[0].selectize;            
+                {% if not dato.valor is None and dato.valor != ''%}
+                    selectize.setValue('{{dato.valor}}');
+                {%else%}
+                    selectize.setValue('178');
+                {%endif%}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</script>
+{% endblock extrajs %}
+
+
+

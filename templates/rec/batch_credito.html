@@ -1,0 +1,89 @@
+{% load static %}
+<div class="modal-dialog modal-dialog-centered" role="document" data-bs-backdrop="static" data-bs-keyboard="false"
+    tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Carga Masiva</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'rec_app:batch-credito' %}" id="form_batch" method="POST" enctype="multipart/form-data">
+            <div class="modal-body p-4">
+
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">CSV</label>
+                            {{ Formulario.archivo }}
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button id="btExecute" class="btn btn-outline-secondary gris-oscuro" type="submit">
+                    Ejecutar
+                </button>
+
+                <button id="btLoading" style="display: none;" class="btn btn-outline-secondary gris-oscuro"
+                    type="button" disabled>
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Ejecutando...
+                </button>
+                <button type="button" class="btn btn-outline-secondary gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $('#id_archivo').attr("accept", ".csv");
+
+        $("#btExecute").click(function () {
+
+            var programa = $('#id_programa').val();
+            var metodo_envio = $('#id_metodo_envio').val();
+
+            if(programa !== '210'){
+                $('#validar_fecha').html('');
+
+                if(metodo_envio !== '209'){
+                    $('#validar_fecha2').html('');
+                    return true;
+
+                }else{
+                    $('#validar_fecha2').html('campo requerido');
+                    return false;
+
+                }
+
+            }else{
+                $('#validar_fecha').html('campo requerido');
+                return false;
+
+            }
+
+        });
+
+        $("#form_batch").submit(function (e) {
+
+            $("#btExecute").hide();
+            $("#btLoading").show();
+
+            return true;
+
+        });
+
+    });
+</script>
+{% endblock extrajs %}
+
+
+

@@ -1,0 +1,28 @@
+<div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Rechazar</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_rechazar_todos" action="{% url 'transferidos_app:rechazar-todos' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-group">
+                    {{ form.folio }}
+                    <div class="text-center">
+                        <h4><label id="lbRechazarTodos" for="lbRechazarTodos" class="text-primary"></label></h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+

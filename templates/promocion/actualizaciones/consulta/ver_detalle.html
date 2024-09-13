@@ -1,0 +1,93 @@
+{% load static %}
+
+{% block title %} Mercados {% endblock title %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title"><label id="lbEvento"></label></h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+
+            <div class="row">
+                <div class="text-center">
+                    <h5>Total de Tramites: {{ total_tramites }}</h5>
+                </div>
+                <div class="table-responsive mt-15">
+                    <table id="datatable2" class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Tipo</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in detalle %}
+                            <tr>
+                                <td>{{ row.actividad_ }}</td>
+                                <td>{{ row.tipo_tramite_ }}</td>
+                                <td>{{ row.total_ }}</td>
+                            </tr>   
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'admin/js/buttons.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        document.title = $('#lbEvento').html();
+
+		var table2 = $('#datatable2').DataTable({
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        
+    });
+</script>
+{% endblock extrajs %}
+
+

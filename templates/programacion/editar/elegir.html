@@ -1,0 +1,94 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'programacion_app:elegir' pk %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.rfc.label }}
+                            <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                            {{ form.rfc }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.programa.label }}
+                            <h4><strong id="lbPrograma" class="sateg-negritas"></strong></h4>
+                            {{ form.programa }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            Modelo:
+                            <h4><strong class="sateg-negritas">{{ modelos }}</strong></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <label style="display: none;" id="alert_nombre" class="text-danger">*RFC no disponible*</label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnValidate" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+                <button id="btnSend" style="display: none;" type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        var rfc = $("#id_rfc").val();
+        var programa = $("#id_programa").val();
+
+        $('#lbRFC').html(rfc);
+        $('#lbPrograma').html(programa);
+
+        $("#btnValidate").click(function (e) {
+            e.preventDefault();
+
+            var RFC = $("#id_rfc").val();
+            var myURL = "{% url 'programacion_app:validar-dato' 'RFC' 2 %}";
+
+            $.ajax({
+                url: myURL.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+
+                    if (data.result === true) {
+                        $('#alert_nombre').hide();
+                        $("#btnSend").click();
+                    }
+                    else {
+                        $('#alert_nombre').show();
+                        return false;
+                    }
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+
+    });
+</script>
+{% endblock extrajs %}

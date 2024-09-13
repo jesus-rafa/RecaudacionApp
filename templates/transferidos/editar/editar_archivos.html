@@ -1,0 +1,64 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Archivo</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'transferidos_app:editar-archivo-3' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>ID:</label>
+                            {{ form.programa_id }}
+                            <input type="text" class="form-control" id="tbOficio3">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Tipo:</label>
+                            {{ form.tipo }}
+                            <input id="hfType" type="hidden" value="{{ selected_tipo }}">
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Comentarios:</label>
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label>Archivo:</label>
+                            {{ form.archivo }}
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

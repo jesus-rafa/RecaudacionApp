@@ -1,0 +1,252 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+{% load permissions %}
+
+{% block titulo %} Verificacion {% endblock titulo %}
+
+{% block content %}
+
+<style>
+    .dropdown-menu{
+        min-width: 0 !important;
+    }
+
+    .centrado{
+        text-align: left !important;
+    }
+
+    .menus{
+        position: relative;
+        display: inline-block;
+    }
+
+    .menus::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        /* background-color: #000; */
+        background: linear-gradient(to left, #070707, #787777);
+        bottom: -2px;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.4s ease-out;
+    }
+
+    .menus:hover::after {
+        transform: scaleX(1);
+    }
+    
+</style>
+
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <!--<i class="fas fa-user"></i>-->            
+            <h4 class="page-title " style="margin-left:10px;">  Verificación vehicular {% if busqueda_no_serie %}/ {{busqueda_no_serie}}{% endif %}</h4>  
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body py-0">
+        <div class="row my-4">
+            <div class="col-md-12">
+                <!-- <form method="GET"> -->
+                <div class=" form-floating d-flex">
+                    <!-- <span class="input-group-text">Número de serie</span> -->
+
+                    <input type="text" class="float-label form-control input-rec" id="no_serie" name="no_serie" placeholder="" onchange="validar_no_serie()">
+                    <label>Número de serie</label>
+                    
+                    <button type="button" class="btn   btn-volver mt-3  " value="Buscar" onclick="busqueda_verificacion()">
+                        
+                        <span class="menus">Buscar</span>
+                    </button>
+                    </div>
+                <!-- </form> -->
+            </div>
+        </div>
+        <div class="row d-none">
+            <div class="col">
+                <div class="form-floating">
+                    <input id="search-verificacion_vehicular" name="search-verificacion_vehicular" type="text" class="float-label form-control input-rec" placeholder="Buscar">
+                    <label>Buscar</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100 centrado"  id="dt-verificacion_vehicular">
+                    <thead >
+                        <tr>
+                            <th class="all">No. de folio</th>
+                            <th class="all">No. de control</th>
+                            <!-- <th class="all">No. de serie</th> -->
+                            <th class="all">Estatus</th>
+                            <th class="all">Fecha de validación</th>
+                            <th class="all">Usuario que valido</th>
+                            <th class="none" >Motivo de rechazo</th>
+                            {% if pefil_admin %}
+                                <th class="all">Historial</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in info_verificacion_vehicular  %}
+                            <tr>
+                                <td >{{item.NUMERO_DE_FOLIO}}</td>
+                                <td>{{item.NUMERO_CONTROL}}</td>
+                                <!-- <td>{{item.NUMERO_SERIE_VEHICULO}}</td> -->
+                                <td>{{item.ESTATUS}}</td>
+                                <td>{{item.FECHA_VALIDACION}}</td>
+                                <td>{{item.USUARIO_VALIDO}}</td>
+                                <td> 
+                                    <div style="width: 70rem;
+                                    white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" >
+                                        {{item.MOTIVO_RECHAZO}} 
+                                    </div>
+                                    
+                                        
+                                    
+                                    
+                                </td>
+                                {% if pefil_admin %}
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                            data-bs-toggle="dropdown" aria-expanded="=false" style="background-color:#0000; border:0px solid;">
+                                            <i class="mdi mdi-dots-horizontal"></i></a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <button class="btn fondo-boton " onclick="Informacion('{{item.id}}')" title="Ver historial" tabindex="0" data-plugin="tippy" data-tippy-placement="left"> <i class="fas fa-list"></i></button>                     
+                                            </div>
+                                        </div>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--modal informacion-->
+<div class="modal fade" id="modal_historial" tabindex="-1" role="dialog" aria-labelledby="mdl-requisitos_tramitesLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg" tabindex="-1" aria-hidden="true">
+        <div class="modal-content" >
+            <div class="modal-header p-0 px-3 py-2">
+                <div class="row">
+                    <h4 class="modal-title" >Historial{% if busqueda_no_serie %} de número de serie <b>{{busqueda_no_serie}}{% endif %}</b></h4>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 px-3 pb-2">
+                {% if busqueda_no_serie %}
+                    <div class="dropdown float-end" style="top: 40px;">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="{% url 'verificacion_app:exportar-historial-busquedas-verif' busqueda_no_serie %}" target="_blank" class="dropdown-item">
+                                <i class="mdi mdi-download"></i> Descargar CSV</a>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search-historial_busqueda" name="search-historial_busqueda" type="text" class="float-label form-control input-rec" placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>             
+                <div class="row">
+                    <div class="col">
+                        <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100"  id="dt-historial_busqueda">
+                            <thead >
+                                <tr>
+                                    <th class="all">Fecha de busqueda</th>
+                                    <!-- <th class="all">Número de serie</th> -->
+                                    <th class="all">Usuario</th>
+                                </tr>
+                            </thead>
+                            <tbody>    
+                                {% for item in historial_verificacion_vehicular  %}
+                                    <tr>
+                                        <td>{{item.modified|date:'d/m/Y H:m:s'}}</td>
+                                        <!-- <td>{{item.busqueda}}</td> -->
+                                        <td>{{item.usuario.get_full_name}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+<!--modal informacion-->
+{% endblock content %}
+
+{% block extrajs %}
+<!-- Plugins js -->
+
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+<script>
+
+    $(document).ready(function() {
+
+        render_table("#dt-historial_busqueda","#search-historial_busqueda",[]);
+
+        $('#dt-historial_busqueda').DataTable().order([[0, 'desc']]).draw();
+
+        render_table("#dt-verificacion_vehicular","#search-verificacion_vehicular",[]);
+
+        $('#dt-verificacion_vehicular').DataTable().order([[0, 'desc']]).draw();
+    })
+    function Informacion(informacion) {
+        $("#modal_historial").modal("show");
+    }
+
+    function busqueda_verificacion() {
+        let busqueda = $("#no_serie").val();
+        if (busqueda != "" && busqueda.length > 4)
+        {
+            window.location.href = '{{request.scheme}}://{{request.get_host}}/verificacion-vehicular/' + busqueda;
+        }
+        else {
+            return toastr.error("Debe ingresa mínimo 5 caracteres");
+        }
+    }
+
+    function validar_no_serie() {
+        var no_serie = $("#no_serie").val();
+        no_serie = no_serie.replace(/\s+/g, '');
+        no_serie = no_serie.toUpperCase();
+        $("#no_serie").val(no_serie);
+    }
+</script>
+
+{% endblock extrajs %}

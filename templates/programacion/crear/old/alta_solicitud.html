@@ -1,0 +1,47 @@
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6 id="lbTitle">Solicitar Apoyo</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_alta_solicitud" action="{% url 'programacion_app:alta-solicitud' programa_id %}" method="POST">{% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+					<div class="text-center">
+						<h4 class="text-primary" id="lbOficio10"></h4>
+                        {{ form.programa_id }}
+						</div>
+                    </div>
+                   {{ form.fecha }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btSave" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(function () {
+        
+		$("#form_alta_solicitud").submit(function (e) {
+
+            $("#btSave").attr("disabled", true);
+
+            return true;
+
+        });
+		
+
+    });
+</script>
+

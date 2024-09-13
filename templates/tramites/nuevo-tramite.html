@@ -1,0 +1,212 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Nuevo Tramite {% endblock titulo %}
+
+{% block head %}
+
+<style>
+    .ocultar{
+        display: none !important;
+    }
+
+    .fondo-boton{
+        color: #464747 !important;
+    }
+
+    .fondo-boton:hover{
+    color: #020B0D !important;
+    }
+
+    .selectize-input{
+        /* border:none !important; */
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+</style>
+
+{% endblock head %}
+
+{% block content %} 
+
+<!-- quill css -->
+<!-- <link href="{% static 'assets/libs/quill/quill.core.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/quill/quill.snow.css' %}" rel="stylesheet" type="text/css" /> -->
+
+<!-- App css -->
+<link href="{% static 'assets/css/config/creative/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+<link href="{% static 'assets/css/config/creative/app.min.css' %}" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+
+<!-- <div class="content-page"> -->
+    <div class="content">
+
+        <!-- Start Content-->
+        <div class="container-fluid">
+            
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <div class="page-title-right">
+                            
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>     
+            <!-- end page title --> 
+
+            <!-- Right Sidebar -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="page-title">Registrar prestación</h4>
+                            <div class="mt-4">
+
+                                <form  id="form_alta_pagos" action="{% url 'tramites_app:nuevo-tramite' %}" method="POST">
+                                    {% csrf_token %}
+
+                                    <div class="row mb-2 px-4">
+                                        <div class="col">
+                                            <div class="">                                                
+                                                <label >{{form.tipo.label}}</label>  
+                                                {{form.tipo}}                                        
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                
+                                                {{form.servicio}}
+
+                                                <label >{{form.servicio.label}}</label>
+                                            </div>
+                                        </div>                                        
+                                    </div>  
+                                    
+                                    <fieldSet>
+
+                                        <legend><p style="margin-left: 35px; font-size: 10px;">Tipo de contrato</p></legend>
+                                        <div class="row  px-4">  
+
+                                            <div class="col ">
+                                                <div class="row  ">
+                                                    <div class="col">
+                                                        <label >{{form.confianza.label}}</label>
+                                                        {{form.confianza}}                                                   
+                                                    </div>                                                                                         
+                                                </div>
+                                            </div>                                        
+                                            
+                                            <div class="col ">
+                                                <div class=" row  ">
+                                                    <div class="col">
+                                                        <label >{{form.plaza.label}}</label>
+                                                        {{form.plaza}}                                                   
+                                                    </div>                                                                                         
+                                                </div>
+                                            </div>
+
+                                            <div class="col ">
+                                                <div class="row  ">
+                                                    <div class="col">
+                                                        <label >{{form.honorarios.label}}</label>                                            
+                                                        {{form.honorarios}}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </fieldSet>
+
+                                    <div class="row mb-4 px-4">
+
+                                        <div class="col-6 ">
+                                            <div class="row pt-3 ">
+                                                <label >{{form.tramite.label}}</label>
+                                                {{form.tramite}}                                                                                                             
+                                            </div>
+                                        </div> 
+
+                                        <div class="col d-none">
+                                            <div class="row pt-3 ">
+                                                <label >{{form.estatus.label}}</label>
+                                                {{form.estatus}}                                                                                                             
+                                            </div>
+                                        </div> 
+                                            
+                                    </div>
+
+                                    <div class="row mb-2 px-4 d-none">
+                                        <div class="col">
+                                            <div class="">                                                
+                                                {{form.titulo_formato}}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-end">
+                                            <!-- <button type="button" class="btn btn-success waves-effect waves-light"><i class="mdi mdi-content-save-outline"></i></button>
+                                            <button type="button" class="btn btn-success waves-effect waves-light"><i class="mdi mdi-delete"></i></button> -->
+                                            <button type="button" onclick="$(location).attr('href','{% url 'tramites_app:tramites-servicios' %}');" class="btn fondo-boton " ><i class="mdi mdi-send ms-2"></i> Cancelar</button>
+                                            <button class="btn fondo-boton  " type="submit" >  <i class="mdi mdi-send ms-2"></i> <span>Guardar</span></button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div> <!-- end card-->
+
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div> <!-- end Col -->
+
+            </div><!-- End row -->
+            
+        </div> <!-- container -->
+
+    </div> <!-- content -->
+
+<!-- </div> -->
+
+
+{% endblock content %}
+
+{% block extrajs %}
+
+
+<!-- Quill js -->
+ <!-- <script src="{% static 'assets/libs/quill/quill.min.js' %}"></script> -->
+
+ <!-- App js -->
+ <script src="{% static 'assets/js/app.min.js' %}"></script>
+
+ <script  src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+ <script  src="{% static 'ckeditor/ckeditor/init.js' %}"></script>
+ <script  src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+ <script  src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+ <script>
+    $(document).ready(function(){
+        var select_tipo = $("#id_tipo").selectize();
+        var selectize_tipo = select_tipo[0].selectize;
+        selectize_tipo.setValue(0);
+
+        var select_tramite = $("#id_tramite").selectize();
+        var selectize_tramite = select_tramite[0].selectize;
+        selectize_tramite.setValue(0);
+        
+    });
+
+    
+ </script>
+
+{% endblock extrajs %}

@@ -1,0 +1,330 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Programas Especiales {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Programas Especiales</h4> 
+        </div>
+    </div>
+</div>	 
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="col-md-12">
+                    <ul class="nav nav-pills navtab-bg nav-justified">
+                        <li class="nav-item">
+                            <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                                <i class="fa fa-users"></i> Grandes Contribuyentes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-20" id="profile-20-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                <i class="fab fa-fort-awesome "></i> Municipios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-40" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                <i class="fa fa-building"></i> Instituciones Publicas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-50" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                <i class="fas fa-file-contract"></i> Contratistas
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <br>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="home-20">
+
+                            <div class="table-responsive">
+                                <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Detalle</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in grandes_contribuyentes %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <!-- <td>{{ programa.folio }}</td> -->
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <!-- <td>{{ programa.direccion}}</td> -->
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                           
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="profile-20">
+                            <div class="table-responsive">
+                                <table id="datatable2" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Detalle</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in municipios %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <!-- <td>{{ programa.folio }}</td> -->
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <!-- <td>{{ programa.direccion}}</td> -->
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                           
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+                        </div>
+
+                        <<div class="tab-pane fade" id="profile-40">
+                            <div class="table-responsive">
+                                <table id="datatable3" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                           
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Detalle</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in publicas %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                           
+                                            <td>
+                                                
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+
+                        </div>
+
+                        <div class="tab-pane fade" id="profile-50">
+                            <div class="table-responsive">
+                                <table id="datatable4" class="table table-sm table-striped table-bordered p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Oficio</th>
+                                            <th>RFC</th>
+                                            <th>Nombre</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Seguimiento</th>
+                                            <th>Detalle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in contratistas %}
+                                        <tr>
+                                            <td>
+                                                <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}"
+                                                    class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                            </td>
+                                            <td>{{ programa.rfc }}</td>
+                                            <td>{{ programa.nombre }}</td>
+                                           
+                                            <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                            <td>
+                                                {% if programa.recaudado != None %}
+                                                $ {{ programa.recaudado|unlocalize|intcomma }}
+                                                {% else %}
+                                                $ 0.00
+                                                {% endif %}
+                                            </td>
+                                            <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span> {{programa.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% get_user_info programa.seguimiento %}</td>
+                                           
+                                            <td>
+                                               
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+
+        var table1 = data_table('#datatable1');
+        var table2 = data_table('#datatable2');
+        var table3 = data_table('#datatable3');
+        var table4 = data_table('#datatable4');
+		
+    });
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable) {
+
+        $(myTable).DataTable({
+            pageLength: 50,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[5, 'desc']],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+    }
+</script>
+
+{% endblock extrajs %}

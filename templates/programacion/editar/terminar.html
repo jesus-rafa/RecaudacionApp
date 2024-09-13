@@ -1,0 +1,104 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Resultado</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'programacion_app:terminar' pk %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="text-center">
+                    <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">Estatus:</label>
+                            {{ form.estatus }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="cmb_Motivo">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">Motivo:</label>
+                            {{ form.motivo }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.comentarios }}
+                            <label>{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-masks.init.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 
+<script src="{% static 'assets/js/pages/form-wizard.init.js' %}"></script>
+<script src="{% static 'assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $("#cmb_Motivo").hide();
+
+        $("#id_rfc").change(function () {
+
+            var RFC = $( "#id_rfc option:selected" ).text();
+            var myURL = "{% url 'transferidos_app:get-contribuyente-2' 'RFC' %}";
+
+            $.ajax({
+                url: myURL.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+
+                    try {
+                        $("#id_nombre").val(data[0].nombre);
+                        $("#id_direccion").val(data[0].direccion);
+
+                    }
+                    catch (err) {
+                        $("#id_nombre").val('sin datos*');
+                        $("#id_direccion").val('sin datos*');
+                    }
+
+                },
+                error: function (error) {
+
+                    console.log(error);
+                }
+            });
+        });        
+    });
+
+</script>
+{% endblock extrajs %}

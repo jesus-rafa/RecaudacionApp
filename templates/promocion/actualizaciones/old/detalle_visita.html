@@ -1,0 +1,584 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tags %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Tramites {% endblock title %}
+
+
+{% block content %}
+<div class="page-title">
+    {% has_perms request.user 'change_visita' as change_visita %}
+    {% has_perms request.user 'delete_visita' as delete_visita %}
+    
+    <div class="row">
+        <div class="col-sm-6">
+            <h4 class="mb-0">Trámites y Servicios</h4>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb pt-0 pr-0 float-left float-sm-right ">
+                <a href="{% url 'promocion_app:actualizaciones-admin' idBack %}" class="btn btn-primary" target="_self">
+                    <i class="fa fa-mail-reply"></i> Volver
+                </a>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="table-responsive">
+                <table class="mb-0 table">
+                    <thead>
+                        <tr>
+                            <th>RFC</th>
+                            <th>Nombre</th>
+							<th>Tramites</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contribuyente in visita %}
+                        <tr>
+                            <td>
+                                <i class="fa fa-address-book"></i>&nbsp;
+                                {{ contribuyente.rfc }}
+                            </td>
+                            <td><i class="fa fa-address-book"></i>&nbsp;
+                                {{ contribuyente.nombre }}
+                            </td>
+							<td>
+								<button id="btShow_Tramites" 
+                                    onclick="Ver_Tramites('{% url 'promocion_app:ver-tramites' contribuyente.id %}', '{{ contribuyente.rfc }}')"
+                                    data-toggle="tooltip" 
+                                    data-placement="top" 
+                                    title="Ver Tramites" 
+                                    class="btn btn-primary btn-sm" target="_self">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+							<td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <!-- <div class="card card-statistics h-100"> -->
+            <div class="card-body">
+                    <div class="tab round shadow">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link" id="home-20-tab" data-toggle="tab" href="#home-20" role="tab"
+                                    aria-controls="home-20" aria-selected="true"> <i class="fa fa-toggle-on"></i>
+                                    Trámites </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="profile-30-tab" data-toggle="tab" href="#profile-30" role="tab"
+                                    aria-controls="profile-30" aria-selected="false"><i class="fa fa-clone"></i> Servicios
+                                </a>
+                            </li>
+                    
+                    
+                    
+                        </ul>
+                    
+                        <div class="tab-content">
+                            <div class="tab-pane fade" id="home-20" role="tabpanel" aria-labelledby="home-20-tab">
+                                <form action="{% url 'promocion_app:guardar-visita-detalle' request.resolver_match.kwargs.id %}" method="POST">
+                                    {% csrf_token %}
+
+                                    <div class="form-group col-md-12">
+                                        <div class="text-center">
+                                            <button type="submit" id="btSave" class="btn btn-success">
+                                                Guardar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                <div class="form-row">
+            
+                                    
+                                    <div class="form-group col-md-6">
+									 <div class="card card-statistics h-100">
+                                        <div class="text-center">
+											<br>
+                                            <h5 class="card-title">Estatales</h5>
+                                        </div>
+										 <div class="form-row">
+                                            <div class="form-group col-md-2">
+                                            </div>
+                                            <div class="form-group col-md-10">
+                                               {% for campo in EstatalCheckForm %}
+                                        <div class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="{{ campo.campo }}"
+                                                   {% for visita in tramites_estatales %}
+                                                        {% if campo.campo == visita.dato %}
+                                                           {% if visita.valor == 'on' %} checked {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %} />
+                                                    <span></span>
+                                                    <b>{{ campo.etiqueta }}</b>
+                                            </label>  
+                                        </div>
+                                        <br>		
+                                        {% endfor %}
+
+                                            </div>
+                                        </div>
+										
+                                        
+                                        </div>
+                                    </div>
+
+                                                
+                                  
+                                    <div class="form-group col-md-6">
+									<div class="card card-statistics h-100">
+                                        <div class="text-center">
+										<br>
+                                            <h5 class="card-title">Federales</h5>
+                                        </div>
+										
+										<div class="form-row">
+                                            <div class="form-group col-md-2">
+                                            </div>
+                                            <div class="form-group col-md-10">
+											
+												 {% for campo in FederalCheckForm %}
+												<div class="checkbox checbox-switch switch-success">
+													<label>
+														<input 
+															type="checkbox" 
+															name="{{ campo.campo }}"
+														   {% for visita in tramites_federales %}
+																{% if campo.campo == visita.dato %}
+																   {% if visita.valor == 'on' %} checked {% endif %}
+																{% endif %}
+															{% endfor %} />
+															<span></span>
+															<b>{{ campo.etiqueta }}</b>
+													</label>  
+												</div>
+												<br>		
+												{% endfor %}
+											 </div>
+                                    </div>
+									
+									 </div>
+                                    </div>
+                                   
+                                </div>
+                                </form>
+                            </div>
+                    
+                            <div class="tab-pane fade " id="profile-30" role="tabpanel" aria-labelledby="profile-30-tab">
+                                <div class="form-row">
+
+                        
+                                    <div class="form-group col-md-6">
+									<div class="card card-statistics h-100">
+                                        <div class="text-center">
+										<br>
+                                            <h5 class="card-title">Estatales</h5>
+                                        </div>
+										<div class="form-row">
+                                            <div class="form-group col-md-2">
+                                            </div>
+                                            <div class="form-group col-md-10">
+											
+                                        {% for campo in EstatalForm %}
+                                            {% ifchanged campo.id_actividad %}
+                                            <button type="button" onclick="Agregar_Detalle('{% url 'promocion_app:alta-visita-detalle' request.resolver_match.kwargs.id campo.id_actividad.id %}')"
+                                                class="btn btn-primary btn" target="_blank" value="Buscar">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                                
+                                            <b>{{ campo.id_actividad.actividad }}</b>
+                                            <br>
+                                            <br>
+                                            {% endifchanged %}
+                                        {% endfor %}   
+										</div>
+										</div>
+                                    </div>
+									</div>
+            
+                                  
+                                    <div class="form-group col-md-6">
+									<div class="card card-statistics h-100">
+                                        <div class="text-center">
+											<br>
+                                            <h5 class="card-title">Federales</h5>
+                                        </div>
+										<div class="form-row">
+                                            <div class="form-group col-md-2">
+                                            </div>
+                                            <div class="form-group col-md-10">
+        
+                                        {% for campo in FederalForm %}
+                                            {% ifchanged campo.id_actividad %}
+                                            <button type="button" onclick="Agregar_Detalle('{% url 'promocion_app:alta-visita-detalle' request.resolver_match.kwargs.id campo.id_actividad.id %}')"
+                                                class="btn btn-primary btn" target="_blank" value="Buscar">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                                
+                                            <b>{{ campo.id_actividad.actividad }}</b>
+                                            <br>
+                                            <br>
+                                            {% endifchanged %}
+                                        {% endfor %} 
+										 </div>
+										</div>
+            
+                                    </div>
+									</div>
+                                   
+                                </div>
+                                <div class="form-row">
+								
+                                    <div class="form-group col-md-6">
+									<div class="card card-statistics h-100">
+									
+                                        <div class="table-responsive">
+                                            <table class="table center-aligned-table mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Tramite</th>
+                                                        <th>Datos</th>
+                                                       <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% regroup tramites_estatales by folio as list_tramites %}
+            
+                                                    {% for tramites in list_tramites %}         
+                                                        {% for visita in tramites.list %}
+                                                            {% if visita.valor != 'on' %}
+                                                            <tr>
+                                                                {% ifchanged %}
+                                                                <td>{{ visita.id_actividad.actividad }}</td>
+                                                                <td>
+                                                                    {% for visita in tramites.list %}
+                                                                        <strong>{{ visita.dato }}:</strong> {{ visita.valor }}<br>  
+                                                                    {% endfor %}  
+                                                                </td>
+                                                                <td>
+                                                                    {% with idActividad=visita.id_actividad.id %}
+                                                                    {% if change_visita is True %} 
+                                                                    <button id="btUpdate_Detail" 
+                                                                        type="button"
+                                                                        onclick="Editar_Detalle('{% url 'promocion_app:editar-visita-detalle' tramites.grouper idActividad %}')" 
+                                                                        data-toggle="tooltip" 
+                                                                        data-placement="top" 
+                                                                        title="Editar" 
+                                                                        class="btn btn-warning btn-sm" target="_self">
+                                                                        <i class="fa fa-pencil"></i>
+                                                                    </button>
+                                                                    {% endif %}
+                                                                    {% if delete_visita is True %}
+                                                                    {% csrf_token %}
+                                                                    <button id="btDelete_Detail"
+                                                                        type="button"
+                                                                        onclick="Eliminar_Detalle('{% url 'promocion_app:eliminar-visita-detalle' tramites.grouper %}')"
+                                                                        data-toggle="tooltip" 
+                                                                        data-placement="top" 
+                                                                        title="Eliminar" 
+                                                                        class="btn btn-danger btn-sm" target="_self">
+                                                                        <i class="fa fa-times"></i>
+                                                                    </button>
+                                                                    {% endif %}
+                                                                    {% endwith %}  
+                
+                                                                </td>
+                                                                {% endifchanged %}
+                                                            </tr>
+                                                            {% endif %}
+                                                        {% endfor %}  
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+										</div>
+									</div>
+									
+									<div class="form-group col-md-6">
+									<div class="card card-statistics h-100">
+            
+                                        <div class="table-responsive">
+                                            <table class="table center-aligned-table mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Tramite</th>
+                                                        <th>Datos</th>
+                                                       <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% regroup tramites_federales by folio as list_tramites %}
+            
+                                                {% for tramites in list_tramites %}         
+                                                    {% for visita in tramites.list %}
+                                                        {% if visita.valor != 'on' %}
+                                                        <tr>
+                                                            {% ifchanged %}
+                                                            <td>{{ visita.id_actividad.actividad }}</td>
+                                                            <td>
+                                                                {% for visita in tramites.list %}
+                                                                    <strong>{{ visita.dato }}:</strong> {{ visita.valor }}<br>
+                                                                {% endfor %}  
+                                                            </td>
+                                                            <td>
+                                                                {% with idActividad=visita.id_actividad.id %}
+                                                                {% if change_visita is True %} 
+                                                                <button id="btUpdate_Detail" 
+                                                                    type="button"
+                                                                    onclick="Editar_Detalle('{% url 'promocion_app:editar-visita-detalle' tramites.grouper idActividad %}')" 
+                                                                    data-toggle="tooltip" 
+                                                                    data-placement="top" 
+                                                                    title="Editar" 
+                                                                    class="btn btn-warning btn-sm" target="_self">
+                                                                    <i class="fa fa-pencil"></i>
+                                                                </button>
+                                                                {% endif %}
+                                                                {% if delete_visita is True %}
+                                                                {% csrf_token %}
+                                                                <button id="btDelete_Detail"
+                                                                    type="button"
+                                                                    onclick="Eliminar_Detalle('{% url 'promocion_app:eliminar-visita-detalle' tramites.grouper %}')"
+                                                                    data-toggle="tooltip" 
+                                                                    data-placement="top" 
+                                                                    title="Eliminar" 
+                                                                    class="btn btn-danger btn-sm" target="_self">
+                                                                    <i class="fa fa-times"></i>
+                                                                </button>
+                                                                {% endif %}
+                                                                {% endwith %}  
+            
+                                                            </td>
+                                                            {% endifchanged %}
+                                                        </tr>
+                                                        {% endif %}
+                                                    {% endfor %}  
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+									</div>
+                                </div>
+                    
+                            </div>
+                    
+                    
+                        </div>
+                    
+                    </div>
+               
+            </div>
+        <!-- </div> -->
+    </div>
+</div>
+
+<!-- Modal Payments -->
+<div class="modal fade" id="mdCreate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+<!-- Modal Update Payments -->
+<div class="modal fade" id="mdDetalle" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+<!-- Modal Delete Payments -->
+<div class="modal fade" id="mdDelete_Payments" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        {% if messages %}
+            {% for message in messages %}
+
+                if('{{message|safe}}' !== 'Guardado Correctamente'){
+                    $('#profile-30-tab').tab('show');
+                }else{
+                    $('#home-20-tab').tab('show');
+                }   
+
+               {% if message.tags == 'error' %}
+                    swal({
+                        title: 'No guardado!',
+                        text: '{{message|safe}}'
+                    })
+
+                {% else %}
+                    Command: toastr["success"]("{{ message|safe }}!", "Success")
+
+                    toastr.options = {
+                        "closeButton": false,
+                        "debug": false,
+                        "newestOnTop": false,
+                        "progressBar": false,
+                        "positionClass": "toast-top-full-width",
+                        "preventDuplicates": false,
+                        "onclick": null,
+                        "showDuration": 300,
+                        "hideDuration": 1000,
+                        "timeOut": 5000,
+                        "extendedTimeOut": 1000,
+                        "showEasing": "swing",
+                        "hideEasing": "linear",
+                        "showMethod": "fadeIn",
+                        "hideMethod": "fadeOut"
+                    }
+                {% endif %}
+               
+
+               
+            {% endfor %}
+        {% else %}
+
+            $('#home-20-tab').tab('show');
+ 
+        {% endif %}
+                    
+        $('.alert-success').fadeOut(6000);
+        $('[data-toggle="tooltip"]').tooltip();
+
+        
+
+    });
+	
+	function Ver_Tramites(myURL, myRFC) {
+        $('#mdCreate').load(myURL, function () {
+			
+			$('#lbRFC_modal').html(myRFC);
+            $(this).modal('show');
+
+        });
+    }
+    
+    function Agregar_Visita(myURL) {
+        $('#mdCreate').load(myURL, function () {
+
+            //$('#id_fecha').hide();
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Agregar_Detalle(myURL) {
+        $('#mdCreate').load(myURL, function () {
+
+            //$('#id_fecha').hide();
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Editar_Visita(myURL) {
+        $('#mdCreate').load(myURL, function () {
+
+            // $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            // $("#id_programa_id").hide();
+
+            // var Folio = $('#hfFolio').val();
+            // $('#tbOficio2').prop('readonly', 'readonly');
+            // $('#tbOficio2').val(Folio);
+
+            // var value = $('#hfType').val();
+            // $("#id_tipo option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Editar_Detalle(myURL) {
+        $('#mdCreate').load(myURL, function () {
+
+            // $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            // $("#id_programa_id").hide();
+
+            // var Folio = $('#hfFolio').val();
+            // $('#tbOficio2').prop('readonly', 'readonly');
+            // $('#tbOficio2').val(Folio);
+
+            // var value = $('#hfType').val();
+            // $("#id_tipo option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+    
+    
+    function Eliminar_Detalle(myURL){
+
+        swal({
+            title: 'Seguro que desea eliminar?',
+            text: "este tramite!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonClass: 'btn btn-danger',
+            cancelButtonClass: 'btn btn-secondary',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                
+            } 
+        })
+
+    }
+</script>
+{% endblock extrajs %}

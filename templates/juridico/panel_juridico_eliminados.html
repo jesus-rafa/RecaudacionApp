@@ -1,0 +1,677 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button id="btNew" onclick='location.href="{% url 'juridico_app:alta-demanda' %}"'
+                    class="btn btn-outline-secondary waves-effect btn-volver" target="_blank">
+                    <i class="fe-user-plus"></i> Agregar demanda
+                </button>
+            </div>
+            <h4 class="page-title">Juicios</h4>
+        </div>
+    </div>
+</div>
+
+{% comment %} <div class="" id="addSection">
+    {% include 'juridico/alta_demanda.html' %}
+</div> {% endcomment %}
+<div class="row">
+    <!-- <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="text-center" > {% comment %} style="border-bottom: 1px solid #002060;" {% endcomment %}
+                    Ultima demanda: <strong class="sateg-negritas">{{ last_folio.carpeta }}</strong>&nbsp;&nbsp;&nbsp;Expediente: <strong class="sateg-negritas">{{ last_folio.expediente }}</strong>&nbsp;&nbsp;&nbsp;Registrado: <strong class="sateg-negritas">{{ last_folio.created }}</strong>
+                </div>
+
+                <div class="tab-pane active" id="profile-30">                              
+                    <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                        <thead>
+                            <tr>
+                                <th>CARPETA</th>
+                                <th>TIPO</th>
+                                <th>SUBTIPO</th>
+                                <th>EXPENDIENTE</th>
+                                <th>TRIBUNAL</th>
+                                <th>ESTADO PROCESAL</th>
+                                <th>FECHA VENCIMIENTO</th>
+                                <th>DIAS RESTANTES</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for elemento in demanda %}
+
+                            {% comment %} {% restantes = elemento.interno - hoy %} {% endcomment %}
+                            <tr>
+                                <td>{{ elemento.carpeta|upper }}</td>
+                                <td>{{ elemento.juicio|upper }}</td>
+                                <td>{{ elemento.subtipo|upper }}</td>
+                                <td>{{ elemento.expediente|upper }}</td>
+                                <td>{{ elemento.tribunal|upper }}</td>
+                                <td>{{ elemento.estado_procesal|upper }}</td>
+                                <td style="text-align: center;">{{ elemento.fecha_interno|date:'d/m/Y' }}</td>
+                                <td style="text-align: center;">
+                                    {% if elemento.days > 10 %}
+                                    <div class="badge bg-primary" style="font-size: initial;"> {{ elemento.days }}</div>
+                                    {% elif elemento.days >= 5 and elemento.days < 10%}
+                                    <div class="badge bg-warning" style="font-size: initial;">{{ elemento.days }}</div>
+                                    {% elif elemento.days > 0 and elemento.days < 5%}
+                                    <div class="badge bg-danger" style="font-size: initial;">{{ elemento.days }}</div>
+                                    {% elif elemento.days <= 0 %}
+                                    <div class="badge bg-black" style="font-size: initial;">{{ elemento.days }}</div>
+                                    {%endif %}
+                                </td>
+                                <td style="width:110px">
+                                    <button id="btView"
+                                    onclick="View_Modal('{% url 'juridico_app:ver-demanda' elemento.id %}')"
+                                    title="Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="top"
+                                    class="btn btn-primary btn-xs" target="_blank"><i class="fas fa-eye"></i> 
+                                    </button>
+                                    <a href="{% url 'juridico_app:edita-demanda' elemento.id %}"
+                                    title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="top"
+                                    class="btn btn-warning btn-xs" target="_self"><i
+                                    class="fas fa-pen"></i></a>
+                                   
+                                    <!-- Administrar Demanda --
+                                    <a href="{% url 'juridico_app:admin-demanda' elemento.id %}" 
+                                        title="Proceso" tabindex="0" data-plugin="tippy"
+                                        data-tippy-placement="top" class="btn btn-info btn-xs" target="_self">
+                                        <i class="fas fa-gavel"></i>
+                                    </a>
+
+                                </td>                               
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-20">
+
+                        <div class="text-center mb-2" > {% comment %} style="border-bottom: 1px solid #002060;" {% endcomment %}
+                            Ultima demanda: <strong class="sateg-negritas">{{ last_folio.carpeta }}</strong>&nbsp;&nbsp;&nbsp;Expediente: <strong class="sateg-negritas">{{ last_folio.expediente }}</strong>&nbsp;&nbsp;&nbsp;Registrado: <strong class="sateg-negritas">{{ last_folio.created }}</strong>
+                        </div>
+
+                        <div class="dropdown float-end" style="top: 40px;">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar Excel</a>
+                                <!-- <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar CSV</a> -->
+                    
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <input id="search1" type="text" class="form-control input-rec" placeholder="Buscar">
+                                    <label for="search1">Buscar</label>
+                                </div>
+                            </div>
+                        </div>
+
+
+                       <!--  <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar Excel</a>
+                                <!-- <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar CSV</a>
+                    
+                            </div>
+                        </div> -->
+
+                        <div class="table-responsive">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100 dataTable no-footer dtr-inline collapsed" id="datatable2">
+                                <thead>
+                                    <tr>
+                                        <td>Carpeta</td>
+                                        <td>Tipo</td>
+                                        <td>Subtipo</td>
+                                        <!-- <td>Expediente</td> -->
+                                        <td>Tribunal</td>
+                                        <td>Estado procesal</td>
+                                        <td>Fecha vencimiento</td>
+                                        <td>Dias restantes</td>
+                                        <td class="hidden-sm">Acciones</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for elemento in creados_hoy %}
+                                    <tr>
+                                        <td>{{ elemento.carpeta }}</td>
+                                        <td>{{ elemento.juicio }}</td>
+                                        <td>{{ elemento.subtipo }}</td>
+                                        <!-- <td style="text-align: center;">{{ elemento.expediente }}</td> -->
+                                        <td>{{ elemento.tribunal }}</td>
+                                        <td>{{ elemento.estado_procesal }}</td>
+                                        <td style="text-align: center;">{{ elemento.fecha_interno|date:'d/m/Y' }}</td>
+                                        <td style="text-align: center;">
+                                            {% if elemento.days > 10 %}
+                                            <div class="badge bg-primary" style="font-size: initial;"> {{ elemento.days }}</div>
+                                            {% elif elemento.days >= 5 and elemento.days < 10%}
+                                            <div class="badge bg-warning" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {% elif elemento.days > 0 and elemento.days < 5%}
+                                            <div class="badge bg-danger" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {% elif elemento.days <= 0 %}
+                                            <div class="badge bg-black" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {%endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'juridico_app:ver-demanda' elemento.id %}')" class="dropdown-item" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                        Detalle
+                                                    </a>
+                                                    <a href="{% url 'juridico_app:edita-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-pen"></i>
+                                                        Editar
+                                                    </a>                                                
+                                                    <!-- Administrar Demanda -->
+                                                    <a href="{% url 'juridico_app:admin-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-gavel"></i>
+                                                        Proceso
+                                                    </a>
+                                                    <a onclick="Confirmacion('{% url 'juridico_app:elimina-demanda' elemento.id %}')" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-trash"></i>
+                                                        Eliminar
+                                                    </a>                                       
+                                                </div>
+                                            </div>
+
+                                        </td>    
+                                        <td>
+                                            <div class="row">
+                                                <div class="table-responsive">
+                                                    <table style="width:100%; table-layout: fixed;" class="table">
+                                
+                                                        <div class="grid-structure m-1">
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    Abogado dictaminador:
+                                                                    <br>
+                                                                    <b>{{ elemento.dictaminador }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Contribuyente:
+                                                                    <br>
+                                                                    <b>{{ elemento.contribuyente }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    RFC:
+                                                                    <br>
+                                                                    <b>{{ elemento.rfc|upper }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Estado:
+                                                                        <br>
+                                                                        <b>{{ elemento.estado_procesal }}</b>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Cuantia:
+                                                                        <br>
+                                                                        <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Cuantia:
+                                                                                <br>
+                                                                                <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        < div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>$ {{ row.presuntiva|unlocalize|intcomma }}</b>
+                                                                                <br>
+                                                                                <br>
+                                                                                {% if row.recaudado %}
+                                                                                <b>$ {{ row.recaudado|unlocalize|intcomma }}</b>
+                                                                                {% else %}
+                                                                                -
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                            <br>
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    Abogado promovente:
+                                                                    <br>
+                                                                    <b>{{ elemento.abogado_prom }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Notificacion:
+                                                                    <br>
+                                                                    <b>{{ elemento.fecha_notificacion|date:'d/m/Y' }}</b>
+                                                                    <!-- {% if row.fecha_notificacion %}
+                                                                    &nbsp;<span  class="badge bg-secondary noti-icon-badge">{{ row.notificado }}</span>
+                                                                    {% else %}
+                                                                    -
+                                                                    {% endif %} -->
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    Autoridad:
+                                                                    <br>
+                                                                    <b>{{ elemento.autoridad_rec|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Materia:
+                                                                    <br>
+                                                                    <b>{{ elemento.materia|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Dias en Seguimiento:
+                                                                        <br>
+                                                                        {% if row.color %}
+                                                                        <span style="background-color: {{ row.color }};" class="badge noti-icon-badge">{{ row.dias_seguimiento|floatformat:"0" }}</span>
+                                                                        {% else %}
+                                                                        <b>{{ row.dias_seguimiento|floatformat:"0" }}</b>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Requerimiento:
+                                                                    <br>
+                                                                    <b>-</b>
+                                                                </div>
+                                
+                                                                <div class="col-lg-2">
+                                
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Avance:
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>{{ row.avance }}</b>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                        </div>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% for elemento in demanda %}
+                                    <tr>
+                                        <td>{{ elemento.carpeta }}</td>
+                                        <td>{{ elemento.juicio }}</td>
+                                        <td>{{ elemento.subtipo }}</td>
+                                        <!-- <td style="text-align: center;">{{ elemento.expediente }}</td> -->
+                                        <td>{{ elemento.tribunal }}</td>
+                                        <td>{{ elemento.estado_procesal }}</td>
+                                        <td style="text-align: center;">{{ elemento.fecha_interno|date:'d/m/Y' }}</td>
+                                        <td style="text-align: center;">
+                                            {% if elemento.days > 10 %}
+                                            <div class="badge bg-primary" style="font-size: initial;"> {{ elemento.days }}</div>
+                                            {% elif elemento.days >= 5 and elemento.days < 10%}
+                                            <div class="badge bg-warning" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {% elif elemento.days > 0 and elemento.days < 5%}
+                                            <div class="badge bg-danger" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {% elif elemento.days <= 0 %}
+                                            <div class="badge bg-black" style="font-size: initial;">{{ elemento.days }}</div>
+                                            {%endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'juridico_app:ver-demanda' elemento.id %}')" class="dropdown-item" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                        Detalle
+                                                    </a>
+                                                    <a href="{% url 'juridico_app:edita-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-pen"></i>
+                                                        Editar
+                                                    </a>                                                
+                                                    <!-- Administrar Demanda -->
+                                                    <a href="{% url 'juridico_app:admin-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-gavel"></i>
+                                                        Proceso
+                                                    </a>
+                                                    <a onclick="Confirmacion('{% url 'juridico_app:elimina-demanda' elemento.id %}')" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-trash"></i>
+                                                        Eliminar
+                                                    </a>                                       
+                                                </div>
+                                            </div>
+
+                                        </td>    
+                                        <td>
+                                            <div class="row">
+                                                <div class="table-responsive">
+                                                    <table style="width:100%; table-layout: fixed;" class="table">
+                                
+                                                        <div class="grid-structure m-1">
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    Abogado dictaminador:
+                                                                    <br>
+                                                                    <b>{{ elemento.dictaminador }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Contribuyente:
+                                                                    <br>
+                                                                    <b>{{ elemento.contribuyente }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    RFC:
+                                                                    <br>
+                                                                    <b>{{ elemento.rfc|upper }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Estado:
+                                                                        <br>
+                                                                        <b>{{ elemento.estado_procesal }}</b>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Cuantia:
+                                                                        <br>
+                                                                        <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Cuantia:
+                                                                                <br>
+                                                                                <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        < div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>$ {{ row.presuntiva|unlocalize|intcomma }}</b>
+                                                                                <br>
+                                                                                <br>
+                                                                                {% if row.recaudado %}
+                                                                                <b>$ {{ row.recaudado|unlocalize|intcomma }}</b>
+                                                                                {% else %}
+                                                                                -
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                            <br>
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    Abogado promovente:
+                                                                    <br>
+                                                                    <b>{{ elemento.abogado_prom }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Notificacion:
+                                                                    <br>
+                                                                    <b>{{ elemento.fecha_notificacion|date:'d/m/Y' }}</b>
+                                                                    <!-- {% if row.fecha_notificacion %}
+                                                                    &nbsp;<span  class="badge bg-secondary noti-icon-badge">{{ row.notificado }}</span>
+                                                                    {% else %}
+                                                                    -
+                                                                    {% endif %} -->
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    Autoridad:
+                                                                    <br>
+                                                                    <b>{{ elemento.autoridad_rec|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Materia:
+                                                                    <br>
+                                                                    <b>{{ elemento.materia|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Dias en Seguimiento:
+                                                                        <br>
+                                                                        {% if row.color %}
+                                                                        <span style="background-color: {{ row.color }};" class="badge noti-icon-badge">{{ row.dias_seguimiento|floatformat:"0" }}</span>
+                                                                        {% else %}
+                                                                        <b>{{ row.dias_seguimiento|floatformat:"0" }}</b>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Requerimiento:
+                                                                    <br>
+                                                                    <b>-</b>
+                                                                </div>
+                                
+                                                                <div class="col-lg-2">
+                                
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Avance:
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>{{ row.avance }}</b>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                        </div>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile-20">
+                       
+                    </div>
+                    <div class="tab-pane fade" id="profile-40">
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} {% if messages %}
+    {% for message in messages %}
+    <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+        {{ message|safe }}
+    </div>
+    {% endfor %}
+{% endif %} {% endcomment %}
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+
+{% comment %} static\assets\libs\toastr\nuget\content\scripts\toastr.min.js {% endcomment %}
+<script>
+    var modalConfirmacion = false;
+    $(document).ready(function () {
+        /* var table1 = $('#datatable1').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 8, 'desc' ]],
+            drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        }); */
+
+        $('.sp_date').hide();
+
+        // Seguimiento Juridico
+        simple_table('#datatable1', '#search1', [7]);
+        simple_table('#datatable2', '#search1', [7]);
+        
+        {% if messages %}
+            {% for message in messages %}
+                toastr.options = {
+                    "closeButton": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": 0,
+                    "extendedTimeOut": 0,
+                    "tapToDismiss": false
+                }
+                toastr.success('{{ message|safe }}')
+                //toastr.success('{{ message|safe }}', 'Éxito')
+               
+            {% endfor %}
+        {% endif %}
+        $('.alert-success').fadeOut(6000);
+
+    });
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $("#id_metodo_envio option[value='209']").attr('selected','selected');
+
+            $(this).modal('show');
+
+        });
+    }
+		
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Confirmacion(url){
+        if (modalConfirmacion){
+            return
+        }
+        modalConfirmacion = true;
+        //toastr confirmacion
+        /*  */
+        toastr.options = {
+            "closeButton": true,
+            "positionClass": "toast-top-center",
+        }
+        toastr.warning(`<br><button type='button' id='confirmationButtonYes' class='btn btn btn-outline-secondary waves-effect btn-volver'>Confirmar</button>
+        <button type='button' id='confirmationButtonNo' class='btn btn btn-outline-secondary waves-effect btn-volver mx-3'>Cancelar</button>`,`Estas seguro de eliminar la demanda?`,
+        {
+            closeButton: false,
+            allowHtml: true,
+            onShown: function (toast) {
+                $("#confirmationButtonYes").click(function(){
+                    location.href = url
+                });
+                $("#confirmationButtonNo").click(function(){
+                    toastr.clear();
+                    modalConfirmacion = false;
+                });
+            }
+        });
+    }
+
+</script>
+{% endblock extrajs %}

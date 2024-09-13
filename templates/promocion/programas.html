@@ -1,0 +1,341 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Programas {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+
+                <button id="btNew" onclick="Add_Modal('{% url 'promocion_app:crear-programa' %}')"
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fe-plus"></i> Nuevo Programa
+                </button>
+
+            </div>
+            <h4 class="page-title">Programas</h4>
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                            <i class="fa fa-files-o"></i>
+                            Activos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-30" id="profile-30-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link"
+                            aria-controls="profile-40" aria-selected="false">
+                            <i class="fa fa-check-square-o"></i>
+                            Cancelados
+                        </a>
+                    </li>
+                
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-20">
+                            
+                        <div class="table-responsive">
+                            <table id="datatable1" class="table table-striped table-sm table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Programa</th>
+                                        <th>Descripcion</th>
+                                        <th>Objetivo</th>
+                                        <th>Estatus</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in programas %}
+                                    <tr>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.descripcion }}</td>
+                                        <td>{{ programa.objetivo }}</td>
+                                       
+                                        <td>
+                                            {% if programa.estatus == 'RECHAZADO' %}
+                                            <h5><span class="badge bg-danger">{{ programa.estatus }}</span></h5>
+
+                                            {% elif programa.estatus == 'NUEVO' %}
+                                            <h5><span class="badge bg-primary">{{ programa.estatus }}</span></h5>
+
+                                            {% else %}
+                                            <h5><span class="badge bg-success">{{ programa.estatus }}</span></h5>
+
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="text-center">
+                                                {% if programa.estatus != 'ACTIVO' %}
+                                                <button onclick="Publish_Modal('{% url 'promocion_app:aprobar-programa' programa.id %}')"
+                                                    title="Publicar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-success btn-xs" target="_blank"><i class="fa fa-paper-plane"></i>
+                                                </button>
+                                                {% endif %}
+
+                                                <button onclick="View_Modal('{% url 'promocion_app:ver-programa' programa.id %}')"
+                                                    title="Ver" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-info btn-xs" target="_blank"><i class="fas fa-eye"></i>
+                                                </button>
+
+                                                {% if programa.usuario == request.user.username %}
+                                                <button onclick="Update_Modal('{% url 'promocion_app:modificar-programa' programa.id %}')"
+                                                    title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-warning btn-xs" target="_blank"><i class="fas fa-pen"></i>
+                                                </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+
+
+                    </div>
+                    <div class="tab-pane fade" id="profile-30">
+                        <div class="table-responsive">
+                            <table id="datatable2" class="table table-striped table-sm table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Programa</th>
+                                        <th>Descripcion</th>
+                                        <th>Objetivo</th>
+                                        <th>Estatus</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in cancelados %}
+                                    <tr>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.descripcion }}</td>
+                                        <td>{{ programa.objetivo }}</td>
+                                       
+                                        <td>
+                                            <div class="text-center">
+                                            {% if programa.estatus == 'RECHAZADO' %}
+                                            <h5><span class="badge bg-danger">{{ programa.estatus }}</span></h5>
+                                            {% else %}
+                                            <h5><span class="badge bg-success">{{ programa.estatus }}</span></h5>
+                                            {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-center">
+                                        
+                                                <button id="btUpdate" onclick="Update_Modal('{% url 'transferidos_app:editar-ejecucion' programa.id %}')"
+                                                    title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-warning btn-xs" target="_blank"><i class="fas fa-pen"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+<div class="modal fade" id="mdBatch" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+		var myTable1 = data_table('#datatable1');
+        var myTable2 = data_table('#datatable2');
+
+        var myURL = "{% url 'transferidos_app:excel-ejecucion' 'ARCHIVO' %}";
+
+        {% if messages %}
+            {% for message in messages %}
+
+                var msg = `{{ message|safe }}`;
+
+                {% if message.tags == 'error' %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: msg,
+                    showConfirmButton: !1
+                });  
+
+                {% elif message.tags == 'info' %}
+
+                    window.location = myURL.replace('ARCHIVO', msg);
+                    
+                    console.log(msg);
+
+                {%  else %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "success",
+                    title: msg,
+                    showConfirmButton: !1
+                }); 
+                
+                {% endif %}
+               
+            {% endfor %}
+        {% endif %}
+
+    });
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+	
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Publish_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Update_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Detail_Modal(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $("#id_etapa option[value='65']").attr('selected','selected');
+            $("#id_estatus option[value='39']").attr('selected','selected');
+
+            $("#tbID1").hide();
+            $("#id_fecha").hide();
+            $("#id_etapa").hide();
+            $("#id_estatus").hide();
+
+            $('#lbOficio').hide();
+            $("#lbFecha").hide();
+            $("#lbEtapa").hide();
+            $("#lbEstatus").hide();
+
+            $('#btReject').text('Guardar');
+            $('.add').text('Cerrar Contribuyente');
+
+            $('#tbID1').val(myFolio);
+            $('#tbID1').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable){
+
+        $(myTable).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            //order: [[ 6, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+    }
+
+</script>
+
+{% endblock extrajs %}

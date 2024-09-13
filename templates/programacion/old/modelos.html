@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Modelos {% endblock title %}
+
+{% block content %}
+<div class="page-title">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4 class="mb-0">Modelos</h4>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb pt-0 pr-0 float-left float-sm-right ">
+                <button  type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModelModal"><i class="fa fa-plus"></i> Nuevo Modelo</button>
+
+            </ol>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="row"> -->
+
+
+
+    <div class="col-xl-12 mb-30">
+
+        <div id="starting">
+            <!-- <div class="container"> -->
+            <!-- <div class="row"> -->
+
+            <!-- <div class="row"> -->
+            <div class="col-xl-8 mb-30">
+
+                <div class="card card-statistics mb-30">
+                    <div class="card-body datepicker-form">
+
+                        <div class="input-group">
+
+                            <input class="form-control mr-sm-2" type="text" placeholder="Alias ó Nombre ..."
+                                v-model="search_term" aria-label="Search">
+                            <button class="btn btn-primary btn-sm my-2 my-sm-0" v-on:click.prevent="getModels()"><i
+                                    class="fa fa-search"></i> Buscar</button>
+
+                            <!-- <button  type="button" class="btn btn-success" data-toggle="modal" data-target="#addModelModal"><i class="fa fa-plus"></i> Nuevo Modelo</button> -->
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- </div> -->
+
+
+            <!-- <div class="loading" v-if="loading===true">
+                <div class="col-sm-6 col-md-4 col-lg-3 mb-10 mt-10 text-md-right">
+                    <i class="fa fa-spin fa-refresh" style="width: auto;height: auto; line-height: 1px; margin-right: 10px;"></i>
+                </div>
+            </div> -->
+
+            <div class="card card-statistics h-100">
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <table id="datatable1" class="table table-striped table-bordered p-0">
+                            <thead>
+                                <tr>
+                                    <th>Alias</th>
+                                    <th>Nombre</th>
+                                    <th>Descripcion</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Estatus</th>
+                                    <th>Archivo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="modelo in modelos">
+                                    <td>${modelo.alias}</td>
+                                    <td>${modelo.nombre}</td>
+                                    <td>${modelo.descripcion}</td>
+                                    <td>${frontEndDateFormat(modelo.fecha_inicio)}</td>
+                                    <td>
+
+                                        <!-- <div v-if="modelo.estatus === true" class="mb-2"><input type="checkbox" class="switchery-small" checked disabled/></div>
+
+                                            <div v-else="modelo.estatus === false" class="mb-2"><input type="checkbox" class="switchery-small" disabled/></div> -->
+
+                                        <div v-if="modelo.estatus === true"
+                                            class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <input type="checkbox" name="switch8" disabled checked />
+                                                <span></span>
+                                            </label>
+                                        </div>
+
+                                        <div v-else="modelo.estatus === false"
+                                            class="checkbox checbox-switch switch-success">
+                                            <label>
+                                                <input type="checkbox" name="switch8" disabled />
+                                                <span></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a v-if="modelo.archivo" :href="modelo.archivo" class="btn btn-primary btn-sm"
+                                            target="_blank"><i class="fa fa-file-powerpoint-o"></i></a>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm" v-on:click="getModel(modelo.id)"><i
+                                                class="fa fa-pencil"></i></button>
+                                        <!-- <button class="btn btn-danger btn-sm"
+                                        v-on:click="deleteModel(modelo.id)">Eliminar</button> -->
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Add Model Modal -->
+                        <div class="modal fade" id="addModelModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle">Nuevo Modelo</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form v-on:submit.prevent="addFile()" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="alias">Alias</label>
+                                                <input type="text" class="form-control" id="alias"
+                                                    v-model="alias"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="nombre">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre"
+                                                    v-model="nombre"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fecha_inicio">Fecha Inicio</label>
+                                                <input type="date" class="form-control" id="fecha_inicio"
+                                                    v-model="fecha_inicio"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="descripcion">Descripcion</label>
+                                                <textarea class="form-control" id="descripcion"
+                                                    v-model="descripcion"
+                                                     rows="3"></textarea>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="archivo">Archivo</label>
+                                                <!-- <input type="file" id="archivo" name="archivo" v-on:change="handleFileUpload()">    -->
+                                                <input type="file" id="archivo_new" ref="archivo_new"
+                                                    v-on:change="handleFileUpload_new()" />
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary m-progress"
+                                                data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- <div class="loading" v-if="loading===true">Loading&#8230;</div> -->
+                        </div>
+
+
+                        <!-- Add Model Modal -->
+                        <div class="modal fade" id="addArticleModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle">Nuevo Programa</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form v-on:submit.prevent="addModel()" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="alias">Alias</label>
+                                                <input type="text" class="form-control" id="alias"
+                                                    placeholder="Enter Article Heading" v-model="newModel.alias"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="nombre">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre"
+                                                    placeholder="Enter Article Heading" v-model="newModel.nombre"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fecha_inicio">Fecha Inicio</label>
+                                                <input type="text" class="form-control" id="fecha_inicio"
+                                                    placeholder="Enter Article Heading" v-model="newModel.fecha_inicio"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="descripcion">Descripcion</label>
+                                                <textarea class="form-control" id="descripcion"
+                                                    placeholder="Enter Article Body" v-model="newModel.descripcion"
+                                                    required="required" rows="3"></textarea>
+                                            </div>
+                                            <!-- <div class="form-group">
+                                                    <label for="archivo">Archivo</label>
+                                                    <input type="file" id="archivo" :ref="archivo"
+                                                    v-on:change="handleFileUpload()">
+                                                </div> -->
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary m-progress"
+                                                data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- <div class="loading" v-if="loading===true">Loading&#8230;</div> -->
+                        </div>
+                        <!-- End of add article modal -->
+                        <!-- Edit Article Modal -->
+                        <div class="modal fade" id="editArticleModal" tabindex="-1" role="dialog"
+                            aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle">Editar Programa</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form v-on:submit.prevent="updateModel()" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label for="alias">Alias</label>
+                                                <input type="text" class="form-control" id="alias"
+                                                     v-model="currentModel.alias"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="nombre">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre"
+                                                    v-model="currentModel.nombre"
+                                                    required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fecha_inicio">Fecha Inicio</label>
+                                                <input type="date" class="form-control" 
+                                                    
+                                                    v-model="currentModel.fecha_inicio" required="required">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="descripcion">Descripcion</label>
+                                                <textarea class="form-control" id="descripcion"
+                                                     v-model="currentModel.descripcion"
+                                                     rows="3"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <!-- <div class="text-center"> -->
+                                                    <label for="estatus">Estatus</label>
+                                                    
+                                                    <div class="checkbox checbox-switch switch-success">
+                                                        <label>
+                                                            <input type="checkbox" id="estatus" name="estatus" v-model="currentModel.estatus" />
+                                                            <span></span>
+                                                        </label>
+                                                    </div>
+                                                <!-- </div> -->
+                                            </div>
+
+
+
+                                            <div class="form-group">
+                                                <a v-if="currentModel.archivo" :href="currentModel.archivo"
+                                                    class="btn btn-link" target="_blank">${currentModel.archivo}</a>
+
+                                                <label for="archivo">Archivo</label>
+                                                <input type="file" id="archivo" ref="archivo"
+                                                    v-on:change="handleFileUpload()" />
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary m-progress"
+                                                data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- <div class="loading" v-if="loading===true">Loading&#8230;</div> -->
+                        </div>
+                        <!-- End of edit article modal -->
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+<!-- </div> -->
+
+{% endblock content %}
+
+{% block extrajs %}
+<!-- vue.js files -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // $('.date-picker-default').prop('readonly', 'readonly');
+        // $('.date-picker-default').datepicker({ 
+        //     format: 'dd/mm/yyyy' 
+        // });
+        // $('.date-picker-default').css("background-color", "#f6f7f8");
+        
+
+    });
+</script>
+<script type="text/javascript">
+    Vue.http.headers.common['X-CSRFToken'] = "{{ csrf_token }}";
+    new Vue({
+      el: '#starting',
+      delimiters: ['${','}'],
+      data: {
+        modelos: [],
+        loading: false,
+        currentModel: {},
+        message: null,
+        newModel: {
+            'alias': null,
+            'nombre': null,
+            'descripcion': null,
+            'fecha_inicio': null,
+            'archivo': null,
+            'estatus': true,
+            'usuario': 'root'
+        },
+        search_term: '',
+        archivo_new: '',
+        archivo: '',
+        alias: '',
+        nombre: '',
+        descripcion: '',
+        fecha_inicio: '',
+      },
+      mounted: function() {
+        this.getModels();
+      },
+      methods: {
+        handleFileUpload_new(){
+          this.archivo_new = this.$refs.archivo_new.files[0];
+          this.archivo = this.archivo_new;
+        },
+        handleFileUpload(){
+          this.archivo = this.$refs.archivo.files[0];
+        },
+        frontEndDateFormat: function(date) {
+        	return moment(date, 'YYYY-MM-DD').format('DD/MM/YYYY');
+        },
+        backEndDateFormat: function(date) {
+        	return moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        },
+        getModels: function() {
+          let api_url = '/api/modelos/';
+          if(this.search_term!==''||this.search_term!==null) {
+            api_url = `/api/modelos/?search=${this.search_term}`
+          }
+          this.loading = false;
+
+          this.$http.get(api_url)
+              .then((response) => {
+                this.modelos = response.data;
+                this.loading = false;
+              })
+              .catch((err) => {
+                console.log(err);
+              })
+        },
+        getModel: function(id) {
+          this.loading = false;
+          this.$http.get(`/api/modelos/${id}/`)
+              .then((response) => {
+                this.currentModel = response.data;
+                $("#editArticleModal").modal('show');
+                this.loading = false;
+              })
+              .catch((err) => {
+                //this.loading = false;
+                console.log(err);
+              })
+        },
+        addFile: function() {
+            let formData = new FormData();
+
+            console.log(this.fecha_inicio);
+
+            formData.append('alias', this.alias);
+            formData.append('nombre', this.nombre);
+            formData.append('descripcion', this.descripcion);
+            formData.append('fecha_inicio', this.fecha_inicio);
+            formData.append('estatus', true);
+
+            if(this.archivo!==''||this.archivo!==null){
+                formData.append('archivo', this.archivo);
+            }
+
+            // const getFormData = object => Object.keys(object).reduce((formData, key) => {
+            //     formData.append(key, object[key]);
+            //     return formData;
+            // }, new FormData());
+
+            this.$http.post('/api/modelos/', formData, {headers: {'Content-Type': 'multipart/form-data'}})
+              .then((response) => {
+                this.loading = false;
+                this.getModels();
+                $("#addModelModal").modal('hide');
+
+                swal({
+                    position: 'top-end',
+                    type: 'success',
+                    title: 'Guardado Correctamente!',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+
+                this.$refs.archivo_new.value=null;
+                this.archivo_new = '';
+                this.archivo = '';
+                this.alias = '';
+                this.nombre = '';
+                this.descripcion = '';
+                this.fecha_inicio = '';
+
+              })
+              .catch((err) => {
+                //this.loading = true;
+                console.log(err);
+              })
+
+        },
+        addModel: function() {
+          this.$http.post('/api/modelos/', this.newModel)
+              .then((response) => {
+                //this.loading = false;
+                this.getModels();
+                $("#addArticleModal").modal('hide');
+
+              })
+              .catch((err) => {
+                //this.loading = true;
+                console.log(err);
+              })
+        },
+        updateModel: function() {
+            let formDataUpdate = new FormData();
+
+            formDataUpdate.append('alias', this.currentModel.alias);
+            formDataUpdate.append('nombre', this.currentModel.nombre);
+            formDataUpdate.append('descripcion', this.currentModel.descripcion);
+            formDataUpdate.append('fecha_inicio', this.currentModel.fecha_inicio);
+            formDataUpdate.append('estatus', this.currentModel.estatus);
+
+            if(this.archivo!==''){
+                formDataUpdate.append('archivo', this.archivo);
+            }
+
+          this.loading = false;
+          this.$http.put(`/api/modelos/${this.currentModel.id}/`, formDataUpdate, {headers: {'Content-Type': 'multipart/form-data'}})
+              .then((response) => {
+                this.loading = false;
+                this.currentModel = response.data;
+                this.getModels();
+                $("#editArticleModal").modal('hide');
+
+                swal({
+                    position: 'top-end',
+                    type: 'success',
+                    title: 'Actualizado Correctamente!',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+
+
+                this.archivo = '';
+                this.$refs.archivo.value='';
+
+              })
+              .catch((err) => {
+                //this.loading = false;
+                console.log(err);
+              })
+        },
+        deleteModel: function(id) {
+          //this.loading = false;
+          this.$http.delete(`/api/modelos/${id}/`)
+              .then((response) => {
+                //this.loading = false;
+                this.getModels();
+              })
+              .catch((err) => {
+                //this.loading = false;
+                console.log(err);
+              })
+        }
+      }
+    });
+  </script>
+{% endblock extrajs %}

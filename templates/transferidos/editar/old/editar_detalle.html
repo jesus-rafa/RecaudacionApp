@@ -1,0 +1,74 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Editar Detalle</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'transferidos_app:editar-detalle-3' object.id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Oficio:</label>
+                        {{ form.programa_id }}
+                        <input type="text" class="form-control" id="tbOficio1">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+                <!-- <div class="form-group">
+                    <label>Etapa:</label>
+                    {{ form.estatus }}
+                    <input id="hfEstatus" type="hidden" value="{{ selected_estatus }}">
+                </div> -->
+                <div class="form-group">
+                    <label>Etapa:</label>
+                    <!-- {{ form.etapa }} -->
+                    <select name="etapa" id="id_etapa" class="form-control">
+                        {% for item in etapas %}
+                            <option value="{{ item.id }}">{{ item.comentario }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="hfEtapa" type="hidden" value="{{ selected_etapa }}">
+
+                </div>
+                <div class="form-group">
+                    <label>Estatus:</label>
+                    <!-- {{ form.estatus }} -->
+                    <select name="estatus" id="id_estatus" class="form-control">
+                        
+                        {% for item in estatus %}
+                            <option value="{{ item.id }}" data-chained="{{item.valor}}">{{ item.comentario }}</option>
+                        {% endfor %}    
+                    </select>
+                    <input id="hfEstatus" type="hidden" value="{{ selected_estatus }}">
+
+                </div>
+                <div class="form-group">
+                    <label>Comentarios:</label>
+                    {{ form.comentarios }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+        //$('#id_estatus').val('{{ selected_estatus }}').change();
+        //$('#id_etapa').val('{{ selected_etapa }}').change();
+
+        $('#id_estatus').chained('#id_etapa');
+
+    });
+</script>

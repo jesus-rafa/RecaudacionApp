@@ -1,0 +1,430 @@
+<!-- COPIA -->
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Edición juicio {% endblock title %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a href="{% url 'juridico_app:juridico' %}" 
+                    class="btn btn-outline-secondary waves-effect btn-volver">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Edición juicio</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form id="form_edita_demanda" action="{% url 'juridico_app:edita-demanda' demanda.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div id="progressbarwizard">
+
+                        <ul class="nav nav-tabs nav-bordered" id="nav-tabs">
+                            <li class="nav-item">
+                                <a href="#account-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                    <i class="mdi mdi-bank me-1"></i>
+                                    <span class="d-none d-sm-inline">Juicio</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-tab-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                    <i class="mdi mdi-scale-balance me-1"></i>
+                                    <span class="d-none d-sm-inline">Demanda</span>
+                                </a>
+                            </li>
+                            {% comment %} <li class="nav-item">
+                                <a href="#finish-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                    <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i>
+                                    <span class="d-none d-sm-inline">Final</span>
+                                </a>
+                            </li> {% endcomment %}
+                        </ul>
+                    
+                        <div class="tab-content pb-3">
+                    
+                            <!-- <div id="bar" class="progress mb-3" style="height: 7px;">
+                                <div class="bar progress-bar progress-bar-striped sateg-negro"  ></div>
+                            </div> -->
+                            <div class="tab-pane" id="account-2">   
+                                <div class="row mb-2">
+                                    <div class="col">                                 
+                                        <label class="etiqueta-combo">Tipo</label>
+                                        {{ form.juicio }}
+                                    </div>
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Subtipo</label>
+                                        {{ form.subtipo }}
+                                    </div>
+                                    {% comment %} <div class="col">
+                                        <label>No. Carpeta:</label>
+                                        {{ form.carpeta }}
+                                        {{ carpeta }}
+                                    </div> {% endcomment %}
+                                    <!-- <div class="form-floating col">
+                                        {{ form.expediente }}
+                                        <label>{{ form.expediente.label }}</label>
+                                        {% comment %} {{ form.expediente.label }} {% endcomment %}
+                                        {% comment %} {{ form.expediente_label}} {% endcomment %}
+                                        {% comment %} <label for="id_expediente">No. Expediente:</label> {% endcomment %}
+                                    </div> -->
+                                </div>
+    
+                                <div class="row mb-2">                                                                    
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Tribunal</label>
+                                        {{ form.tribunal }}
+                                    </div>
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Dictaminador</label>
+                                        {{ form.dictaminador }}
+                                    </div>                                  
+                                </div>
+    
+                                <div class="row mb-2">
+                                    <div class="form-floating col">
+                                        {{ form.expediente }}
+                                        <label>{{ form.expediente.label }}</label>
+                                    </div>
+                                    <div class="form-floating col" id="div_aviso">
+                                        {{ form.fecha_aviso }}
+                                        <label>{{ form.fecha_aviso.label }}</label>
+                                    </div>
+                                    <div class="form-floating col">
+                                        {{ form.fecha_notificacion }}
+                                        <label>{{ form.fecha_notificacion.label }}</label>
+                                    </div>
+                                    <div class="col" id="cmbEstado">
+                                        <label class="etiqueta-combo">Estado procesal</label>
+                                        {{ form.estado_procesal }}
+                                    </div>
+                                </div>
+    
+                                <div class="row mb-2">
+                                    <div class="form-floating col">
+                                        {{ form.fecha_interno }}
+                                        <label>{{ form.fecha_interno.label }}</label>
+                                    </div>
+                                    <div class="form-floating col">
+                                        {{ form.fecha_fatal }}
+                                        <label>{{ form.fecha_fatal.label }}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="profile-tab-2">
+                                <div class="row mb-2">
+                                    <div class="form-floating col">
+                                        {{ form.contribuyente }}
+                                        <label>{{ form.contribuyente.label }}</label>
+                                    </div>
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Autoridad demandada:</label>
+                                        {{ form.autoridad }}
+                                    </div>                                
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Abogado promovente</label>
+                                        {{ form.abogado_prom }}
+                                    </div>
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Materia</label>
+                                        {{ form.materia }}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">                                    
+                                    <div class="form-floating col">
+                                        {{ form.resolucion_impg }}
+                                        <label>{{ form.resolucion_impg.label }}</label>
+                                    </div>
+                                    <div class="form-floating col">
+                                        {{ form.fecha_resolucion }}
+                                        <label>Fecha resolucion:</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="form-floating col">
+                                        {{ form.cuantia }}
+                                        <label>{{ form.cuantia.label }}</label>
+                                        <span class="text-danger" id="validaCuantia"></span>
+                                    </div>                                    
+                                    <div class="form-floating col">
+                                        {{ form.rfc }}
+                                        <label>{{ form.rfc.label }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="form-floating col">
+                                        {{ form.resolucion_rec }}
+                                        <label>Resolucion recurrida:</label>
+                                    </div>
+                                    <div class="col">
+                                        <label class="etiqueta-combo">Autoridad recurrida:</label>
+                                        {{ form.autoridad_rec }}
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="window.location=`{% url 'juridico_app:juridico' %}`"><i class="fa fa-ban"></i> Cancelar </button>
+                                    <button id="btnAdd" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro"><i class="fa fa-plus-circle"></i> Guardar </button>
+                                </div>
+                            </div>
+                        </div> <!-- tab-content -->
+                    </div> <!-- end #progressbarwizard-->
+                </form>                
+            </div>
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-masks.init.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 
+<script src="{% static 'assets/js/pages/form-wizard.init.js' %}"></script>
+<script src="{% static 'assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+
+
+
+<script>
+    var validado = false;
+    var control = 0;
+    const controles = [
+        {control : 'id_juicio', etiqueta:'Tipo juicio'},
+        {control : 'id_dictaminador', etiqueta:'Abogado dictaminador'},            
+        {control : 'id_subtipo', etiqueta:'Subtipo juicio'},         
+        {control : 'id_tribunal', etiqueta:'Tribunal'},         
+        {control : 'id_autoridad', etiqueta:'Autoridad'},         
+        {control : 'id_materia', etiqueta:'Materia'},         
+        {control : 'id_abogado_prom', etiqueta:'Abogado promovente'},         
+        {control : 'id_autoridad_rec', etiqueta:'Autoridad recurrida'},         
+    ];
+    const lista_tribu =  {{tribunal|safe}};
+
+    $(document).ready(function () {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        });
+        $('.date-picker-default').css("background-color", "white");
+        $('#id_rfc').mask('SSSA00000AAAA')
+        $('#div_aviso').hide()
+        $('.form-js-label').find('input').on('input', function (e) {
+            $(e.currentTarget).attr('data-empty', !e.currentTarget.value);
+        });
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+        };
+        new AutoNumeric('#id_cuantia', {
+            currencySymbolPlacement: 'p',
+            currencySymbol: '$ ',
+            maximumValue: '9999999999.99',
+            minimumValue: 0,
+        });
+        //deshabilita_controles(true);
+        //cargaOpcionesDefault()
+        tipojuicio(document.getElementById('id_juicio'))
+    });
+    
+    $(function () {
+        $("#form_edita_demanda").submit(function (e) {
+            validaCampo(document.getElementById('id_cuantia'))
+            if (validado) {
+                deshabilita_controles(false);
+                //Remove masks 
+                remueveMascara($('#id_cuantia'));
+                $("#btnAdd").prop("disabled", true);
+                return true;
+            }else {
+                toastr.error("","Corriga campo cuantia", { positionClass: "toast-bottom-right" });
+                return false;
+            }
+        });
+    });
+
+    tipo_computo = function(){
+        var tipo_Juicio = $("#id_juicio").val();
+        var subtipo_Juicio = $("#id_subtipo").val();
+
+        if (!(tipo_Juicio == 10 && subtipo_Juicio == 13 || tipo_Juicio == 10 && subtipo_Juicio == 14)){
+            $("#id_fecha_notificacion").prop("disabled", false).removeClass('deshabilitado').css("background-color", "white");
+            $("#id_fecha_notificacion").datepicker().val(null);
+            //$("#id_fecha_aviso").prop("disabled", true).css("background-color", "lavender");
+            $("#id_fecha_aviso").datepicker().val(null);
+            $("#div_aviso").hide();
+            control = 0;
+        }else{
+            //$("#id_fecha_notificacion").prop("disabled", true).css("background-color", "lavender");
+            $("#id_fecha_aviso").prop("disabled", false).removeClass('deshabilitado').css("background-color", "white");     
+            //$("#id_fecha_aviso").removeClass('deshabilitado');
+            $("#id_fecha_aviso").datepicker().val('');
+            $("#div_aviso").show();
+            control = 1;
+        }
+    }
+    
+    function getFormattedDate(date) {
+        var year = date.getFullYear();
+      
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+      
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+        
+        return day + '/' + month + '/' + year;
+      }
+
+    function asigna_fechas(data,control){
+        fechas = data.res.replaceAll(')','').replaceAll('(','').split(',');
+        fechas[0] = new Date(fechas[0])
+        fechas[1] = new Date(fechas[1])
+        fechas[2] = new Date(fechas[2])
+        if (control){
+            $("#id_fecha_notificacion").datepicker('setDate', fechas[0])
+            $("#id_fecha_notificacion").datepicker().val(getFormattedDate(fechas[0]))
+        }
+        $("#id_fecha_interno").datepicker('setDate', fechas[1])
+        $("#id_fecha_interno").datepicker().val(getFormattedDate(fechas[1]))
+        $("#id_fecha_fatal").datepicker('setDate', fechas[2])
+        $("#id_fecha_fatal").datepicker().val(getFormattedDate(fechas[2]))
+    }
+
+    function deshabilita_controles(value){
+        $("#cmbEstado").hide();
+        $("#id_fecha_interno").prop("disabled", value)
+        $("#id_fecha_fatal").prop("disabled", value)
+        if (value) return;
+        $(document.getElementById('id_subtipo'))[0].selectize.enable();
+        $(document.getElementById('id_juicio'))[0].selectize.enable();
+            //$(document.getElementById('id_estado_procesal'))[0].selectize.enable();
+    }
+  
+    $('#id_juicio').change(function () {    
+        let estatal = {{consecutivo_estatal}} + 1;
+        let federal = {{consecutivo_federal}} + 1;
+        let anio = new Date().getFullYear();
+        var tipo_Juicio = $("#id_juicio").val();
+         
+        $("#id_subtipo").val("8");
+    });
+
+    $('#id_fecha_aviso').datepicker().change(function dias_Restantes() {
+            fecha_aviso = $("#id_fecha_aviso").datepicker().val().replaceAll('/','-');
+            fecha_notificacion = getFormattedDate( new Date()).replaceAll('/','-');
+            id_juicio = $("#id_juicio").val();
+            id_subtipo = $("#id_subtipo").val();
+            url = "{% url 'juridico_app:plantilla' 'id_juicio' 'id_subtipo' 'fecha_notificacion' 'fecha_aviso'%}";
+
+            $.ajax({
+                url: url.replace( 'id_juicio', id_juicio).replace( 'id_subtipo', id_subtipo ).replace('fecha_notificacion', fecha_notificacion).replace('fecha_aviso', fecha_aviso),
+                type: "GET",
+                success: function (data) {
+                    asigna_fechas(data,control)
+                    console.log(data)
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            }); 
+    });
+    $('#id_fecha_notificacion').datepicker().change(function dias_Restantes() {
+            id_juicio = $("#id_juicio").val();
+            id_subtipo = $("#id_subtipo").val();
+        if (control === 1 || id_juicio === "0" || id_subtipo === "0") {
+            $("#id_fecha_notificacion").datepicker().val(null);
+            toastr.warning('No ha seleccionado tipo juicio o subtipo juicio')
+            return;
+        }
+
+        fecha_notificacion = $("#id_fecha_notificacion").datepicker().val().replaceAll('/','-');
+        url = "{% url 'juridico_app:plantilla' 'id_juicio' 'id_subtipo' 'fecha_notificacion'%}";
+
+            $.ajax({
+                url: url.replace( 'id_juicio', id_juicio).replace( 'id_subtipo', id_subtipo ).replace('fecha_notificacion', fecha_notificacion),
+                type: "GET",
+                success: function (data) {
+                asigna_fechas(data, control)
+                    console.log(data)
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });    
+    });
+
+    function remueveMascara(campo){
+        campo.val(campo.val().replace('$','').replaceAll(',',''));
+    }
+
+    function validaCampo(campo){
+        if(campo.value.length <= 20){
+            $('#validaCuantia').html('');
+            validado = true;
+        }else{
+            $('#validaCuantia').html('Maximo 10 enteros y 2 decimales');
+            validado = false;
+        }
+    }
+
+    function validaCombos(){
+        controles.forEach(function(elemento){
+            if( elemento.control == 'id_autoridad_rec' || elemento.control == 'id_abogado_prom' || elemento.control == 'id_autoridad' || elemento.control == 'id_materia'){
+                return;
+            }else if( $(document.getElementById(elemento.control)).val() === ""){
+                toastr.warning('No ha seleccionado ' + elemento.etiqueta)
+                validado = false;
+                return;
+            }
+        });
+
+    }
+
+    function cargaOpcionesDefault(){
+        $(document.getElementById('id_juicio'))[0].selectize.disable();
+        $(document.getElementById('id_subtipo'))[0].selectize.disable();
+    }
+
+    function tipojuicio(control){
+        if (control.value == '') return;
+        var tipo_Juicio = control.value != '10' ? '9' : '0';
+        var proceso =  lista_tribu.filter(e => e.valor == tipo_Juicio);
+        if (proceso != null){
+            var selectize = $(document.getElementById('id_tribunal'))[0].selectize;
+            selectize.clearOptions();
+            proceso.forEach(function(elemento){
+                selectize.addOption({value: elemento.id, text: elemento.nombre});
+                selectize.addItem('');
+            });
+        }
+    }
+
+</script>
+{% endblock extrajs %}

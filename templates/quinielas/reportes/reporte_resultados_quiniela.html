@@ -1,0 +1,215 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Reporte Resultados Quiniela {% endblock title %}
+
+{% block content %}
+<style>
+    .check-success
+    {
+        color: green;
+    }
+
+    .times-danger
+    {
+        color: red;
+    }
+
+    .primer-posicion
+    {
+        border-left: 5px solid green;
+    }
+    .segunda-posicion
+    {
+        border-left: 5px solid yellowgreen;
+    }
+    .tercera-posicion
+    {
+        border-left: 5px solid yellow;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title"> Resultados Quiniela </h4>  
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#tabulador_usuarios" 
+                            id="tabulador_usuarios-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link {% if 'tabulador-quiniela' in request.build_absolute_uri %} active {% endif %}"
+                            aria-controls="tabulador_usuarios" aria-selected="false"
+                            onclick="location.href = '{% url 'quinielas_app:tabulador-quiniela' %}';">
+                            <i class="fa fa-check-square-o"></i>
+                            Posiciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#resultados_pronosticos" id="resultados_pronosticos-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link {% if 'resultados_pronosticos' in request.build_absolute_uri %} active {% endif %}"
+                            aria-controls="resultados_pronosticos" aria-selected="false"
+                            onclick="location.href = '{% url 'quinielas_app:resultados_pronosticos' %}';">
+                            <i class="fa fa-files-o"></i>
+                            Pronósticos
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    {% block tabulador %} {% endblock tabulador %}
+                    {% block resultados_pronosticos %} {% endblock resultados_pronosticos %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'custom/js/render-table.js' %}"></script>
+    <script src="{% static 'js/bootstrap-datatables/buttons.min.js' %}"></script>
+    <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+
+    <script>
+        var inicio = 0;
+        $(document).ready(function() {
+	    $('.sp_date').hide();
+            // se oculta la alerta
+            $('.alert-success').fadeOut(6000);
+            // Se inicializa el DataTable
+            // render_table('#dtQuiniela', '#search1', []);
+
+            var tableQuiniela = $('#dtQuiniela').DataTable({
+                sDom: "rtip",
+                columnDefs: [
+                    {
+                        orderable: true,
+                        visible: false,
+                        targets: 5,
+                    },
+                ],
+                order: [[5, 'DESC']],
+                pageLength : 20,
+                lengthMenu: [20, 50, 100, 'Todos'],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                },
+            });
+
+            $('#search1').on("keyup click", function () {
+                tableQuiniela.tables().search($(this).val()).draw();
+            });
+
+            tableQuiniela.on("click", "thead tr td", function (event) {
+                let indexColumn = $(this).closest("td").index();
+
+                $("thead > tr  > td").each(function (index, td) {
+                this.classList.remove("negrita");
+                });
+
+                if ($.inArray(parseInt(indexColumn), myCols) === -1)
+                $(this).closest("td").addClass("negrita");
+            });
+
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+                $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+
+            var seguimiento = $('#dtTabulador').DataTable({
+                paginate: false,
+                sDom: "rt",
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: [1, 2, 3, 4, 5, 6],
+                    },
+                ],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                },
+                createdRow: function(row, data, index)
+                {
+                    if (data[0] == 1)
+                        $('td', row).first().addClass('primer-posicion');
+                    if (data[0] == 2)
+                        $('td', row).first().addClass('segunda-posicion');
+                    if (data[0] == 3)
+                        $('td', row).first().addClass('tercera-posicion');
+
+                    $('tr td:last-child').addClass('negrita');
+                },
+            });
+            
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+                $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+
+            var select = $("#slct-partidos").selectize();
+            var selectize = select[0].selectize;
+            selectize.setValue({{ option_selectize }});
+        });
+
+        $("#slct-partidos").change(function() {
+            inicio++;
+            if(inicio > 1)
+            {
+                this.form.submit();
+            }
+        });
+    </script>
+{% endblock extrajs %}

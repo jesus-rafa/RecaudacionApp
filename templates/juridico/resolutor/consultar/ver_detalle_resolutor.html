@@ -1,0 +1,221 @@
+{% load static %}
+{% load tags %}
+
+<div class="modal-dialog modal-lg" tabindex="-1" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Resolutor</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        {% csrf_token %}
+        <div class="modal-body">
+            {% for row in detalle %}
+                <div class="row mb-3">
+                    <div class="col">
+                        Solicitante : <label><b>{{ row.resolutor.solicitante.rfc }}</b></label>
+                    </div>
+                    <div class="col">
+                        Carpeta / Expediente : <label><b>{{ row.resolutor.carpeta }}</b></label>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        Oficio : <label><b>{{ row.resolutor.oficio }}</b></label>
+                    </div>
+                    <div class="col">
+                        Abogado : 
+                        {% for abogado in row.resolutor.abogado.all %}
+                            <label><b>{{abogado}}</b></label>
+                        {% endfor%}
+                    </div>
+                </div>
+            {% endfor%}
+        </div>
+        <form id="form-altaDetalle" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="resolutor_id_m" name="resolutor_id_m">
+            <input type="hidden" id="usuario_id" name="usuario_id">
+            <div class="row px-2 mb-2">
+                <div class="col">
+                    <label class="etiqueta-combo" for="listado_estatus">Estatus</label>
+                    <select id="listado_estatus" name="listado_estatus" class="form-control selectize-select selectized" placeholder="Estatus">
+                        <option value="1">Creacion</option>
+                    </select>
+                    <label class="etiqueta-combo" for="listado_etapa">Etapa</label>
+                    <select id="listado_etapa" name="listado_etapa" class="form-control selectize-select selectized" placeholder="Etapa">
+                        <option value="1">Creacion</option>
+                    </select>
+                    <div class="form-floating col">
+                        <input type="text" name="comentarios" placeholder=" " required="required" id="comentarios" class="form-control input-rec float-label"> 
+                        <label class="etiqueta-combo">Comentarios</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2 px-2 pull-right">
+                <div class="col">
+                    <button type="button" id="f" onclick="" class="btn fondo-boton">Guardar</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="mb-3">
+            <ul class="nav nav-tabs nav-bordered">
+                <li class="nav-item">
+                    <a href="#tab-01" id="tab-head-01" data-bs-toggle="tab" aria-expanded="false"
+                        class="nav-link active">
+                        COMENTARIOS
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a href="#tab-02" id="tab-head-02" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                        DETALLE
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tab-03" id="tab-head-03" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                        PROCESOS
+                    </a>
+                </li> -->
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade active show" id="tab-01">
+                {% for row in detalle_tab %}
+                <div class="row justify-content-center">
+                    <div class="col-md-11" style="border: 1px solid #dee2e6;"> 
+                        <div class="row">
+                            <div class="col-1">
+                                <div class="float-end">
+                                {% get_user_avatar_id row.usuario.id as avatar %}
+                                {% if avatar %}
+                                    <img src="{{ avatar }}" alt="{% get_user_info_id row.usuario.id %}" class="img-fluid avatar-sm rounded mt-2">
+                                {% else %}
+                                    <img src="{% static 'assets/images/user_group.png' %}" title="{% get_user_info_id row.usuario.id %}" class="img-fluid avatar-sm rounded mt-2">
+                                {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-10">
+                                <div class="inbox-widget" data-simplebar>
+                                    <div class="inbox-item">
+                                        <p class="inbox-item-text">
+                                            {{ row.created }} | {{ row.estatus.nombre }}
+                                        </p>
+                                        {% get_user_info_id row.usuario.id %} 
+
+                                        <br>
+                                        {% get_puesto row.usuario.id as puesto %}
+                                        <p class="inbox-item-text {% if puesto == 'JEFE COBRO 2' %}text-primary{% endif %}">
+                                            {{ puesto }} 
+                                        </p>
+                                        <p class="inbox-item-text">
+                                            --
+                                        </p>
+                                        {% if row.comentarios %}
+                                            {{row.comentarios }}
+                                        {% endif %}
+                                    </div>
+                                </div>    
+                            </div>
+                            <div class="col-1 float-end">
+                                <div class="btn-group dropdown float-end" style="top: 15px;">
+                                    <a href="javascript: void(0);" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                        aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a onclick="Editar_Detalle('{% url 'programacion_app:editar-detalle' row.id %}', '{{row.id}}')"
+                                            class="dropdown-item" href="#">
+                                            <i class="fas fa-pen me-2 text-muted font-18 vertical-middle"></i>Editar</a>
+                                        <a onclick="Delete_Detail('{% url 'juridico_app:detalle-eliminar' row.id %}')"
+                                            class="dropdown-item" href="#"><i
+                                                class="fas fa-times me-2 text-muted font-18 vertical-middle"></i>Eliminar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                {% endfor %}
+            </div>
+
+            <!-- <div class="tab-pane fade" id="tab-02">
+            </div>
+
+            <div class="tab-pane fade" id="tab-03">
+            </div> -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    var select_estatus = $("#listado_estatus").selectize({
+                create: false
+            });
+
+    var selectize_estatus = select_estatus[0].selectize;
+    selectize_estatus.setValue('');
+
+
+    var select_etapa = $("#listado_etapa").selectize({
+                create: false
+            });
+
+    var selectize_etapa = select_etapa[0].selectize;
+    selectize_etapa.setValue('');
+
+
+    function Delete_Detail(myURL){
+        Swal.fire({
+            title:"¿Estas seguro? <br> Se eliminara el detalle: ",
+            //text:"Eliminar carpeta" + myCarpeta,
+            icon:"warning",showCancelButton:!0,
+            showCancelButton: true,
+            confirmButtonColor:"#28bb4b",
+            cancelButtonColor:"#f34e4e",
+            confirmButtonText:"Eliminar",
+            cancelButtonText: 'Cancelar'
+        }).then(function(e){
+                if (e.value) {
+                    console.log('AQUIIII')
+                    debugger;
+                    // fetch(myURL)
+                    //     .then(response => response.json())
+                    //     .then(data => {
+                    //         console.log(data);
+                    // });
+
+                    $.ajax({
+                        // data: {
+                        //     csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                        // },
+                        url: myURL,
+                        type: "GET",
+                        success: function (response) {
+                            console.log(response);
+                            Swal.fire("¡Eliminado!","La carpeta se elimino.","Success")
+                            location.reload();  
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+
+                }
+                Swal.fire({
+                    title:"Deleted!",
+                    text:"Your file has been deleted.",
+                    icon:"success",
+                    confirmButtonColor:"#4a4fea"
+                }).then(function (e){
+                    location.reload();
+                })       
+
+
+        })
+    }
+</script>
+{% endblock extrajs %}

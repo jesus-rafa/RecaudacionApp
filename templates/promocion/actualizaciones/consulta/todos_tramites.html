@@ -1,0 +1,198 @@
+{% load static %}
+{% load tags %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered modal-full-width" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+			<h4 class="modal-title">Tramites y Servicios Realizados</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+            <div class="text-center">
+                <h4 id="lbRFC_modal"></h4>
+            </div>
+        
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <div class="card">
+                            <div class="text-center">
+                                <br>
+                                <h5><strong>Estatales</strong></h5>
+                            </div>
+        
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr class="text-dark">
+                                            <th>Tramite</th>
+                                            <th>Datos</th>
+                                            <th>Consultor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% regroup tramites_estatales by folio as list_tramites %}
+                                        {% for tramites in list_tramites %}
+                                        {% for visita in tramites.list %}
+                                        {% if visita.valor == 'on' %}
+                                        <tr>
+                                            {% ifchanged %}
+                                            <td>
+                                                {{ visita.id_actividad.actividad }}
+                                            </td>
+                                            <td>
+                                                <div class="switchery-demo">
+                                                    <input type="checkbox" checked disabled data-plugin="switchery" data-color="#1bb99a"  data-size="small"/>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="avatar-sm" title="{% get_user_info visita.usuario %}" tabindex="0" data-plugin="tippy" data-tippy-placement="left">
+                                                    <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                        {% get_initials visita.usuario %}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            {% endifchanged %}
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+        
+                                        {% regroup tramites_estatales by folio as list_tramites %}
+                                        {% for tramites in list_tramites %}
+                                        {% for visita in tramites.list %}
+                                        {% if visita.valor != 'on' %}
+                                        <tr>
+                                            {% ifchanged %}
+                                            <td>{{ visita.id_actividad.actividad }}</td>
+                                            <td>
+                                                {% for visita in tramites.list %}
+                                                <strong>
+                                                    {{ visita.dato }}:
+                                                </strong>
+                                                {{ visita.valor }}
+                                                <br>
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                <div class="avatar-sm" title="{% get_user_info visita.usuario %}" tabindex="0" data-plugin="tippy" data-tippy-placement="left">
+                                                    <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                        {% get_initials visita.usuario %}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            {% endifchanged %}
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <div class="card">
+                            <div class="text-center">
+                                <br>
+                                <h5><strong>Federales</strong></h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr class="text-dark">
+                                            <th>Tramite</th>
+                                            <th>Datos</th>
+                                            <th>Consultor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% regroup tramites_federales by folio as list_tramites %}
+                                        {% for tramites in list_tramites %}
+                                        {% for visita in tramites.list %}
+                                        {% if visita.valor == 'on' %}
+                                        <tr>
+                                            {% ifchanged %}
+                                            <td>{{ visita.id_actividad.actividad }}</td>
+                                            <td>
+                                                <div class="switchery-demo">
+                                                    <input type="checkbox" checked disabled data-plugin="switchery" data-color="#1bb99a"  data-size="small"/>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="avatar-sm" title="{% get_user_info visita.usuario %}" tabindex="0" data-plugin="tippy" data-tippy-placement="left">
+                                                    <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                        {% get_initials visita.usuario %}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            {% endifchanged %}
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+        
+                                        {% regroup tramites_federales by folio as list_tramites %}
+                                        {% for tramites in list_tramites %}
+                                        {% for visita in tramites.list %}
+                                        {% if visita.valor != 'on' %}
+                                        <tr>
+                                            {% ifchanged %}
+                                            <td>{{ visita.id_actividad.actividad }}</td>
+                                            <td>
+                                                {% for visita in tramites.list %}
+                                                <strong>
+                                                    {{ visita.dato }}:
+                                                </strong>
+                                                {{ visita.valor }}
+                                                <br>
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                <div class="avatar-sm" title="{% get_user_info visita.usuario %}" tabindex="0" data-plugin="tippy" data-tippy-placement="left">
+                                                    <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                        {% get_initials visita.usuario %}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            {% endifchanged %}
+                                        </tr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+{% endblock extrajs %}

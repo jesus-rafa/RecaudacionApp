@@ -1,0 +1,491 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Registro Civil {% endblock title %}
+
+{% block head %} 
+<style type="text/css" media="print">
+	.imageSATEG {display:block !important;}
+    .divForm {display:none;}
+	#btPrint {display:none;}
+	
+</style>
+{% endblock head %}
+
+
+{% block content %}
+<div class="page-title">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4 class="mb-0">Registro Civil</h4>
+            <br>
+        </div>
+        
+    </div>
+</div>
+
+
+
+    <div class="col-xl-12 mb-30">
+
+        <div id="starting">
+
+            <div class="card-body">
+                <div class="tab round shadow divForm">
+                    <ul class="nav nav-tabs" role="tablist">
+						<li class="nav-item">
+                            <a class="nav-link" id="profile-30-tab" data-toggle="tab" href="#profile-30" role="tab"
+                                aria-controls="profile-30" aria-selected="false"><i class="fa fa-user-o"></i> Nacimientos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="home-20-tab" data-toggle="tab" href="#home-20" role="tab"
+                                aria-controls="home-20" aria-selected="true"> <i class="fa fa-user"></i>
+                                Defunciones </a>
+                        </li>
+                       
+                
+                    </ul>
+                </div>
+				
+				<div class="col-md-12 mb-30 imageSATEG" style="display:none;">
+					<div class="form-group col-md-12">
+						<div class="text-center">
+							<img height="100" weight="50" src="{% static 'images/sateg.png' %}" />
+						</div>
+					</div>
+				</div>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="home-20" role="tabpanel" aria-labelledby="home-20-tab">
+                        <div class="col-xl-9 mb-30 divForm">
+								<div class="text-center text-danger">
+										Los campos con asterisco(*) son obligatorios*
+									</div>
+                            <div class="card card-statistics mb-30">
+								
+                                <div class="card-body datepicker-form">
+                                    <form method="GET">
+                                        <div class="input-group">
+                                            <input class="form-control mr-sm-2" type="text" required placeholder="CURP*" id="curp" name="curp"
+                                                aria-label="Search" onkeyup="mayus(this);" maxlength="18">
+                                            <input type="hidden" id="tipo" name="tipo" value="1">
+                                            <button class="btn btn-primary btn-sm my-2 my-sm-0" type="submit" @click="searchData()">
+                        
+                                                <i v-if="loading" class="fa fa-spin fa-spinner"
+                                                    style="width: auto;height: auto; line-height: 1px; margin-right: 10px;">
+                                                </i>
+                                                <i v-else class="fa fa-search"></i> Buscar
+                                            </button>
+                                        </div>
+                                    </form>
+                        
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card card-statistics h-100">
+                            <div class="card-body">
+								{% for key, value in response.items %}
+								
+									{% if forloop.first %}
+									<div class="text-center">
+									<button id="btPrint" type="button" class="btn btn-dark" onclick="javascript:window.print();">
+										<span><i class="fa fa-print"></i> Imprimir</span>
+									</button>
+									</div>						
+									<br>
+									{% endif %}
+									
+									{% empty %}
+									
+								{% endfor %} 	
+
+                                <div class="text-center">
+                                    <strong>CURP: {{ request.GET.curp }}</strong>
+                                </div>
+                                <br>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-7">
+                                        <div class="table-responsive">
+                                            <table id="datatable1" class="table table-striped table-bordered p-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2"><strong>Datos del Solicitante</strong></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for key, value in response.items %}
+                                                    <tr>
+                                                        <td>{{key}}</td>
+                                                        {% if 'Fecha' in key|safe %}
+                                                        <td>{{ value|slice:":10" }}</td>
+                                                        {% else %}
+                                                        <td>{{value}}</td>
+                                                        {% endif %}                
+                                                    </tr> 
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div class="text-center">
+                                                                <strong>No hay informacion!</strong>
+                                                            </div>
+                                                        </td>                                  
+                                                    </tr>
+                                                    {% endfor %}   
+                                                </tbody>
+                                            </table>
+        
+                                        </div>
+                                        
+                                    </div>
+                                
+                                    <div class="form-group col-md-5">
+                                        <div class="table-responsive">
+                                            <table id="datatable2" class="table table-striped table-bordered p-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2"><strong>Datos del documento probatorio</strong></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for key, value in document.items %}
+                                                    <tr>
+                                                        <td>{{key}}</td>
+                                                        {% if 'Fecha' in key|safe %}
+                                                        <td>{{ value|slice:":10" }}</td>
+                                                        {% else %}
+                                                        <td>{{value}}</td>
+                                                        {% endif %}                
+                                                    </tr> 
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div class="text-center">
+                                                                <strong>No hay informacion!</strong>
+                                                            </div>
+                                                        </td>                                  
+                                                    </tr>
+                                                    {% endfor %}   
+                                                </tbody>
+                                            </table>
+        
+                                        </div>
+										
+										{% if qrcode2 %}
+										<div class="row">
+										<div class="form-group col-md-12">
+											<div class="text-center">
+												<img height="150" weight="150" src="http://172.31.113.187:81/media/media/qrcode/{{ qrcode2 }}" />
+											</div>
+											
+										</div>
+										</div>
+										{% endif %}
+                                        
+                                    </div>
+                                </div>
+								
+								
+								<br>
+								<div class="row">
+									<div class="form-group col-md-12">
+										{% if qrcode2 %}
+										<div class="text-center">
+											{{ input_data }}
+										</div>
+										{% endif %}
+									</div>
+									<div class="form-group col-md-12">
+									<div class="text-center">
+										Este documento, no tiene validez oficial solo es informativo!.
+									</div>
+									</div>
+								</div>
+                                
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade " id="profile-30" role="tabpanel" aria-labelledby="profile-30-tab">
+                        
+                           
+                            <form method="GET">
+                                <div class="col-xl-12 mb-30 divForm">
+									<div class="text-center text-danger">
+										Los campos con asterisco(*) son obligatorios*
+									</div>
+                                    <div class="card card-statistics mb-30">
+                                        <div class="card-body datepicker-form">
+                                            <div class="input-group">
+                                                <input class="form-control mr-sm-2" type="text" required placeholder="Nombre(s)*" id="nombres"
+                                                    name="nombres" aria-label="Search" onkeyup="mayus(this);">
+                                                <input class="form-control mr-sm-2" type="text" required placeholder="Primer apellido*"
+                                                    id="primer_apellido" name="primer_apellido" aria-label="Search" onkeyup="mayus(this);">
+                                                <input class="form-control mr-sm-2" type="text" required placeholder="Segundo apellido*"
+                                                    id="segundo_apellido" name="segundo_apellido" aria-label="Search" onkeyup="mayus(this);">
+                                                <input type="hidden" id="tipo" name="tipo" value="2">
+                                            </div>
+                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-9 mb-30 divForm">
+
+                                    <div class="card card-statistics mb-30">
+                                        <div class="card-body datepicker-form">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Fecha de Nacimiento*</span>
+
+                                                <select class="form-control" size="1" required id="dia" name="dia">
+                                                    <option disabled selected value="">Día</option>
+                                                    <option value="01">1</option>
+                                                    <option value="02">2</option>
+                                                    <option value="03">3</option>
+                                                    <option value="04">4</option>
+                                                    <option value="05">5</option>
+                                                    <option value="06">6</option>
+                                                    <option value="07">7</option>
+                                                    <option value="08">8</option>
+                                                    <option value="09">9</option>
+                                                    <option value="10">10</option>
+                                                    <option value="11">11</option>
+                                                    <option value="12">12</option>
+                                                    <option value="13">13</option>
+                                                    <option value="14">14</option>
+                                                    <option value="15">15</option>
+                                                    <option value="16">16</option>
+                                                    <option value="17">17</option>
+                                                    <option value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
+                                                    <option value="21">21</option>
+                                                    <option value="22">22</option>
+                                                    <option value="23">23</option>
+                                                    <option value="24">24</option>
+                                                    <option value="25">25</option>
+                                                    <option value="26">26</option>
+                                                    <option value="27">27</option>
+                                                    <option value="28">28</option>
+                                                    <option value="29">29</option>
+                                                    <option value="30">30</option>
+                                                    <option value="31">31</option>
+                                                </select>
+                                                &nbsp;&nbsp;
+                                                <select class="form-control" size="1"  required id="mes" name="mes">
+                                                    <option disabled selected value="">Mes</option>
+                                                    <option value="01">Enero</option>
+                                                    <option value="02">Febrero</option>
+                                                    <option value="03">Marzo</option>
+                                                    <option value="04">Abril</option>
+                                                    <option value="05">Mayo</option>
+                                                    <option value="06">Junio</option>
+                                                    <option value="07">Julio</option>
+                                                    <option value="08">Agosto</option>
+                                                    <option value="09">Septiembre</option>
+                                                    <option value="10">Octubre</option>
+                                                    <option value="11">Noviembre</option>
+                                                    <option value="12">Diciembre</option>
+                                                </select>
+                                                &nbsp;&nbsp;
+                                                <input class="form-control mr-sm-2"  type="number" onKeyPress="if(this.value.length>=4) return false;" required placeholder="Año ej: 1995" id="ano" name="ano"
+                                                    aria-label="Search">
+                            
+                                                    <button class="btn btn-primary btn my-2 my-sm-0" type="submit" @click="searchData()">
+                            
+                                                        <i v-if="loading" class="fa fa-spin fa-spinner"
+                                                            style="width: auto;height: auto; line-height: 1px; margin-right: 10px;">
+                                                        </i>
+                                                        <i v-else class="fa fa-search"></i> Buscar
+                                                    </button>
+                            
+                                            </div>
+                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        <div class="card card-statistics h-100">
+                            <div class="card-body">
+
+                                
+                                {% for key, value in nac_response.items %}
+								
+									{% if forloop.first %}
+									<div class="text-center">
+									<button id="btPrint" type="button" class="btn btn-dark" onclick="javascript:window.print();">
+										<span><i class="fa fa-print"></i> Imprimir</span>
+									</button>
+									</div>						
+									<br>
+									{% endif %}
+									
+									{% empty %}
+									
+								{% endfor %} 								
+								<br>
+                                <div class="form-row">
+                                    <div class="form-group col-md-7">
+                                        <div class="table-responsive">
+                                            <table id="datatable1" class="table table-striped table-bordered p-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2"><strong>Datos del Solicitante</strong></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for key, value in nac_response.items %}
+                                                    <tr>
+                                                        <td>{{key}}</td>
+                                                        {% if 'Fecha' in key|safe %}
+                                                        <td>{{ value|slice:":10" }}</td>
+                                                        {% else %}
+                                                        <td>{{value}}</td>
+                                                        {% endif %}                
+                                                    </tr> 
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div class="text-center">
+                                                                <strong>No hay informacion!</strong>
+                                                            </div>
+                                                        </td>                                  
+                                                    </tr>
+                                                    {% endfor %}   
+                                                </tbody>
+                                            </table>
+        
+                                        </div>
+                                        
+                                    </div>
+                                
+                                    <div class="form-group col-md-5">
+                                        <div class="table-responsive">
+                                            <table id="datatable2" class="table table-striped table-bordered p-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th colspan="2"><strong>Datos del documento probatorio</strong></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for key, value in nac_document.items %}
+                                                    <tr>
+                                                        <td>{{key}}</td>
+                                                        {% if 'Fecha' in key|safe %}
+                                                        <td>{{ value|slice:":10" }}</td>
+                                                        {% else %}
+                                                        <td>{{value}}</td>
+                                                        {% endif %}                
+                                                    </tr> 
+                                                    {% empty %}
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div class="text-center">
+                                                                <strong>No hay informacion!</strong>
+                                                            </div>
+                                                        </td>                                  
+                                                    </tr>
+                                                    {% endfor %}   
+                                                </tbody>
+                                            </table>
+        
+                                        </div>
+										
+										{% if qrcode1 %}
+										<div class="row">
+										<div class="form-group col-md-12">
+											<div class="text-center">
+												<img height="150" weight="150" src="http://172.31.113.187:81/media/media/qrcode/{{ qrcode1 }}" />
+											</div>
+											</div>
+										</div>
+										{% endif %}
+												
+										
+                                        
+                                    </div>
+                                </div>
+								
+								
+								<br>
+								<div class="row">
+									<div class="form-group col-md-12">
+										{% if qrcode1 %}
+										<div class="text-center">
+											{{ input_data }}
+										</div>
+										{% endif %}
+									</div>
+									
+									<div class="form-group col-md-12">
+									<div class="text-center">
+										Este documento, no tiene validez oficial solo es informativo!.
+									</div>
+									</div>
+								</div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<!-- vue.js files -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        {% if messages %}
+            {% for message in messages %}
+
+                if('{{message|safe}}' == 'Defun'){
+                    $('#home-20-tab').tab('show');
+                }
+
+                if('{{message|safe}}' == 'Nactos'){
+                    $('#profile-30-tab').tab('show');
+                }
+
+            {% endfor %}
+        {% else %}
+            $('#profile-30-tab').tab('show');        
+        {% endif %}
+                    
+    });
+	
+	function mayus(e) {
+		e.value = e.value.toUpperCase().normalize('NFD').replace(/\s+/g, ' ').replace(/([aeio])\u0301|(u)[\u0301\u0308]/gi,"$1$2").normalize();
+	}
+</script>
+<script type="text/javascript">
+    new Vue({
+      el: '#starting',
+      delimiters: ['${','}'],
+      data() {
+        return {
+            loading: false
+        };
+      },
+      methods: {
+        searchData: function() {
+            this.loading = true;
+            setTimeout(() => (this.loading = false), 2000);
+        },
+        frontEndDateFormat: function(date) {
+        	return moment(date, 'YYYY-MM-DD').format('DD/MM/YYYY');
+        },
+        backEndDateFormat: function(date) {
+        	return moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        }
+      }
+    });
+  </script>
+{% endblock extrajs %}

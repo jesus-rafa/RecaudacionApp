@@ -1,0 +1,219 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Tramites {% endblock titulo %}
+
+{% block head %}
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+{%endblock head %}
+{% block content %}
+<style>
+    #dt-requisitos_tramites tbody tr td {
+        text-align: center !important;
+    }
+</style>
+
+<div id="app">
+    <div class="row">
+        <div class="col-xl-12 mt-4 mb-30">
+            <h4 class="page-title" style="margin-left:10px;">Prestaciones laborales</h4>
+            <div class="card">
+                <div class="card-body m-0 py-2">
+                    <div class="d-flex justify-content-between">
+                        
+                        <div class="page-title-right">
+                           
+                        </div>
+                    </div>
+                    <!-- <br> -->
+                    <!-- <div class="row">
+                        <div class="col"> -->
+                            <!-- <ul class="nav nav-tabs nav-bordered "> -->
+                                <!-- <li class="nav-item">
+                                    <a href="#usuario" id="usuario-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                                        <i class="fas fa-hand-holding-medical noti-icon"></i> Trámites y Servicios
+                                    </a>
+                                </li> -->
+                                <!-- {% if permission == 'TRAMITES EDITOR' or permission == 'ADMIN'  %}
+                                <li class="nav-item">
+                                    <a href="#editor" id="usuario-tab" data-bs-toggle="tab" aria-current="page" class="nav-link ">
+                                        <i class="fas fa-user"></i> Editor
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% if permission == 'ADMIN'  %}
+                                <li class="nav-item">
+                                    <a href="#admin" id="admin-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                                        <i class="fas fa-user-lock"></i> Administrador 
+                                    </a>
+                                </li>
+                                {% endif %} -->
+                            <!-- </ul> -->
+                        <!-- </div> -->
+
+                        <form  id="revision" method="post">{% csrf_token %}</form>
+                    <!-- </div> -->
+
+                    <!-- <div class="tab-content">
+                        <div class="tab-pane fade active show" id="usuario"> -->
+                            <div class="row">
+                                <div class="form-floating col-md-12 mb-2">
+                                    <input id="search1" type="text" class="float-label form-control input-rec" placeholder="." onkeyup="BuscarPrestaciones()">
+                                    <label>Buscar...</label>
+                                </div>
+                            </div>
+                            <input id="hfFolio" type="hidden" value="{{ msg }}">
+                            <div class="table-responsive mt-15">
+                                <table id="datatable" class="table table-sm  p-0 mytables table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>                                                                               
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in vista %}
+                                        <tr>
+                                            <td>
+                                                <button id="desactivar{{item.id}}" tabindex="0" class="btn fondo-boton btn-xs" target="_blank" onclick="$(location).attr('href','{% url 'tramites_app:vista-individual' item.id %}');">
+                                                   {{item.servicio}}
+                                                 </button>
+                                            </td>
+                                            <td>{{item.Tramites}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        <!-- </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+
+<!-- Plugins js -->
+<script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+<!-- Init js-->
+<script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+
+<script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+
+<script>
+    function BuscarPrestaciones(){
+
+        const tabla = document.getElementById('datatable');
+
+        const buscador = document.getElementById('search1').value.toLowerCase();
+
+        let total = 0;
+        // Recorremos todas las filas con contenido de la tabla
+        
+        for (let i = 1; i < tabla.rows.length; i++) {
+            // Si el td tiene la clase "noSearch" no se busca en su cntenido
+
+            if (tabla.rows[i].classList.contains("noSearch")) {
+
+            continue;
+        
+
+            }
+
+        let found = false;
+        const cellsOfRow = tabla.rows[i].getElementsByTagName('td');
+        // Recorremos todas las celdas
+        for (let j = 0; j < cellsOfRow.length && !found; j++) {
+            const compareWith = cellsOfRow[j].innerHTML.toLowerCase();
+             // Buscamos el texto en el contenido de la celda
+             if (buscador.length == 0 || compareWith.indexOf(buscador) > -1) {
+                found = true;
+                total++;
+            }
+
+        }
+
+        if (found) {
+
+            tabla.rows[i].style.display = '';
+
+        } else {
+            // si no ha encontrado ninguna coincidencia, esconde la
+                    // fila de la tabla
+            tabla.rows[i].style.display = 'none';
+
+            }
+
+        }
+
+        // mostramos las coincidencias
+
+        const lastTR=tabla.rows[tabla.rows.length-1]
+
+        const td=lastTR.querySelector("td");
+
+        lastTR.classList.remove("hide", "red");
+
+        if (buscador == "") {
+
+            lastTR.classList.add("hide");
+
+        } else if (total) {
+
+            // td.innerHTML="Se ha encontrado "+total+" coincidencia"+((total>1)?"s":"");
+
+        } else {
+
+            lastTR.classList.add("red");
+
+            // td.innerHTML="No se han encontrado coincidencias";
+
+        }
+
+    }
+
+</script>
+{% endblock extrajs %}

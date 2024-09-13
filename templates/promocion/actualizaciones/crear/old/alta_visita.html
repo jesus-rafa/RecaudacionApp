@@ -1,0 +1,150 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Nuevo Contribuyente</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_alta_visita" action="{% url 'promocion_app:alta-visita' idDesarrollo %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        {{ form.id_desarrollo }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ form.fecha }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label>RFC:</label>
+            
+                        <div class="input-group mb-3">
+                            {{ form.rfc }}
+                            
+                            <div class="input-group-append">
+                                <button id="btConsulta" type="submit" class="btn btn-primary btn" target="_blank" value="Ver"> <i
+                                        class="fa fa-search"></i> Ver
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <label style="display: none;" id="alert" class="text-danger">*Se requieren 13 caracteres</label>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    {{ form.nombre }}
+                </div>
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btValidate" class="btn btn-primary">Guardar</button>
+                <button style="display: none;" type="submit" id="btVisita" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    var flag = false;
+
+    $(document).ready(function () {
+
+        $("#btConsulta").click(function (e) {
+            flag = true;
+            e.preventDefault();
+
+            var RFC = $("#id_rfc").val();
+
+            if(RFC.length == 13){
+                $('#alert').hide();
+                var myURL = "{% url 'programacion_app:get-contribuyente' 'RFC' %}";
+
+                $.ajax({
+                    url: myURL.replace('RFC', RFC.trim()),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (data) {
+                        
+                        try {
+                            $("#id_nombre").val(data[0].fields.nombre);
+                        }
+                        catch (err) {
+                            $("#id_nombre").val('sin datos*');
+                        }
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                
+                var myValidation = "{% url 'promocion_app:validar-rfc' idDesarrollo 'RFC' %}";
+
+                $.ajax({
+                    url: myValidation.replace('RFC', RFC),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (response) {
+                        try {
+                            if (response.data === true) {
+
+                                swal({
+                                    title: 'Ya existe este RFC en este Evento!',
+                                    text: RFC
+                                })
+
+                                $('#mdCreate').modal('hide');
+
+                                return false;
+                            }else{
+                                //return true;
+                            }
+                        }
+                        catch (err) {
+                            //return true;
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+            }else{
+                $('#alert').show();
+            }
+
+        });
+
+        $("#btValidate").click(function (e) {
+            e.preventDefault();
+
+            if (flag == false){
+                $("#btConsulta").click();
+            }else{
+                //$("#btValidate").attr("disabled", true);   
+                $("#btVisita").click();
+            }
+        });
+
+        // $("#form_alta_visita").submit(function (e) {
+
+        //     $("#btVisita").attr("disabled", true);            
+        //     return true;
+                          
+        // });
+        
+    });
+
+   
+</script>
+{% endblock extrajs %}

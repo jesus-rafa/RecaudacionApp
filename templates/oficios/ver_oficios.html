@@ -1,0 +1,328 @@
+{% load static %}
+{% load tags %}
+{% load tz %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+       
+        <form method="GET">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h4 class="modal-title">Ver Oficio</h4>
+                {% if detail.estatus == 'CANCELADO' %}
+                <span class="badge bg-danger">{{ detail.estatus }}</span>
+                {% else %}
+                <span class="badge bg-success">{{ detail.estatus }}</span>
+                {% endif %}
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div style="float: right;">
+                                <label><strong>Fecha Captura:</strong></label>
+                                <label>{{ detail.created|date:'d/m/Y' }}</label>
+                            </div>
+                    
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Fecha:</strong></label>
+                            <label>{{ detail.fecha|date:'d/m/Y' }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Folio:</strong></label>
+                            <label>{{ detail.folio }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Creado por:</strong></label>
+                            <label>{% get_user_info detail.usuario %}</label>
+                        </div>
+                    </div>
+                    
+                   
+                </div>
+
+                <div class="row">
+                    
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Firma:</strong></label>
+                            <label>{{ detail.firma }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Dirigido a:</strong></label>
+                            <label>{{ detail.nombre }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Puesto:</strong></label>
+                            <label>{{ detail.puesto }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Dependdencia:</strong></label>
+                            <label>{{ detail.dependencia }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Asunto:</strong></label>
+                            <label>{{ detail.asunto }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Comentarios:</strong></label>
+                            <label>{% if detail.comentarios != None %} {{ detail.comentarios }} {% endif %}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <ul class="nav nav-tabs nav-bordered">
+                        <li class="nav-item">
+                            <a href="#archivos" id="archivos-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link active">
+                                Archivos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#anexos" id="anexos-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                Anexos
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="archivos">
+                            <div class="col-md-12">
+                                <div class="card m-1 shadow-none border text-center">
+                                    <div class="p-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto pe-0">
+                                                <div class="avatar-sm">
+                                                    <span class="avatar-title bg-light text-secondary rounded">
+                                                        <i class="far fa-file font-18"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% if detail.pdf %}
+                                            <div class="col ps-0">
+                                                <a onclick="Visto('{% url 'oficios_app:visto-oficio' detail.id request.user.id %}')" href="{{ detail.pdf.url }}"
+                                                target="_blank" class="text-primary fw-bold"><strong>{{ detail.pdf|cut:'media/correspondencia/' }}</strong></a>
+                                                <p class="mb-0 font-13 text-primary"><i class="dripicons-download"></i></p>
+                                            </div>
+        
+                                            {% else %}
+                                            <div class="col">
+                                                <a href="javascript:void(0);" class="text-muted fw-bold">archivo pendiente por cargar</a>
+                                                <p class="mb-0 font-13"></p>
+                                            </div>
+                                            {% endif %}
+                                        </div> <!-- end row -->
+                                    </div> <!-- end .p-2-->
+                                </div> <!-- end col -->
+                            </div> <!-- end col-->
+
+                        </div>
+
+                        <div class="tab-pane fade" id="anexos">
+                            <div class="col-md-12">
+                            {% for item in archivos %}
+                            <div id="archivo_{{ item.id }}" class="card mt-1 mb-0 shadow-none border">
+                                <div class="p-2">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-secondary rounded">
+                                                    <i class="far fa-file font-18"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col ps-0 text-center">
+                                            <a href="{{ item.archivo.url }}" class="text-muted fw-bold">
+                                                {{ item.archivo|cut:'media/correspondencia/' }}</a>
+                                            <p class="mb-0">{{ item.archivo.size|filesizeformat }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            {% endfor %}
+                        </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                
+                <hr>
+
+                {% for row in cc %}
+                {% if forloop.first %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Con copia:</strong></label>
+                            {% endif %}
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        {% if row.user.avatar %}
+                                        <img src="{{ row.user.avatar.url }}" class="rounded-circle avatar-xs" alt="">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs"
+                                            alt="">
+                                        {% endif %}
+
+                                        {{ row.user }}
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{{ row.user }}</p> -->
+                                    <p class="inbox-item-text">
+                                        <label {% if request.user.username == row.user.username %} id="lbShow" {% endif %}>
+                                            {% if row.comentarios != None %}
+                                            {{row.comentarios }}
+                                            {% endif %}
+                                        </label>
+                                    </p>
+                                    <p class="inbox-item-date">
+                
+                                        {% if row.visto == True %}
+                                        {{ row.modified|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                
+                                        <i class="text-success far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                
+                                        {% else %}
+                                        <i class="text-secondary far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                
+                            </div> <!-- end inbox-widget -->
+                            {% if forloop.last %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+
+                <div class="row">
+                {% if detail.estatus != 'CONCLUIDO' %}
+                    {% for row in cc %}
+                    {% if request.user.username == row.user.username %}
+                    <br>
+                    <div class="text-center">
+                        <input size="50" class="form-control-sm" id="txtCmmt" type="text" placeholder="Comentario">
+                        &nbsp;&nbsp;
+                        <button id="btnGuardar"
+                            onclick="Agregar_Comentario('{% url 'oficios_app:cmmt-oficio' detail.id request.user.id %}')"
+                             class="btn btn-outline-primary btn-xs rounded-pill waves-effect waves-light">Guardar</button>
+                        &nbsp;&nbsp;
+                        <label id="lbSaved"></label>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $("#btnGuardar").click(function (e) {
+            e.preventDefault();
+        });
+
+    });
+
+
+    function Agregar_Comentario(myURL) {
+
+        var cmmt = $("#txtCmmt").val();
+
+        if(cmmt !== ''){
+            $('#lbSaved').show();
+            $('#lbSaved').removeClass("text-danger");
+            $('#lbSaved').addClass("text-success");
+            $('#lbSaved').text('Guardado!');
+            $('#lbSaved').fadeOut(6000);
+            
+
+            $.ajax({
+                url: myURL,
+                type: "POST",
+                dataType: "JSON",
+                data: {'comentarios': cmmt},
+                headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+
+                    $('#lbShow').text(cmmt);
+                },
+                error: function (error) {
+                    //console.log(error);
+                }
+            });
+            $("#txtCmmt").val('');
+
+        } else{
+            $('#lbSaved').show();
+            $('#lbSaved').removeClass("text-success");
+            $('#lbSaved').addClass("text-danger");
+            $('#lbSaved').text('Agrega un comentario');
+            $('#lbSaved').fadeOut(6000);
+        }
+                
+    }
+
+
+    function Visto(myURL) {
+
+        $.ajax({
+            url: myURL,
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                //console.log(data)
+            },
+            error: function (error) {
+                //console.log(error);
+            }
+        });
+
+        //$('#mdView').modal('hide');
+                    
+    }
+</script>
+{% endblock extrajs %}

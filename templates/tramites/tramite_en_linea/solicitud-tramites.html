@@ -1,0 +1,638 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Solicitudes trámites {% endblock titulo %}
+
+{% block head %}
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- dropzone js -->
+    <link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+{%endblock head %}
+
+{% block content %}
+    <style>
+        .swal2-modal .swal2-confirm {
+            background-color: transparent !important;
+            font-size: .875rem !important;
+        }
+        .swal2-modal .swal2-confirm:hover {
+            background-color: #353535 !important;
+            font-size: .875rem !important;
+        }
+        .font-red {
+            color: red !important;
+        }
+        .font-black {
+            color: black !important;
+        }
+        .mrgnBT5 {
+            margin-bottom: 5px;
+        }
+    </style>
+    <div class="card mt-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col">
+                    <b>Trámite</b>
+                    <p>{{tramite.servicio}}</p>
+                </div>
+                <div class="col">
+                    <div class="pull-right">
+                        <button type="button" id="btn-cancelar_solicitud_tramite" class="btn waves-effect gris-oscuro fondo-boton" onclick="cancelar_solicitud_tramite()">
+                            <i class="fas {% if action == 'modo_edicion' %}fa-reply{% else %}fa-times{% endif %} me-2 text-muted font-18 vertical-middle"></i>{% if action == "modo_edicion" or action == "modo_edicion_solicitud_revisada" %}Regresar{% else %}Cancelar solicitud{% endif %}
+                        </button>
+                        {% if action == "modo_edicion" %}
+                            {% if solicitud_id and solicitud_id != 'Nueva_solicitud' %}
+                                <button type="button" id="btn-cancelar_solicitud_tramite" class="btn waves-effect gris-oscuro fondo-boton" onclick="enviar_solicitud_tramite()">
+                                    <i class="fas fa-paper-plane me-2 text-muted font-18 vertical-middle"></i>Enviar solicitud
+                                </button>
+                            {% else %}
+                                <button type="button" id="btn-cancelar_solicitud_tramite" class="btn waves-effect gris-oscuro fondo-boton" onclick="guardar_solicitud_tramite()">
+                                    <i class="fas fa-save me-2 text-muted font-18 vertical-middle"></i>Guardar solicitud
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if action == "modo_edicion" %}
+                <div class="row">
+                    <div class="col">
+                        <b>Observaciones</b><br>
+                        {{solicitud_instance.observaciones}}
+                    </div>
+                </div>
+            {% endif %}
+            <form id="frm-solicitud_tramite" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="solicitud_tmp-folio" id="solicitud_tmp-folio">
+                <input type="hidden" name="solicitud-id" id="solicitud-id" value="{{solicitud_id}}">
+                <div class="row mb-2 d-none">
+                    <div class="col">
+                        <!-- <div class="form-floating">
+                            <input id="solicitud-vigencia" name="solicitud-vigencia" type="text" class="float-label form-control input-rec" placeholder="Vigencia">
+                            <label for="solicitud-vigencia">Vigencia</label>
+                            <div class="invalid-feedback">Debe ingresar más de un día</div>
+                        </div> -->
+                        <div class="form-floating">
+                            <input id="solicitud-fecha_vigencia" name="solicitud-fecha_vigencia" type="text" class="float-label form-control input-rec" placeholder="Fecha de vigencia">
+                            <label for="solicitud-fecha_vigencia">Fecha de vigencia</label>
+                            <div class="invalid-feedback">Debe una fecha de vigencia</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="solicitud-fecha_inicio" name="solicitud-fecha_inicio" type="text" class="float-label form-control input-rec" placeholder="Fecha de inicio">
+                            <label for="solicitud-fecha_inicio">Fecha de inicio</label>
+                            <div class="invalid-feedback">Debe una fecha de inicio</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="solicitud-fecha_fin" name="solicitud-fecha_fin" type="text" class="float-label form-control input-rec" placeholder="Fecha de termino">
+                            <label for="solicitud-fecha_fin">Fecha de termino</label>
+                            <div class="invalid-feedback">Debe una fecha de termino</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="form-floating d-none">
+                        <input id="search-requisitos_tramite" name="search-requisitos_tramite" type="text" class="float-label form-control input-rec" placeholder="Buscar">
+                        <label>Buscar</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <table id="dt-requisitos_tramite" class="table table-sm">
+                        <thead id="table-header">
+                            <th>No.</th>
+                            <th>Requisito</th>
+                            <th>Tipo</th>
+                            <th>Observaciones</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </thead>
+                        <tbody>
+                            <script>var contador = 1;</script>
+                            {% for requisito in requisitos_tramite %}
+                                <tr>
+                                    <td><script>document.write(contador);</script></td>
+                                    <td>{{requisito.nombre}}</td>
+                                    <td>
+                                        {% if requisito.obligatorio%}
+                                            <span class="badge badge-outline-success"><i class="fas fa-check-circle"></i> Obligatorio</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark"><i class="far fa-dot-circle"></i> Opcional</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span>-</span></td>
+                                    <td><span>No capturado</span></td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                {% if requisito.tiene_formato_default%}
+                                                    <a id="btnDescargarFormatoDefault{{requisito.id}}" href="{{request.scheme}}://{{request.get_host}}/{{requisito.ruta_formato|slice:'2:'}}" target="_blank" class="dropdown-item">
+                                                        <i class="fas fa-file-download me-2 text-muted vertical-middle"></i>Formato documento
+                                                    </a>
+                                                {% endif %}
+                                                {% if action == "modo_edicion" %}
+                                                    <a id="btnCargardocumento{{requisito.id}}" onclick="subir_archivos_solicitud('{{requisito.id}}')" class="dropdown-item">
+                                                        <i class="fas fa-file-upload me-2 text-muted vertical-middle"></i>Subir documento
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <script>contador++;</script>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para cargar los documentos por requisito -->
+    <div class="modal fade" id="mdl-subir_documentos_solicitud_tramite" tabindex="-1" role="dialog" aria-labelledby="subir_documentos_solicitud_tramiteLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title ">Carga de documentos solicitud</h4>
+                    <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-subir_documentos_solicitud_tramite" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="requisito_id" id="requisito_id">
+                        <div class="row px-2 mb-2">
+                            <div class="col">
+                                <label class="etiqueta-combo mrgnBT5" for="archivo_requisito_solicitud">Adjuntar archivo</label>
+                                <input type="file" name="archivo_requisito_solicitud" id="archivo_requisito_solicitud" class="form-control" accept=".pdf,*/image" required>
+                                <small id="archivoInfoAyuda" class="form-text text-muted">Solo permite adjuntar archivo con extensión pdf e imágenes.</small>
+                                <div class="invalid-feedback">Debe adjuntar un archivo</div>
+                            </div>
+                        </div>
+                        <div class="row pull-right">
+                            <div class="col">
+                                <button type="button" id="btnGuardarCargaDocs" class="btn fondo-boton" onclick="guardar_archivos_solicitud()">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extrajs %}
+    <!-- Plugins js -->
+    
+    <script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+    <script src="{% static 'custom/js/render-table.js' %}"></script>
+    <script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+    <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+    <script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+
+    <!-- dropzone js -->
+
+    <script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+    <script src="{% static 'assets/libs/dropify/js/dropify.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+    <script>
+        // Constantes Plugin SweetAlert2
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-outline-secondary waves-effect gris-oscuro',
+                cancelButton: 'btn btn-outline-secondary waves-effect gris-oscuro'
+            },
+            buttonsStyling: false
+        });
+
+        $(document).ready(function() {
+            $("#solicitud-fecha_inicio").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd/mm/yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $("#solicitud-fecha_fin").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd/mm/yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $("#solicitud-fecha_vigencia").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd/mm/yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            simple_table("#dt-requisitos_tramite","#search-requisitos_tramite",[]);
+
+            var solicitud = "{{solicitud_id}}";
+            if (solicitud != "" && solicitud != "Nueva_solicitud")
+            {
+                actualizar_datos_listado_requisitos();
+            }
+        })
+
+        function limpiar_form_carga_archivo_solicitud() {
+            let formulario = document.getElementById('form-subir_documentos_solicitud_tramite');
+            formulario.reset();
+        }
+
+        function guardar_solicitud_tramite() {
+            
+            var t = $("#frm-solicitud_tramite")[0];
+            if ($("#solicitud_tmp-folio").val() == "")
+                return toastr.error("Tiene requisitos que son obligatorios y no tiene algún documento capturado");
+
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("frm-solicitud_tramite");
+                let fd = new FormData(formulario);
+                fd.append("folio", $("#solicitud_tmp-folio").val());
+                fd.append("tramite_id", "{{tramite_id}}");
+                fd.append("solicitud_id", $("#solicitud-id").val());
+
+                $.ajax({
+                    url: "{% url 'tramites_app:guardar-solicitud-tramite' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            $("#solicitud_tmp-folio").val(result.folio);
+
+                            toastr.success("Solicitud guardada correctamente");
+
+                            setTimeout(() => {
+                                window.location.href = "{% url 'tramites_app:solicitudes-por-usuario' %}";
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        }
+
+        function guardar_archivos_solicitud() {
+            
+            var t = $("#form-subir_documentos_solicitud_tramite")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-subir_documentos_solicitud_tramite");
+                let fd = new FormData(formulario);
+                fd.append("folio", $("#solicitud_tmp-folio").val());
+                fd.append("tramite_id", "{{tramite_id}}");
+                fd.append("solicitud_id", $("#solicitud-id").val());
+                fd.append("accion_vista", "{{action}}");
+
+                $.ajax({
+                    url: "{% url 'tramites_app:guardar-requisito-solicitud-tramite' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            $("#solicitud_tmp-folio").val(result.folio);
+
+                            toastr.success("Archivo cargado correctamente");
+
+                            setTimeout(() => {
+                                limpiar_form_carga_archivo_solicitud();
+                                $("#mdl-subir_documentos_solicitud_tramite").modal("hide");
+                                actualizar_datos_listado_requisitos();
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        }
+
+        function actualizar_datos_listado_requisitos() {
+            var contador = 0;
+
+            $('#dt-requisitos_tramite').DataTable().destroy();
+
+            let table = $('#dt-requisitos_tramite').DataTable({
+                destroy: true,
+                sDom: "rtip",
+                ajax: {
+                    url : "{% url 'tramites_app:listado-requisito-solicitud-tramite' %}",
+                    type : "POST",
+                    data : {
+                        "csrfmiddlewaretoken": document.getElementsByName("csrfmiddlewaretoken")[0].value,
+                        "tramite_id": "{{tramite_id}}",
+                        "folio_tmp": $("#solicitud_tmp-folio").val(),
+                        "solicitud_id": $("#solicitud-id").val(),
+                    },
+                },
+                columns: [
+                    { data: 'id' },
+                    { data: 'requisito_nombre' },
+                    { data: 'es_obligatorio' },
+                    { data: 'observaciones' },
+                    { data: 'estatus' },
+                    { data: 'id' },
+                ],
+                order: [[0, 'ASC']],
+                pageLength : 10,
+                lengthMenu: [10, 25, 50, 100, 'Todos'],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                columnDefs: [
+                    {
+                        "targets": 0,
+                        "render": function(data, type, row){
+                            contador += 1;
+                            return contador;
+                        }
+                    },
+                    {
+                        "targets": 3,
+                        "searchable": false,
+                        "visible": {% if action == "modo_edicion_solicitud_revisada" %}true{% else %}false{% endif %},
+                        "orderable": false
+                    },
+                    {
+                        "targets": 2,
+                        "render": function(data, type, row){
+                            let respuesta = `<span class="badge bg-light text-dark"><i class="far fa-dot-circle"></i> Opcional</span>`;
+                            if(row.es_obligatorio)
+                            {
+                                respuesta = `<span class="badge badge-outline-success"><i class="fas fa-check-circle"></i> Obligatorio</span>`;
+                            }
+                            return respuesta;
+                        }
+                    },
+                    {
+                        "targets": 4,
+                        "render": function(data, type, row){
+                            let respuesta = '<small id="inputAlert' + row.id + '" class="form-text text-muted font-black">' + row.estatus + '</small>';
+                            if(row.estatus == "Archivo rechazado")
+                            {
+                                respuesta = '<small id="inputAlert' + row.id + '" class="form-text text-muted font-red">¡' + row.estatus + '!</small>';
+                            }
+                            return respuesta;
+                        }
+                    },
+                    {
+                        "orderable": false,
+                        "targets": 5,
+                        "render": function(data, type, row) {
+                            let button = `
+                            <div class="btn-group dropdown">
+                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                <div class="dropdown-menu dropdown-menu-end">`;
+                            
+                            if (row.requisito__tiene_formato_default) {
+                                button += `
+                                    <a id="btnDescargarFormatoDefault` + row.id + `" href="{{request.scheme}}://{{request.get_host}}/` + row.requisito__ruta_formato.slice(2) + `" target="_blank" class="dropdown-item">
+                                        <i class="fas fa-file-download me-2 text-muted vertical-middle"></i>Formato documento
+                                    </a>
+                                `;
+                            }
+                            
+                            if (row.ruta_archivo) {
+                                button += `
+                                    <a id="btnDescargarFormatoDefault` + row.id + `" href="{{request.scheme}}://{{request.get_host}}/` + row.ruta_archivo.slice(2) + `" target="_blank" class="dropdown-item">
+                                        <i class="fas fa-eye me-2 text-muted vertical-middle"></i>Ver archivo
+                                    </a>
+                                `;
+                            }
+                            {% if action != "modo_lectura" %}
+                                if (row.nombre_archivo != "" && row.nombre_archivo != null) {
+                                    button += `
+                                        <a id="btnEliminarDocumento` + row.id + `" onclick="eliminar_archivos_requisito('` + row.requisito__id + `', '` + row.id + `')" class="dropdown-item">
+                                            <i class="fas fa-trash me-2 text-muted vertical-middle"></i>Eliminar archivo
+                                        </a>
+                                    `;
+                                }
+                                
+                                button += `
+                                        <a id="btnCargardocumento` + row.id + `" onclick="subir_archivos_solicitud('` + row.requisito__id + `')" class="dropdown-item">
+                                            <i class="fas fa-file-upload me-2 text-muted vertical-middle"></i>Subir documento
+                                        </a>
+                                    </div>
+                                </div>`;
+                            {% endif %}
+
+                            return button;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                }
+            });
+
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+
+            $("#search-requisitos_tramites").on("keyup click", function () {
+                table.tables().search($(this).val()).draw();
+            });
+
+            table.on("click", "thead tr td", function (event) {
+            let indexColumn = $(this).closest("td").index();
+
+            $("thead > tr  > td").each(function (index, td) {
+                this.classList.remove("negrita");
+            });
+
+            if ($.inArray(parseInt(indexColumn), myCols) === -1)
+                $(this).closest("td").addClass("negrita");
+            });
+        }
+
+        function eliminar_archivos_requisito(id_requisito, id_detalle_solicitud) {
+        
+            let formulario = document.getElementById("frm-solicitud_tramite");
+            let fd = new FormData(formulario);
+            fd.append("id_requisito", id_requisito);
+            fd.append("id_detalle_solicitud", id_detalle_solicitud);
+            fd.append("folio_temporal", $("#solicitud_tmp-folio").val());
+            fd.append("accion_vista", "{{action}}");
+
+            $.ajax({
+                url: "{% url 'tramites_app:eliminar-documento-requisito-solicitud' %}",
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (!result.error)
+                    {
+                        toastr.success("Archivo eliminado correctamente");
+
+                        setTimeout(() => {
+                            actualizar_datos_listado_requisitos();
+                        }, 1000);
+                    }
+                    else
+                        return toastr.error(result.msj);
+                },
+                error: function (error) {
+                    toastr.error(error);
+                }
+            });
+        }
+
+        function enviar_solicitud_tramite() {
+        
+            let formulario = document.getElementById("frm-solicitud_tramite");
+            let fd = new FormData(formulario);
+            fd.append("solicitud_id", $("#solicitud-id").val());
+
+            $.ajax({
+                url: "{% url 'tramites_app:enviar-solicitud-tramite' %}",
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (!result.error)
+                    {
+                        toastr.success("Solicitud enviada correctamente");
+
+                        setTimeout(() => {
+                            window.location.href = "{% url 'tramites_app:solicitudes-por-usuario' %}";
+                        }, 1000);
+                    }
+                    else
+                        return toastr.error(result.msj);
+                },
+                error: function (error) {
+                    toastr.error(error);
+                }
+            });
+        }
+
+        function cancelar_solicitud_tramite() {
+            if($("#solicitud_tmp-folio").val() != "")
+            {
+                swalWithBootstrapButtons.fire({
+                    title: '¡Tiene documentos previamente cargados!',
+                    text: "Si continua se perderá su información capturada.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Si, continuar.',
+                    cancelButtonText: 'No, cancelar.',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Falta borrar los archivos de la base
+                        window.location.href = "{% url 'tramites_app:solicitudes-por-usuario' %}";
+                    }
+                });
+            }
+            else {
+                window.location.href = "{% url 'tramites_app:solicitudes-por-usuario' %}";
+            }
+        }
+
+        function subir_archivos_solicitud(requisito_id) {
+            $("#requisito_id").val(requisito_id);
+            $("#mdl-subir_documentos_solicitud_tramite").modal("show");
+        }
+    </script>
+{% endblock extrajs %}

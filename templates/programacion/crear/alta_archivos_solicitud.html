@@ -1,0 +1,199 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Alta de Solicitud</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_archivos" action="{% url 'programacion_app:alta-archivos-solicitud' programa_id %}"
+            method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col mb-2">
+                            {{ form.programa_id }}
+                            {{ form.fecha }}
+                            <label>{{ form.fecha.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">{{ form.tipo.label }}</label>
+                            {{ form.tipo }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">Obligacion</label>
+                            <select id="tax" class="form-control selectize-select">
+                                {% for item in impuestos %}
+                                <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">Ejercicio</label>
+                            <select id="ejercicio" class="form-control selectize-select">
+                                {% for item in ejercicio %}
+                                <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <br>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="ENE"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>ENE</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="FEB"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>FEB</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="MAR"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>MAR</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="ABR"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>ABR</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="MAY"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>MAY</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="JUN"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>JUN</b>
+                                        </div>
+                                    </ul>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <ul>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="JUL"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>JUL</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="AGO"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>AGO</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="SEP"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>SEP</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="OCT"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>OCT</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="NOV"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>NOV</b>
+                                        </div>
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" name="periodo" class="periodo" value="DIC"
+                                                data-size="small" data-plugin="switchery" data-color="#3db9dc" />
+                                            <b>DIC</b>
+                                        </div>
+                                    </ul>
+
+                                </div>
+                            </div>
+
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label>Archivo:</label>
+                            {{ form.archivo }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button id="btNewFile" type="submit"
+                    class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+
+        $('#form_alta_archivos').submit(function (e) {
+
+            var ejercicio = $('#ejercicio').val();
+            var impuestos = $("#tax option:selected").text();
+
+            multiple = [];
+            $.each($("input[name='periodo']:checked"), function () {
+                multiple.push($(this).val());
+            });
+
+            var txt = 'EJERCICIO: ' + ejercicio +
+                ' PERIODO: ' + multiple.join(",") +
+                ' OBLIGACION: ' + impuestos
+
+            $("[name='comentarios']").val(txt);
+
+            $("#btNewFile").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+</script>
+{% endblock extrajs %}

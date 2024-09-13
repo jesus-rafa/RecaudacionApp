@@ -1,0 +1,133 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button onclick="location.href=`{% url 'juridico_app:panel-resolutor' %}`"
+                    class="btn btn-outline-secondary waves-effect mr-2" target="_blank">
+                    <i class="fa fa-reply"></i> Volver
+                </button>
+            </div>
+            <h4 class="page-title">Carpeta/Expediente: {{resolutor.carpeta}}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                Solicitante : <label class="mx-3"><b>{{ resolutor.solicitante.rfc }}</b></label>
+                Carpeta / Expediente : <label class="mx-3"><b>{{ resolutor.carpeta }}</b></label>
+                Oficio : <label class="mx-3"><b>{{ resolutor.oficio }}</b></label>
+                A cargo : <label class="mx-3"><b>{{ resolutor.abogado }}</b></label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <table id="dt-listado_resolutor" class="table table-hover m-0 table-centered dt-responsive nowrap w-100 centrado">
+                    <thead>
+                        <tr>
+                            <th>Requisito</th>
+                            <th>Entregado / Revisado</th>
+                            <th>Obligatorio</th>
+                            <th>Archivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in listado_resolutor %}
+                        <tr>
+                            <td>{{item.requisito}}</td>
+                            {% if item.archivo %}
+                            <td>
+                                <div class="icon-item" title="{{item.comentarios}}" tabindex="0" data-plugin="tippy" data-tippy-followCursor="true" data-tippy-arrow="true" data-tippy-animation="fade">
+                                    <i data-feather="check" class="icon-dual-success"></i>
+                                    /
+                                    {% if item.estatus == creacion %}
+                                        <i data-feather="alert-circle" class="icon-dual-warning"></i>
+                                    {% elif item.estatus == aceptado %}
+                                        <i data-feather="check" class="icon-dual-success"></i>
+                                    {% else %}
+                                        <i data-feather="x" class="icon-dual-danger"  ></i>
+                                    {% endif %}
+                                </div>                                    
+                            </td>
+                            {% else %}
+                            <td>
+                                <div class="icon-item" title="{{item.comentarios}}" tabindex="0" data-plugin="tippy" data-tippy-followCursor="true" data-tippy-arrow="true" data-tippy-animation="fade">
+                                    <i data-feather="x" class="icon-dual-danger"></i>
+                                    /
+                                    {% if item.estatus == creacion %}
+                                        <i data-feather="alert-circle" class="icon-dual-warning"></i>
+                                    {% elif item.estatus == aceptado %}
+                                        <i data-feather="check" class="icon-dual-success"></i>
+                                    {% else %}
+                                        <i data-feather="x" class="icon-dual-danger">.</i>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td>{{item.requisito.obligatorio}}</td>
+                            {% if item.archivo %}                            
+                            <td>
+                                <a href="/media/{{ item.archivo }}" title="{{ item.archivo|cut:'juridico/resolutor/' }}" class="btn btn-outline-secondary waves-effect mr-2" target="_blank" download><i class="ti-file"></i></a></td>
+                            </td>
+                            {% else %}
+                            <td>
+                                <div class="icon-item">
+                                    <i data-feather="alert-circle" class="icon-dual-warning"></i>
+                                </div>
+                            </td>
+                            {%endif%}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>                
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script>
+    $(function() {
+        {% if messages %}
+        {% for message in messages %}
+        toastr.success('{{ message|safe }}')
+        {% endfor %}
+        {% endif %} 
+    });
+
+    function abrirModal(url) {
+        $('#mdView').load(url, function () {
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

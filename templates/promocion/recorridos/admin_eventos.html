@@ -1,0 +1,301 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Actualizaciones {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    {% has_perms request.user 'change_visita' as change_visita %}
+    {% has_perms request.user 'delete_visita' as delete_visita %}
+
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button id="btNew" onclick="Agregar_Visita('{% url 'promocion_app:alta-visita' idDesarrollo %}')" 
+                    class="btn btn-primary rounded-pill"
+                    target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Contribuyente
+                </button>
+                <a href="{% url 'promocion_app:actualizaciones' %}" 
+                    class="btn btn-primary rounded-pill">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Actualizaciones</h4>
+            
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Programa</th>
+                            <th>Ciudad</th>
+                            <th>Direccion</th>
+                            <!-- <th>Descripcion</th> -->
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Responsable</th>
+                            <th>Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evento in eventos %}
+                        <tr>
+                            <td>{{ evento.id_evento.nombre }}</td>
+                            <td>{{ evento.id_evento.id_programa }}</td>
+                            <td>{{ evento.id_evento.ciudad }}</td>
+                            <td>{{ evento.id_evento.direccion }}</td>
+                            <!-- <td>{{ evento.id_evento.descripcion }}</td> -->
+                            <td>{{ evento.fecha_inicio|date:'d/m/Y' }}</td>
+                            <td>{{ evento.fecha_fin|date:'d/m/Y' }}</td>
+                            <td>
+                                {% for user in evento.responsables.all %}
+                                    {{ user.get_full_name }}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if evento.estatus == 'NUEVO' %}
+                                    <span class="badge bg-success">{{ evento.estatus }}</span>
+                                {% elif evento.estatus == 'EN PROCESO' %}
+                                    <span class="badge bg-success">{{ evento.estatus }}</span>
+                                {% elif evento.estatus == 'CONCLUIDO' %}
+                                    <span class="badge bg-danger">{{ evento.estatus }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="table-responsive mt-15">
+                    <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <th>Fecha</th>
+                                <th>RFC</th>
+                                <th>Nombre</th>
+                                <th>Consultor</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visita in visitas %}
+                            <tr>
+                                <td>{{ visita.fecha|date:'d/m/Y' }}</td>
+                                <td>
+                                    <button id="btShow_Tramites"
+                                        onclick="Ver_Tramites('{% url 'promocion_app:todos-tramites' visita.rfc %}', '{{ visita.rfc }}')" 
+                                        title="Todos los Tramites" tabindex="0" data-plugin="tippy" data-tippy-placement="left" 
+                                        class="btn btn-success btn-xs" target="_blank">
+                                        <i class="fas fa-user"></i>
+                                    </button>
+
+                                    <a href="{% url 'promocion_app:detalle-visita' visita.id %}" class="btn btn-link"
+                                        target="_self">
+                                        {{ visita.rfc }}
+                                    </a>
+                                </td>
+                                <td>{{ visita.nombre }}</td>
+                                <td>
+									
+                                        <div class="avatar-sm" title="{% get_user_info visita.usuario %}" tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                            <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                {% get_initials visita.usuario %}
+                                            </span>
+                                        </div>
+    	
+                                </td>
+                                <td>
+                                    <button id="btShow_Tramites"
+                                        onclick="Ver_Tramites('{% url 'promocion_app:ver-tramites' visita.id %}', '{{ visita.rfc }}')" 
+                                        title="Ver Tramites" tabindex="0" data-plugin="tippy" data-tippy-placement="left" 
+                                        class="btn btn-info btn-xs" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+
+                                    {% if visita.usuario == request.user.username %}
+
+                                        {% if change_visita is True %}
+                                        <button id="btUpdate_Detail"
+                                            onclick="Editar_Visita('{% url 'promocion_app:editar-visita' visita.id visita.id_desarrollo.id %}')" 
+                                            title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left" 
+                                            class="btn btn-warning btn-xs" target="_blank">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+
+                                        {% endif %}
+                                        {% if delete_visita is True %}
+                                        {% csrf_token %}
+                                        <button id="btDelete_Detail"
+                                            onclick="Eliminar_Visita('{% url 'promocion_app:eliminar-visita' visita.id %}', '{{ visita.id }}')"
+                                            title="Eliminar" tabindex="0" data-plugin="tippy" data-tippy-placement="left" class="btn btn-danger btn-xs"
+                                            target="_blank">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Payments -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        var table1 = $('#datatable1').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 0, 'desc' ]],
+            drawCallback: function () {
+            $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+        {% if messages %}
+            {% for message in messages %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "success",
+                    title: '{{ message|safe }}!',
+                    showConfirmButton: !1,
+                });
+               
+            {% endfor %}
+        {% endif %}
+                    
+        $('.alert-success').fadeOut(6000);
+              
+    });
+	
+	function Ver_Tramites(myURL, myRFC) {
+        $('#mdView').load(myURL, function () {
+			
+			$('#lbRFC_modal').html(myRFC);
+            $(this).modal('show');
+
+        });
+    }
+    
+    
+    function Agregar_Visita(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Editar_Visita(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Eliminar_Visita(myURL, myID){
+        Swal.fire({
+            title: 'Seguro que desea eliminar?',
+            text: "este contribuyente!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar',
+        }).then(function (e) {
+            if (e.value) {
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+    }
+</script>
+{% endblock extrajs %}

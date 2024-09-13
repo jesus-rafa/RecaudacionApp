@@ -1,0 +1,87 @@
+{% load static %}
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title add">Agregar Detalle</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_detalle" action="{% url 'transferidos_app:alta-detalle-3' programa_id %}" method="POST">{% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row" id="datos_generales">                
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            ID: <h4><strong id="lbOficio" class="sateg-negritas"></strong></h4>
+                            {{ form.programa_id }}
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            RFC: <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label id="lbEtapa">Etapa:</label>
+                            <select name="etapa" id="id_etapa" class="form-control">
+                                {% for item in etapas %}
+                                    <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            
+                        <label id="lbEstatus">Estatus:</label>
+                        <select name="estatus" id="id_estatus" class="form-control">
+                            {% for item in estatus %}
+                                <option value="{{ item.id }}" data-chained="{{item.valor}}">{{ item.comentario }}</option>
+                            {% endfor %}    
+                        </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label>{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btReject" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+        $("#form_alta_detalle").submit(function (e) {
+            $("#btReject").attr("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endblock extrajs %}
+
+

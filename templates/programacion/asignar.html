@@ -1,0 +1,130 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Publicar</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_asignar" action="{% url 'programacion_app:asignar' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row">
+                    {{ form.lista }}
+                    <input type="hidden" id="hfList" name="hfList" value="">
+
+                    <!-- <div class="col-md-6">
+                        <div class="mb-2">
+                            Oficio: <h4><strong id="lbOficio" class="sateg-negritas"></strong></h4>
+                            <input type="hidden" id="hfValidar" value="0">
+                        </div>
+                    </div> -->
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            Nombre: <h5><strong id="lbNombre" class="sateg-negritas"></strong></h5>
+                            <input type="hidden" id="hfValidar" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            RFC: <h5><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            Dirección: <h5><strong id="lbDireccion" class="sateg-negritas"></strong></h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="select_seguimiento">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.seguimiento.label }}</label>
+                            {{ form.seguimiento }}
+                            <label style="display: none;" class="text-danger" id="lbSeguimiento">campo
+                                requerido*</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div class="form-floating col">
+                                {{ form.seguimiento }}
+                                <label id="lbAsignar">{{ form.seguimiento.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div class="form-floating col">
+                                {{ form.observaciones }}
+                                <label id="lbCmmt">{{ form.observaciones.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btAssign"
+                    class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+
+        var mySeguimiento = $(document.getElementById('id_seguimiento'))[0].selectize;
+        mySeguimiento.setValue('');
+
+        $("#btAssign").click(function () {
+
+            // Si recibe un 1 es requerdio seguimiento
+            var validar = $('#hfValidar').val();
+
+            if (String(validar) === '1') {
+                var user = $('#id_seguimiento').val();
+
+                if (user !== '') {
+                    $('#lbSeguimiento').hide();
+                    return true;
+
+                } else {
+                    $('#lbSeguimiento').show();
+                    $('#lbSeguimiento').fadeOut(3000);
+                    return false;
+                }
+            } else {
+                // Siempre devuelve true
+                mySeguimiento.setValue(12);
+                return true;
+            }
+
+
+        });
+
+        $("#form_asignar").submit(function (e) {
+            $("#btAssign").attr("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endblock extrajs %}

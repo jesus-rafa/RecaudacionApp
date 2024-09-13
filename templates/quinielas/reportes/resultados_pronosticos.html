@@ -1,0 +1,139 @@
+{% extends 'quinielas/reportes/reporte_resultados_quiniela.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Resultados Pronósticos Quiniela {% endblock titulo%}
+
+{% block resultados_pronosticos %}
+<style>
+    th{
+        font-size: 10pt;
+        font-weight: bold;
+    }
+    .mrgn-35L {
+        margin-left: 35px;
+    }
+    .mrgn-35R {
+        margin-right: 35px;
+    }
+    .font-2REM
+    {
+        font-size: 2rem;
+    }
+    #resultados_pronosticos
+    {
+        color: black;
+    }
+</style>
+<div class="tab-pane fade active show" id="resultados_pronosticos">
+    <form id="frm-filtros_partido" method="get">
+        <div class="mb-3 m-auto d-flex flex-row-reverse">
+            <div class="col-md-5">
+                <label class="etiqueta-combo"> Partidos </label>
+                <select name="kword" id="slct-partidos" class="form-control selectize-select mx-auto" placeholder="Partidos">
+                    <!-- <option value=""></option> -->
+                    {% for partido in partidos %}
+                        <option value="{{ partido.id }}">{{ partido.local.nombre }} vs {{partido.visitante.nombre }}</option>
+                    {% endfor%}
+                </select>
+            </div>
+            <!-- <div class="col-md-7 text-left">
+                <br><button type="submit" class="btn btn-primary btn" target="_blank" value="Buscar">
+                    <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div> -->
+        </div>
+    </form>
+    <br><br>
+    <div class="col-md-4 mx-auto">
+        <div class="col-md-12 d-flex flex-row">
+            {% if resultado_partido %}
+                {% for resultado in resultado_partido %}
+                    <div class="d-flex flex-column flex-start">
+                        <img src="{{ resultado.local.logo }}" alt="Equipo Local" class="img-fluid rounded" width="64px" height="64px">
+                        <p class="mx-auto">{{ resultado.local.nombre }}</p>
+                    </div>
+                    &nbsp;<span class="mrgn-35L mrgn-35R font-2REM"><b>{{ resultado.resultado_local }}</b></span>
+                    <span style="padding: auto;" class="align-items-center p-2">-</span>
+                    &nbsp;<span class="mrgn-35L mrgn-35R font-2REM"><b>{{ resultado.resultado_visitante }}</b></span>
+                    <div class="d-flex flex-column flex-start">
+                        <img src="{{ resultado.visitante.logo }}" alt="Equipo Visitante" class="img-fluid rounded" width="64px" height="64px">
+                        <p class="mx-auto">{{ resultado.visitante.nombre }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-floating col-md-10 mx-auto">
+            <input id="search1" type="text" class="float-label form-control input-rec" style="color: black;" placeholder=".">
+            <label>Buscar</label>
+        </div>
+    </div>
+    <div class="table-responsive pt-3">
+        <!-- <div class="col-md-2"></div> -->
+        <div class="col-md-10 mx-auto">
+            <table class="table table-hover table-center m-0 dt-responsive w-100 nowrap table-condensed" style="color: black;" id="dtQuiniela">
+                <thead>
+                    <tr>
+                        <th class="all text-center">Usuario</td>
+                        <!-- <th class="all text-center">Partido</th>
+                        <th class="all text-center">Pronóstico</th> -->
+                        <th class="all text-center">Pronóstico Local</th>
+                        <th class="all text-center">Pronóstico Visitante</th>
+                        <!-- <th class="all text-center">Resultado Partido</th> -->
+                        <th class="all text-center">Partido Acertado</th>
+                        <th class="all text-center">Marcador Acertado</th>
+                        <th class="all text-center">Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pronostico in pronosticos %}
+                        <tr>
+                            <td>{{ pronostico.usuario.get_full_name.upper }}</td>
+                            <!-- <td>{{ pronostico.partido }}</td>
+                            <td>{{ pronostico.pronostico_usuario }}</td> -->
+                            <td class="text-center">{{ pronostico.pronostico_local }}</td>
+                            <td class="text-center">{{ pronostico.pronostico_visitante }}</td>
+                            <td class="text-center">
+                                {% if pronostico.partido.ganador == 0  %}
+                                    <span>-</span>
+                                {% else %}
+                                    {% if pronostico.pronostico == pronostico.partido.ganador %}
+                                        <i class="fas fa-check check-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times times-danger"></i>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if pronostico.partido.ganador == 0  %}
+                                    <span>-</span>
+                                {% else %}
+                                    {% if pronostico.pronostico_local == pronostico.partido.resultado_local and pronostico.pronostico_visitante == pronostico.partido.resultado_visitante %}
+                                        <i class="fas fa-check check-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-times times-danger"></i>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td>{{ pronostico.puntos_x_partido }}</td>
+                            <!-- <td class="text-center">
+                                <img src="{{ pronostico.partido.local.logo }}" alt="Equipo Local" class="img-fluid rounded" width="25">
+                                &nbsp;<b>{{ pronostico.partido.resultado_local }}</b>
+                                &nbsp;-
+                                &nbsp;<b>{{ pronostico.partido.resultado_visitante }}</b>
+                                <img src="{{ pronostico.partido.visitante.logo }}" alt="Equipo Local" class="img-fluid rounded" width="25">
+                            </td> -->
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- <div class="col-md-2"></div> -->
+    </div>
+</div>
+{% endblock resultados_pronosticos%}

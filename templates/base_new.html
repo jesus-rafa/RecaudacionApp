@@ -1,0 +1,827 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+    <meta content="Coderthemes" name="author" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/mini_sateg.png' %}">
+
+    {% block head %} {% endblock head %}
+
+    <!-- Plugins css -->
+    <link href="{% static 'assets/libs/flatpickr/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/flatpickr/flatpickr.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- App css -->
+    <link href="{% static 'assets/css/config/creative/bootstrap.min.css' %}" rel="stylesheet" type="text/css"
+        id="bs-default-stylesheet" />
+    <link href="{% static 'assets/css/config/creative/app.min.css' %}" rel="stylesheet" type="text/css"
+        id="app-default-stylesheet" />
+
+    <link href="{% static 'assets/css/config/creative/bootstrap-dark.min.css' %}" rel="stylesheet" type="text/css"
+        id="bs-dark-stylesheet" />
+    <link href="{% static 'assets/css/config/creative/app-dark.min.css' %}" rel="stylesheet" type="text/css"
+        id="app-dark-stylesheet" />
+
+    <link rel="stylesheet" href="{% static 'assets/libs/fullcalendar/main.min.css' %}">
+
+    <!-- icons -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <link href="{% static 'custom/font/tipografia.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- toastr -->
+    <link href="{% static 'assets/libs/toastr/toastr.min.css' %}" rel="stylesheet" type="text/css" />
+    
+    <!-- Estilos RecApp -->
+    <link href="{% static 'custom/css/RecApp.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap 5 -->
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- MDB -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.0.0/mdb.min.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    
+    
+    <title>{% block title %} {% endblock title %}</title>
+
+    <style>
+        input[type=number]
+        {
+        -webkit-appearance: textfield !important;
+        margin: 0;
+        -moz-appearance:textfield !important;
+        }
+
+        .track {
+            position: relative;
+            background-color: #ddd;
+            height: 7px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            margin-bottom: 60px;
+            margin-top: 50px
+        }
+        .track .step {
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            width: 25%;
+            margin-top: -18px;
+            text-align: center;
+            position: relative
+        }
+        
+        .track .step.active:before {
+            background: #002060;
+        }
+        
+        .track .step::before {
+            height: 7px;
+            position: absolute;
+            content: "";
+            width: 100%;
+            left: 0;
+            top: 18px
+        }
+        
+        .track .step.active .icon {
+            background: #002060;
+            color: #fff
+        }
+        
+        .track .icon {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            position: relative;
+            border-radius: 100%;
+            background: #ddd
+        }
+        
+        .track .step.active .text {
+            font-weight: 400;
+            color: #000
+        }
+        
+        .track .text {
+            display: block;
+            margin-top: 7px
+        }
+      </style>
+    
+
+</head>
+
+<!-- body start -->
+<body class="loading"  
+    {% if orientacion == 0 %} 
+        data-layout-mode="horizontal" 
+    {% endif %}
+    data-layout='{
+                "mode": "light", 
+                "width": "fluid", 
+                "menuPosition": "fixed", 
+                "sidebar": { 
+                    "color": {% if color == 1 %} "dark" {% else %} "light" {% endif %}, 
+                    "size": "default", 
+                    "showuser": false
+                }, 
+                "topbar": {
+                    "color": {% if barra == 1 %} "dark" {% else %} "light" {% endif %}
+                }, 
+                "showRightSidebarOnPageLoad": false
+            }'>
+
+    <!-- Begin page -->
+    <div id="wrapper">
+
+        <!-- Topbar Start -->
+        <div class="navbar-custom">
+            <div class="container-fluid">
+                <ul class="list-unstyled topnav-menu float-end mb-0">
+
+                    <li class="">
+                        <form class="app-search">
+                            <div class="app-search-box dropdown">
+                                <div class="input-group">
+                                    <input type="search" maxlength="13" class="form-control" placeholder="Buscar..." value=""
+                                        id="tbSearch">
+									<!-- <div id="validate" style="display: none;" class="text-danger">Ingresa minimo 10 caracteres*</div> -->
+                                    <button id="btSearchGlobal" class="btn input-group-text" type="submit">
+                                        <i class="fe-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </li>
+
+                    <li class="dropdown d-inline-block d-lg-none">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light"
+                            data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                            aria-expanded="false">
+                            <i class="fe-search noti-icon"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-lg dropdown-menu-end p-0">
+                            <form class="p-3">
+                                <input type="text" class="form-control" maxlength="13" size="100"
+                                    placeholder="Buscar ..." aria-label="Recipient's username">
+                            </form>
+                        </div>
+                    </li>
+
+                    <li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen"
+                            href="#">
+                            <i class="fe-maximize noti-icon"></i>
+                        </a>
+                    </li>
+
+                    {% include 'include/notificaciones.html' %}
+
+                    <li class="dropdown notification-list topbar-dropdown">
+                        <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light"
+                            data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                            aria-expanded="false">
+							{% if request.user.avatar %}
+								<img src="{{ request.user.avatar.url }}" alt="user-image"
+									class="rounded-circle">
+							{% else %}
+								<img src="{% static 'assets/images/user_group.png' %}" alt="user-image"
+									class="rounded-circle">
+							{% endif %}
+										
+                       
+                            <span class="pro-user-name ms-1">
+                                {{request.user.get_full_name|truncatechars:15}} <i class="mdi mdi-chevron-down"></i>
+                            </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end profile-dropdown ">
+                            <!-- item-->
+                           
+                            <!-- item-->
+                            {% if request.user.is_superuser %}
+                            <a class="dropdown-item notify-item" href="{% url 'admin:index' %}"><i
+                                    class="fe-settings"></i>Admin</a>
+                            {% endif %}
+
+                            <a href="/perfil/{{ request.user.id }}/" class="dropdown-item notify-item">
+                                <i class="fe-user"></i>
+                                <span>Perfil</span>
+                            </a>
+							
+							<a href="{% url 'users_app:directorio' %}" class="dropdown-item notify-item">
+                                <i class="fas fa-user-friends"></i>
+                                <span>Directorio</span>
+                            </a>
+
+                            <!-- item-->
+                            <a href="{% url 'users_app:update' %}" class="dropdown-item notify-item">
+                                <i class="fe-unlock"></i>
+                                <span>Cambiar Contraseña</span>
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <!-- item-->
+                            <a href="{% url 'users_app:logout' %}" class="dropdown-item notify-item">
+                                <i class="fe-log-out"></i>
+                                <span>Cerrar Sesion</span>
+                            </a>
+
+                        </div>
+                    </li>
+
+                    <li class="dropdown notification-list">
+                        <a href="javascript:void(0);" id="personalizar" class="nav-link right-bar-toggle waves-effect waves-light">
+                            <i class="fe-settings noti-icon"></i>
+                        </a>
+                    </li>
+
+                </ul>
+
+                <!-- LOGO -->
+                <div class="logo-box">
+                    <a href="/home/" class="logo logo-dark text-center">
+                        <span class="logo-sm">
+                            <!-- <img src="{% static 'assets/images/logo-sm.png' %}" alt="" height="22"> -->
+							<img src="{% static 'assets/images/mini_sateg.png' %}" alt="" height="30">
+                            <!-- <span class="logo-lg-text-light">UBold</span> -->
+                        </span>
+                        <span class="logo-lg">
+                            <!-- <img src="{% static 'assets/images/logo-dark.png' %}" alt="" height="20"> -->
+                            {% if barra == 1 %} 
+                            <img src="{% static 'assets/images/logo_claro.png' %}" alt="" height="40">
+                            {% else %} 
+                            <img src="{% static 'assets/images/logo_gris.png' %}" alt="" height="40">
+                            {% endif %}
+							
+
+                            <!-- <span class="logo-lg-text-light">U</span> -->
+                        </span>
+                    </a>
+
+                    <a href="/home/" class="logo logo-light text-center">
+                        <span class="logo-sm">
+                            <img src="{% static 'assets/images/mini_sateg.png' %}" alt="" height="30">
+                        </span>
+                        <span class="logo-lg">
+                            {% if barra == 1 %} 
+                            <img src="{% static 'assets/images/logo_claro.png' %}" alt="" height="40">
+                            {% else %} 
+                            <img src="{% static 'assets/images/logo_gris.png' %}" alt="" height="40">
+                            {% endif %}
+                        </span>
+                    </a>
+                </div>
+
+                <ul class="list-unstyled topnav-menu topnav-menu-left m-0">
+                    <li>
+                        <button class="button-menu-mobile waves-effect waves-light">
+                            <i class="fe-menu"></i>
+                        </button>
+                    </li>
+
+                    <li>
+                        <!-- Mobile menu toggle (Horizontal Layout)-->
+                        <a class="navbar-toggle nav-link" data-bs-toggle="collapse"
+                            data-bs-target="#topnav-menu-content">
+                            <div class="lines">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </a>
+                        <!-- End mobile menu toggle-->
+                    </li>
+					
+				
+					<li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/home/">
+                            <i class="fe-home noti-icon"></i>
+                        </a>
+                        <!-- {% if request.user.area == 'AUDITORIA' %}
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/home2/">
+                            <i class="fe-home noti-icon"></i>
+							
+                        </a>
+                        {% elif request.user.area == 'EJECUCION' %}
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/home3/">
+                            <i class="fe-home noti-icon"></i>
+							
+                        </a>
+                        {% elif request.user.area == '205' %}
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/home/">
+                            <i class="fe-home noti-icon"></i>
+                            
+                        </a>
+                        {% elif request.user.area == 'JURIDICO' %}
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/home_juridico/">
+                            <i class="fe-home noti-icon"></i>                            
+                        </a>
+                        {% else %}
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Inicio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/inicio/">
+                            <i class="fe-home noti-icon"></i>                            
+                        </a>
+                        {% endif %} -->
+                    </li>
+					
+					<li class="dropdown notification-list topbar-dropdown">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Correspondencia" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/panel/0/0">
+                            <i class="ti-email noti-icon"></i>
+                            <!-- <span style="background-color:#F3536E !important;" id="lbCorrespondencia" class="badge bg-success rounded-circle noti-icon-badge">
+                                { get_count_correspondencia request.user.username %}
+                            </span> -->
+                        
+                        </a>
+                    </li>
+
+                    <li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Directorio" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/directorio/">
+                            <i class="fas fa-phone-alt noti-icon"></i>
+							
+                        </a>
+                    </li>
+					
+					<li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Organigrama" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/organigrama/">
+                            <i class="fa fa-sitemap noti-icon"></i>
+							
+                        </a>
+                    </li>
+					<li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Salas de Juntas" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/salageneral/">
+                            <i class="fa fa-calendar noti-icon"></i>
+                        </a>
+                    </li>
+
+                    <li class="dropdown d-none d-lg-inline-block">
+                        <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" 
+                            title="Prestaciones laborales" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                            href="/vista-usuarios/">
+                            <i class="fas fa-child noti-icon" ></i>
+                        </a>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <!-- end Topbar -->
+
+        <!-- ========== Menus (horizontal - vertical) ========== -->
+
+        <!--- Sidemenu -->
+        {% if orientacion == 0 %}
+            <div class="topnav">
+                <div class="container-fluid">
+                    <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+            
+                        <div class="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul class="navbar-nav">
+                                {% include 'include/horizontal.html' with data=menu.hijos %} 
+                            </ul> 
+                        </div> 
+                    </nav>
+                </div>
+            </div>
+        {% else %}
+            <div class="left-side-menu">
+                <div class="h-100" data-simplebar>
+                    <div id="sidebar-menu">
+                        <ul id="side-menu">
+                            {% include 'include/vertical.html' with data=menu.hijos %}
+                        </ul>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        {% endif %}
+        <!-- End Sidebar -->
+
+        <!-- Left Sidebar End -->
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+        <div class="content-page">
+            <div class="content">
+
+                <!-- Start Content-->
+                <div class="container-fluid">
+                    
+                    {% block content %} {% endblock content %}
+
+                </div> <!-- container -->
+
+            </div> <!-- content -->
+
+            <!-- Footer Start -->
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <script>document.write(new Date().getFullYear())</script> &copy; <a href="#">SATEG</a> Todos
+                            los derechos reservados.
+                        </div>
+                        <!-- <div class="col-md-6">
+                                <div class="text-md-end footer-links d-none d-sm-block">
+                                    <a href="javascript:void(0);">About Us</a>
+                                    <a href="javascript:void(0);">Help</a>
+                                    <a href="javascript:void(0);">Contact Us</a>
+                                </div>
+                            </div> -->
+                    </div>
+                </div>
+            </footer>
+            <!-- end Footer -->
+
+        </div>
+		
+		<div class="modal fade" id="modal-product" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myCenterModalLabel">Consulta</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row">
+                            <div class="col-md-12"> 
+                                <div class="mb-2">
+                                    <label><strong>RFC:</strong></label>
+                                    <label id="lbRFC"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12"> 
+                                <div class="mb-2">
+                                    <label><strong>Nombre:</strong></label>
+                                    <label id="lbName"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12"> 
+                                <div class="mb-2">
+                                    <label><strong>Direccion:</strong></label>
+                                    <label id="lbAddress"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive mt-15">
+                            <table id="tableRFC" class="table center-aligned-table mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Programas Activos</th>
+                                        <th>Area</th>
+										<th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+
+    </div>
+    <!-- END wrapper -->
+
+    <!-- Right Sidebar -->
+    {% include 'include/configuracion.html' %}
+    <!-- /Right-bar -->
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    <!-- Vendor js -->
+    <script src="{% static 'assets/js/vendor.min.js' %}"></script>
+
+    <!-- Tippy js-->
+    <script src="{% static 'assets/libs/tippy.js/tippy.all.min.js' %}"></script>
+
+    <!-- App js-->
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+        
+    <!-- Toastr -->
+    <script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script>
+
+    
+        
+    {% block extrajs %} {% endblock extrajs %}
+
+    <script>
+        $(document).ready(function () {
+
+            // var campanita = parseInt($('#lbCorrespondencia').text());
+
+            // if(campanita > 0){
+            //     $('#lbCorrespondencia').show();
+            // }else{
+            //     $('#lbCorrespondencia').hide();
+            // }
+			
+			// var notificacion = parseInt($('#total').val());
+			// if(notificacion > 0)
+			// 	$('#show_total').text(notificacion);
+			// else
+			// 	$('#show_total').hide();
+				
+
+            {% if orientacion == 0 %} 
+                $('#menu-horizontal-check').prop('disabled', true);
+                $('#menu-vertical-check').prop('disabled', false);
+            {% else %}
+                $('#menu-horizontal-check').prop('disabled', false);
+                $('#menu-vertical-check').prop('disabled', true);
+            {% endif %}
+
+            // Colores del menu izquierdo
+            $('#light-check').change(function() {
+                if(this.checked) {
+
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'menu': '0'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function (data) {
+                            //console.log(data)
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                }
+            });
+            $('#dark-check').change(function() {
+                if(this.checked) {
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'menu': '1'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        },
+                        success: function (data) {
+                            //console.log(data)
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                }
+            });
+            // Colores de la barra de navegacion
+            $('#lighttopbar-check').change(function() {
+                if(this.checked) {
+
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'barra': '0'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                }
+            });
+            $('#darktopbar-check').change(function() {
+                if(this.checked) {
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'barra': '1'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        },
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                }
+            });
+
+            // Orientacion del menu
+            $('#menu-horizontal-check').click(function() {
+                
+
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'orientacion': '0'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                
+            });
+            $('#menu-vertical-check').click(function() {
+               
+                    $.ajax({
+                        url: "{% url 'users_app:plantilla' %}",
+                        type: "POST",
+                        dataType: "JSON",
+                        data: {'orientacion': '1'},
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' 
+                        },
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (error) {
+                            //console.log(error);
+                        }
+                    });
+                
+            });
+            // Resetear plantilla
+            $('#btReset').click(function () {
+                $.ajax({
+                    url: "{% url 'users_app:plantilla' %}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: {'reset': '1'},
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}' 
+                    },
+                    success: function (data) {
+                        location.reload();
+                    },
+                    error: function (error) {
+                        //console.log(error);
+                    }
+                });
+            });
+			
+			$('#btSearchGlobal').click(function (e) {
+				e.preventDefault();
+			
+				var search = $("#tbSearch").val();
+
+                if (search.length < 10){
+                    $('#validate').show();
+                    return false;
+                }else{
+					$('#validate').hide();
+				
+					var RFC = search.trim();
+					var myURL = "{% url 'transferidos_app:get-data' 'RFC' %}";
+					
+					$.ajax({
+						url: myURL.replace('RFC', RFC),
+						type: "GET",
+						dataType: "JSON",
+						success: function (data) {
+						
+					
+							if (data !== ''){
+                                $('#lbRFC').text(data[0].rfc);
+                                $('#lbName').text(data[0].nombre);
+                                $('#lbAddress').text(data[0].direccion);
+								
+								console.log(data);
+                            }else{
+                                $('#lbRFC').text('sin datos*');
+                                $('#lbName').text('sin datos*');
+                                $('#lbAddress').text('sin datos*');
+                            }
+							
+							$.each(data[1], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-primary p-1">RECAUDACION / PADRONES</span> </td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+							
+							$.each(data[2], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-primary p-1">RECAUDACION / VIGILANCIA</span> </td><td> ' + value.detalle_programa__fecha.substr(8,2) + '/' + value.detalle_programa__fecha.substr(5,2) + '/' + value.detalle_programa__fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+							
+							$.each(data[3], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-danger p-1">AUDITORIA</span></td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+							
+							$.each(data[4], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-success p-1">EJECUCION</span></td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+							
+							$.each(data[5], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-primary p-1">EN TRANSFERENCIA / ' + value.area + '</span> </td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+
+                            $.each(data[6], function(index, value) {
+								
+								$('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-primary p-1">RECAUDACION / PROGRAMACION</span> </td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+							
+							});
+
+                            $.each(data[7], function(index, value) {
+                                
+                                $('#tableRFC > tbody:last').append('<tr><td>' + value.programa + '</td><td> <span class="badge bg-soft-success text-primary p-1">RECAUDACION / PROMOCION</span> </td><td> ' + value.fecha.substr(8,2) + '/' + value.fecha.substr(5,2) + '/' + value.fecha.substr(0,4) + '</td></tr>'); 
+
+                            });
+
+							$("#modal-product").modal("show");
+						
+						},
+						error: function (error) {
+							console.log(error);
+						}
+					});
+					
+				}
+            });
+			
+			$('#modal-product').on('hide.bs.modal', function (e) {
+				$('#tableRFC tbody').empty();
+				$('#lbRFC').text('');
+                $('#lbName').text('');
+                $('#lbAddress').text('');
+			})
+
+
+        });
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+        };
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Nuevo Contribuyente</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'transferidos_app:alta-contribuyente-2' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label>RFC:</label>
+                    
+                            <div class="input-group mb-3">
+                    
+                                {{ form.rfc }}
+                                <div class="input-group-append">
+                                    <button id="btSearch" type="submit" class="btn btn-primary btn" target="_blank" value="Ver"> <i
+                                            class="fa fa-search"></i> Ver</button>
+                                </div>
+								
+								
+								
+                            </div>
+                        </div>
+                    
+                        <!-- <div class="form-group col-md-4"> -->
+                            <!-- <label>Fecha:</label> -->
+                            {{ form.fecha }}
+                        <!-- </div> -->
+                    </div>
+					
+					 <div class="form-row">
+
+                        <div style="display: none;" class="alert text-center col-md-12">
+                            <i class="fa fa-exclamation-circle text-danger"></i>
+                            <label class="text-danger">RFC ACTIVO</label>
+                        </div>
+
+                    </div>
+                   
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    {{ form.nombre }}
+                </div>
+                <div class="form-group">
+                    <label>Direccion:</label>
+                    {{ form.direccion }}
+                </div>    
+               
+                <div class="form-row">
+				
+				<div class="form-group col-md-6">
+                        <label>Impuestos:</label>
+                        {{ form.programa }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Presuntiva:</label>
+                        {{ form.presuntiva }}
+                    </div>
+                    
+                </div>
+				
+				 <div class="form-group">
+                    <label>Comentarios:</label>
+                    {{ form.comentarios }}
+                </div>  
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $("#btSearch").click(function() {
+
+            var RFC = $("#id_rfc").val();
+            var myURL = "{% url 'transferidos_app:get-contribuyente-2' 'RFC' %}";
+
+            $.ajax({
+                url: myURL.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+				                    
+                    try {
+                        $("#id_nombre").val(data[0].nombre);
+                        $("#id_direccion").val(data[0].direccion);
+
+                        if (data[1].message){
+                            $(".alert").show();
+                        }else{
+                            $(".alert").hide();
+                        }
+                    }
+                    catch (err) {
+                        $("#id_nombre").val('sin datos*');
+                        $("#id_direccion").val('sin datos*');
+                    }
+                   
+                },
+                error: function (error) {
+
+                    console.log(error);
+                }
+            });
+
+        });
+
+        // $("#id_rfc").bind("paste", "keydown", function (e) {
+
+        //     var pastedData = e.originalEvent.clipboardData.getData('text');
+        //     alert(pastedData);
+
+        //     $.ajax({
+        //         url: "{% url 'programacion_app:get-contribuyente' '" + pastedData + "' %}",
+        //         type: "GET",
+        //         dataType: "JSON",
+        //         success: function (response) {
+        //             console.log(response);
+        //         },
+        //         error: function (error) {
+        //             console.log(error);
+        //         }
+        //     });
+
+        // });
+
+    });
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,176 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar oficio</h4>
+           <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+        <form id="form_recibidos" action="{% url 'oficios_app:editar-oficio-recibido' id_oficio %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2 form-floating">
+                            {{ form.folio }}
+                            <label for="id_folio">Folio:</label>
+                            <input id="hffolio" type="hidden" value="{{ folio }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2 form-floating">
+                            {{ form.fecha }}
+                            <label for="id_fecha">Fecha:</label>
+                            <input id="hffecha" type="hidden" value="{{ fecha|date:'d/m/Y' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2 form-floating">
+                            {{ form.remitente }}
+                            <label for="id_remitente">Remitente:</label>
+                            <input id="hfremitente" type="hidden" value="{{ remitente }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2 form-floating">
+                            {{ form.puesto }}
+                            <label for="id_puesto">Puesto:</label>
+                            <input id="hfpuesto" type="hidden" value="{{ puesto }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.dependencia }}
+                            <label for="id_dependencia">Dependencia:</label>
+                            <input id="hfdependencia" type="hidden" value="{{ dependencia }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.asunto }}
+                            <label for="id_asunto">Asunto:</label>
+                            <input id="hfasunto" type="hidden" value="{{ asunto }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Dirigido a:</label>
+                            <select name="area" id="id_area" class="form-control">
+                                {% for item in area %}
+                                <option value="{{ item.id }}">{{ item.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <input id="hfArea" type="hidden" value="{{ selected_area }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Para:</label>
+                            <select name="para" id="id_para" class="form-control">
+                                {% for item in para %}
+                                <option value="{{ item.id }}" data-chained="{{ item.areas.id }}">{{item.nombres}}
+                                    {{item.apellidos}} ({{ item.username }})</option>
+                                {% endfor %}
+                                <!-- {% for item in todos %}
+                                <option value="{{ item.id }}" data-chained="46">
+                                    {{item.nombres}} {{item.apellidos}} ({{ item.username }})</option>
+                                {% endfor %} -->
+                            </select>
+                            <input id="hfPara" type="hidden" value="{{ selected_para }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label>Copiar a:</label>
+                                <select id="copiar_a" class="form-control select2-multiple" data-toggle="select2"
+                                    data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                    {% for row in usuarios %}
+                                    <option 
+                                        value="{{ row.id }}" 
+                                        {% for copia in copiar_a %}
+                                            {% if row.id == copia.user.id %}
+                                            selected
+                                            {% endif %}
+                                        {% endfor %}
+                                        >
+                                        {{row.get_user}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input name="copiar_a" type="hidden" value="">
+                                <input id="hfcopiar_a" type="hidden" value="{{ copiar_a }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.cc_externas }}
+                            <label for="id_cc_externas">Copias Externas:</label>
+                            <input id="hfcc_externas" type="hidden" value="{{ cc_externas }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.comentarios }}
+                            <label for="id_comentarios">Comentarios:</label>
+                            <input id="hfcomentarios" type="hidden" value="{{ comentarios }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <div class="text-center">
+                                Archivo Actualmente:
+                                <a href={{ pdf }}>{{ pdf }}</a>
+                            </div>
+                            <br>
+                           
+                            <label>Oficio:</label>
+                            {{ form.pdf }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn fondo-boton" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn fondo-boton">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        $('#id_para').chained('#id_area');
+
+        $('#form_recibidos').submit(function(e) {
+
+            var lista_cc = $("#copiar_a").val();
+            $("[name='copiar_a']").val(lista_cc.join(","));
+
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+		
+    });
+</script>

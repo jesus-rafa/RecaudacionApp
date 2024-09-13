@@ -1,0 +1,873 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Seguimiento {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="window.history.back()">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Seguimiento</h4> 
+        </div>
+    </div>
+</div>	
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="mb-0 table table-sm">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>RFC</th>
+                            <th>Direccion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for programa in programacion %}
+                        <tr>
+                            <td><strong>{{ programa.id }}</strong></td>
+                            <td>{{ programa.nombre}}</td>
+                            <td class="cl_rfc">{{ programa.rfc }}</td>
+                            <td>{{ programa.direccion}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Oficio</th>
+                            <th>Programa</th>
+                            <th>Fecha Creación</th>
+                            <th>Dias</th>
+                            <th>Presuntiva</th>
+                            <th>Recaudado</th>
+                            <th>Porcentaje</th>
+                            <th>Seguimiento</th>
+                            <th>Estatus</th>
+                            <th>Agregar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for programa in programacion %}
+                        <tr>
+                            <td>
+                                {{ programa.folio }}
+                                <input type="hidden" id="hfFolio" value="{{ programa.folio }}">
+                            </td>
+                            <td>{{ programa.programa }}</td>
+                            <td>{{ programa.fecha|date:'d/m/Y' }}</td>
+                            <td>{{ dias }}</td>
+                            <td>
+                                <strong>
+                                    <label class="estimado text-primary">${{programa.presuntiva|unlocalize|intcomma}}</label>
+                                </strong>
+                            </td>
+                            <td>
+                                {% if programa.recaudado != None %}
+                                    <strong>
+                                        <label class="text-success">${{ programa.recaudado|unlocalize|intcomma }}</label>
+                                    </strong>
+                                {% else %}
+                                    <strong>
+                                        <label class="text-success">$ 0.00</label>
+                                    </strong>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>
+                                    <label class="text-success porcentaje"></label>
+                                </strong>
+                            </td>
+                            <td>{% get_user_info programa.seguimiento %}</td>
+                            <td>{{ programa.estatus }}</td>
+                            <td>
+                                {% has_perms request.user 'add_detalle_padrones' as add_detalle_padrones %}
+                                {% has_perms request.user 'add_archivos_padrones' as add_archivos_padrones %}
+                                {% has_perms request.user 'add_pagos_padrones' as add_pagos_padrones %}
+                                {% has_perms request.user 'add_contacto' as add_contacto %}
+
+                                {% if add_detalle_padrones is True %}
+                                <button id="btDetail"
+                                    onclick="Detail_Modal('{% url 'padrones_app:alta-detalle-2' programa.id %}', '{{ programa.id }}', '{{ programa.folio }}')"
+                                    title="Agregar Seguimiento" tabindex="0" data-plugin="tippy"
+                                    data-tippy-placement="bottom" class="btn btn-outline-secondary gris-oscuro btn-xs" target="_blank"><i
+                                        class="fa fa-list-ul"></i>
+                                </button>
+                                {% endif %}
+                                {% if add_archivos_padrones is True %}
+                                <button id="btFile"
+                                    onclick="Files_Modal('{% url 'padrones_app:alta-archivos-2' programa.id %}', '{{ programa.id }}', '{{ programa.folio }}')"
+                                    title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                    data-tippy-placement="bottom" class="btn btn-outline-secondary gris-oscuro btn-xs" target="_blank"><i
+                                        class="ti-file"></i>
+                                </button>
+                                {% endif %}
+                                {% if add_contacto is True %}
+                                <button id="btDetail"
+                                    onclick="Add_Modal('{% url 'rec_app:alta-rec' programa.rfc programa.id %}', '{{ programa.id }}', '{{ programa.rfc }}')"
+                                    title="Agregar Contactos" tabindex="0" data-plugin="tippy"
+                                    data-tippy-placement="bottom" class="btn btn-outline-secondary gris-oscuro btn-xs" target="_blank"><i
+                                        class="fas fa-user-circle"></i>
+                                </button>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-08" id="home-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link active">
+                            <i class="fa fa-list-ul"></i> Seguimiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-08" id="profile-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            <i class="ti-file"></i> Archivos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#portfolio-08" id="portfolio-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            <i class="far fa-money-bill-alt"></i> Pagos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#contacts-08" id="contacts-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            <i class="fas fa-user-circle"></i> Contacto
+                        </a>
+                    </li>
+
+                </ul>
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+                    {{ message|safe }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% has_perms request.user 'change_detalle_padrones' as change_detalle_padrones %}
+                {% has_perms request.user 'delete_detalle_padrones' as delete_detalle_padrones %}
+
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-08">
+                        <div class="table-responsive">
+
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Fecha</th>
+                                        <th>Comentarios</th>
+                                        <th>Accion</th>
+                                        <th>Usuario</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for detalle in detalles %}
+                                    <tr>
+                                        <td>{{ detalle.fecha|date:'d/m/Y' }}</td>
+                                        <td>{{ detalle.comentarios }}</td>
+                                        <td>{{ detalle.estatus }}</td>
+                                        <td>
+                                            <div class="avatar-sm" title="{% get_user_info detalle.usuario %}"
+                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                <span
+                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                    {% get_initials detalle.usuario %}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if change_detalle_padrones is True %}
+                                            <button id="btUpdate_Detail"
+                                                onclick="Update_Detail('{% url 'padrones_app:editar-detalle-2' detalle.id %}', '{{detalle.id}}')"
+                                                title="Editar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
+                                            {% endif %}
+
+                                            {% if delete_detalle_padrones is True %}
+                                            {% csrf_token %}
+                                            <button id="btDelete_Detail"
+                                                onclick="Delete_Detail('{% url 'padrones_app:eliminar-detalle-2' detalle.id %}', '{{detalle.id}}')"
+                                                title="Eliminar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    {% has_perms request.user 'change_archivos_padrones' as change_archivos_padrones %}
+                    {% has_perms request.user 'delete_archivos_padrones' as delete_archivos_padrones %}
+                    <div class="tab-pane fade" id="profile-08">
+                        <div class="table-responsive mt-15">
+                            <table class="mb-0 table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Comentarios</th>
+                                        <th>Archivo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for archivo in archivos %}
+                                    <tr>
+                                        <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                        <td>{{ archivo.tipo }}</td>
+                                        <td>{{ archivo.comentarios }}</td>
+                                        <td>
+                                            <a href="{{ archivo.archivo.url }}" class="btn btn-outline-secondary gris-oscuro btn-sm"
+                                                target="_blank"><i class="ti-file"></i></a>
+                                        </td>
+
+                                        <td>
+                                            {% if change_archivos_padrones is True %}
+                                            <button id="btUpdate_Detail"
+                                                onclick="Update_Files('{% url 'padrones_app:editar-archivo-2' archivo.id %}', '{{archivo.id}}')"
+                                                title="Editar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
+                                            {% endif %}
+                                            {% if delete_archivos_padrones is True %}
+                                            {% csrf_token %}
+                                            <button id="btDelete_Detail"
+                                                onclick="Delete_Files('{% url 'padrones_app:eliminar-archivo-2' archivo.id %}', '{{archivo.id}}')"
+                                                title="Eliminar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </td>
+
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="tab-pane fade" id="portfolio-08">
+                        <div class="table-responsive">
+                            <label>Carga Automatica</label>
+                            {% has_perms request.user 'change_pagos_padrones' as change_pagos_padrones %}
+                            {% has_perms request.user 'delete_pagos_padrones' as delete_pagos_padrones %}
+                            <table id="Table_payments_2" class="mb-0 table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Periodo/Ejercicio</th>
+                                        <th>Impuesto</th>
+                                        <th>Actualizaciones</th>
+                                        <th>Recargos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pago in pagos %}
+                                    {% if pago.impuesto != 0 %}
+                                    <tr>
+                                        <td>{{ pago.fecha|date:'d/m/Y' }}</td>
+                                        <td>{{ pago.tipo }}</td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        {% get_month pago.periodo %}/{{ pago.ejercicio }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-left" id="popover-container">
+                                                        {% if pago.comentarios %}
+                                                        <button type="button" class="btn btn-xs btn-outline-secondary gris-oscuro" data-bs-container="#popover-container" data-bs-toggle="popover"
+                                                            data-bs-placement="right" data-bs-content="{{ pago.comentarios}}" data-original-title="">
+                                                            <i class="fas fa-file-contract"></i>
+                                                        </button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="col1">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                        <td class="col2">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                        <td class="col3">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Subtotal:</th>
+                                        <th class="subtotal subtotal_impuestos"></th>
+                                        <th class="subtotal subtotal_accesorios"></th>
+                                        <th colspan="2" class="subtotal subtotal_recargos"></th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="text-primary">Total:</th>
+                                        <th class="total_impuestos text-primary"></th>
+                                        <th class="total_accesorios text-primary"></th>
+                                        <th colspan="2" class="total_recargos text-primary"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="contacts-08">
+                        <div class="table-responsive mt-15">
+                            {% has_perms request.user 'change_contacto' as change_contacto %}
+                            {% has_perms request.user 'delete_contacto' as delete_contacto %}
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Contacto</th>
+                                        <th>Puesto</th>
+                                        <th>Direccion</th>
+                                        <th>Correo</th>
+                                        <th>Telefono</th>
+                                        <th>Fecha</th>
+                                        <th>Capturado por</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for contacto in contactos %}
+                                    <tr>
+                                        <td>
+                                            {% if contacto.nombre != None %}
+                                            {{ contacto.nombre }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if contacto.puesto != None %}
+                                            {{ contacto.puesto }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if contacto.direccion != None %}
+                                            {{ contacto.direccion }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if contacto.correo != None %}
+                                            {{ contacto.correo }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if contacto.telefono != None %}
+                                            {{ contacto.telefono }}
+                                            {% if contacto.ext != None %}
+                                            Ext: {{ contacto.ext }}
+                                            {% endif %}
+                                            {% endif %}
+
+                                        </td>
+                                        <td>{{ contacto.fecha_alta|date:'d/m/Y'}}</td>
+                                        <td>{% get_user_info contacto.usuario %} </td>
+
+                                        <td>
+                                            {% if change_contacto is True %}
+                                            <button id="btUpdate_Contacts"
+                                                onclick="Update_Contacts('{% url 'rec_app:editar-rec' contacto.id request.resolver_match.kwargs.id %}', '{{contacto.id}}', '{{contacto.rfc}}')"
+                                                title="Editar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-pen"></i>
+                                            </button>
+                                            {% endif %}
+                                            {% if delete_contacto is True %}
+                                            {% csrf_token %}
+                                            <button id="btDelete_Detail"
+                                                onclick="Delete_Contact('{% url 'rec_app:eliminar-rec' contacto.id %}', '{{contacto.id}}')"
+                                                title="Eliminar" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-outline-secondary gris-oscuro btn-xs"
+                                                target="_blank">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/tippy.js/tippy.all.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('.alert-success').fadeOut(6000);
+        $('[data-toggle="tooltip"]').tooltip();
+
+        Get_Advance();
+    });
+
+    function Get_Advance(){
+        var progress = 0;
+        var collected = 0;
+        var estimated = 0;
+        var extra_progress = 0;
+        var fill_progress = 0;
+        var fill_progress_extra = 0;
+        var total_recargos = 0;
+        var total_accesorios = 0;
+        var total_impuestos = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_payments').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        var getSum2 = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_payments_2').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        $('#Table_payments').find('.subtotal').each(function (index, element) {
+            var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text('$  ' + total);
+        });
+
+        $('#Table_payments_2').find('.subtotal').each(function (index, element) {
+            var total = getSum2(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text('$  ' + total);
+        });
+
+        
+        $('.subtotal_recargos').each(function(){
+            total_recargos += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+        }); 
+        $('.subtotal_accesorios').each(function(){
+            total_accesorios += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+        }); 
+        $('.subtotal_impuestos').each(function(){
+            total_impuestos += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+        }); 
+        var total1, total2, total3;
+        total1 = total_recargos.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+        total2 = total_accesorios.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+        total3 = total_impuestos.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+
+        $('.total_recargos').text('$ ' + total1);
+        $('.total_accesorios').text('$ ' + total2);
+        $('.total_impuestos').text('$ ' + total3);
+
+
+        collected = $('.impuesto').text().replace('$', '').replace(/,/g, '');
+        estimated = $('.estimado').text().replace('$', '').replace(/,/g, '');
+
+        if (collected != 0){
+            progress = collected * 100/estimated;
+        }else{
+            progress = 0;
+        }
+
+        if (progress > 100){
+            extra_progress = progress - 100
+
+            fill_progress = 100 + '%'
+            fill_progress_extra = extra_progress + '%'
+        }else{
+            fill_progress = progress + '%'
+            fill_progress_extra = '0%'
+        }
+        
+
+        $(".progress-payments").css({"width": fill_progress });
+        $(".progress-extra").css({"width": fill_progress_extra });
+
+        $('.porcentaje').text(progress.toFixed(2) + '%')
+        $('.recaudado').text('$ ' + collected.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+
+    }
+
+    function Payments_Modal(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID3').val(myFolio);
+            $('#tbID3').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Files_Modal(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID2').val(myFolio);
+            $('#tbID2').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Detail_Modal(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID1').val(myFolio);
+            $('#tbID1').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    
+    function Add_Modal(myURL, myID, myRFC) {		
+        $('#mdView').load(myURL, function () {
+			$("#id_rfc option:contains('" + myRFC + "')").attr('selected','selected');
+			
+			var myRFC_ = $("#id_rfc option:selected").text();
+			
+			if (String(myRFC_) !== String(myRFC)){
+				Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: 'Este RFC: ' + myRFC + ' No esta dado de alta en el sistema, para cargar contactos, favor de notificar.',
+                    Text: myRFC,
+                    showConfirmButton: !1,
+                });
+				return false;
+			}
+		
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+            $('#tbID').val($("#id_programa_id option:selected").text());
+            $('#tbID').prop('disabled', 'disabled');
+
+            
+            $("#id_rfc").hide();
+            $('#tbRFC').val($("#id_rfc option:selected").text());
+            $('#tbRFC').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "white");
+            
+            $(this).modal('show');
+        });
+    }
+	
+	    //--------------------------------UPDATE-----------------------------------//
+    function Update_Detail(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            var Folio = $('#hfFolio').val();
+            $('#tbOficio1').prop('readonly', 'readonly');
+            $('#tbOficio1').val(Folio);
+			
+			var value2 = $('#hfEtapa').val();
+            $("#id_etapa option[value='" + value2 + "']").attr('selected','selected');
+			
+			$('#id_etapa').change();
+			$('#id_estatus').change();
+
+            var value = $('#hfEstatus').val();
+            $("#id_estatus option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+	
+	function Update_Files(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+			
+			var Folio = $('#hfFolio').val();
+            $('#tbID3').prop('readonly', 'readonly');
+            $('#tbID3').val(Folio);
+
+            var value = $('#hfType').val();
+            $("#id_tipo option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Update_Payments(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            var Folio = $('#hfFolio').val();
+            $('#tbOficio2').prop('readonly', 'readonly');
+            $('#tbOficio2').val(Folio);
+
+            var value = $('#hfType').val();
+            $("#id_tipo option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Update_Contacts(myURL, myID, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_rfc option[value='" + myID + "']").attr('selected','selected');
+            $("#id_rfc").hide();
+            $('#tbRFC').prop('readonly', 'readonly');
+            $('#tbRFC').val(myRFC);
+
+            var value = $('#hfJob').val();
+            $("#id_puesto option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+	
+	function Delete_Contact(myURL, myID){
+        Swal.fire({
+            title: 'Seguro que desea eliminar?',
+            text: "este contacto!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar',
+        }).then(function (e) {
+            if (e.value) {
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+    }
+	
+	function Delete_Detail(myURL, myID){
+        Swal.fire({
+            title: 'Seguro que desea eliminar?',
+            text: "este detalle!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar',
+        }).then(function (e) {
+            if (e.value) {
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    }
+	
+	function Delete_Files(myURL, myID){
+        Swal.fire({
+            title: 'Seguro que desea eliminar?',
+            text: "este archivo!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar',
+        }).then(function (e) {
+            if (e.value) {
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+    }
+
+
+</script>
+
+{% endblock extrajs %}

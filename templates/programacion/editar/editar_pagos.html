@@ -1,0 +1,161 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Pagos</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_pagos" action="{% url 'programacion_app:editar-pago' object.id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                {{ form.programa_id }}
+                <div class="row" id="datos_generales">                
+                    <div class="col-md-5">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">{{ form.tipo.label }}</label>
+                            {{ form.tipo }}
+                            <input id="hfType" type="hidden" value="{{ selected_tipo }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-2 text-center">
+                            <label>Presuntiva:</label>
+                            <div class="switchery-demo">
+                                {{ form.presuntiva }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating col mb-2">
+                            {{ form.fecha }}
+                            <label>{{ form.fecha.label }}</label>
+                        </div>
+                        <label class="text-danger" id="validar_fecha"></label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">{{ form.ejercicio.label }}</label>
+                            {{ form.ejercicio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label clas="etiqueta-combo">{{ form.periodo.label }}</label>
+                            {{ form.periodo }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-floating col mb-2">
+                            {{ form.impuesto }}
+                            <label>{{ form.impuesto.label }}</label>
+                            <span class="text-danger" id="validar_monto"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating col mb-2">
+                            {{ form.accesorios }}
+                            <label>{{ form.accesorios.label }}</label>
+                            <span class="text-danger" id="validar_monto"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating col mb-2">
+                            {{ form.recargos }}
+                            <label>{{ form.recargos.label }}</label>
+                            <span class="text-danger" id="validar_monto"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label>{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btSave" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        new AutoNumeric('#id_impuesto', {
+            currencySymbolPlacement: 'p',
+            currencySymbol: '$ ',
+            maximumValue: '9999999999.99',
+            minimumValue: 0
+        });
+        new AutoNumeric('#id_accesorios', {
+            currencySymbolPlacement: 'p',
+            currencySymbol: '$ ',
+            maximumValue: '9999999999.99',
+            minimumValue: 0
+        });
+        new AutoNumeric('#id_recargos', {
+            currencySymbolPlacement: 'p',
+            currencySymbol: '$ ',
+            maximumValue: '9999999999.99',
+            minimumValue: 0
+        });
+       
+        // $("#btCreate").click(function () {
+        //     var fecha_minima = new Date();
+        //     fecha_minima.setDate(fecha_minima.getDate() - 8);
+
+        //     var arregloFecha = $('#id_fecha').val().split("/");
+        //     var anio = arregloFecha[2];
+        //     var mes = arregloFecha[1] - 1;
+        //     var dia = arregloFecha[0];
+        //     var fecha_capturada = new Date(anio, mes, dia);
+
+        //     if(fecha_capturada >= fecha_minima){
+        //         $('#validar_fecha').html('');
+        //         return true;
+        //     }else{
+        //         $('#validar_fecha').show();
+        //         $('#validar_fecha').html('Maximo 7 dias atras**');
+        //         $('#validar_fecha').fadeOut(4000);
+        //         return false;
+        //     }
+        // });
+
+        $("#form_pagos").submit(function (e) {
+
+            remueveMascara($('#id_impuesto'));
+            remueveMascara($('#id_accesorios'));
+            remueveMascara($('#id_recargos'));
+
+            $("#btCreate").attr("disabled", true);
+            return true;
+        });
+
+    });
+
+    function remueveMascara(campo){
+        campo.val(campo.val().replace('$','').replaceAll(',',''));
+    }
+</script>
+{% endblock extrajs %}

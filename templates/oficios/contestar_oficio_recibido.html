@@ -1,0 +1,58 @@
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Cerrar Oficio</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_cerrar_oficio" action="{% url 'oficios_app:contestar-oficio-recibido' id_oficio %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <!-- <label>Estatus:</label> -->
+                            {{ form.estatus }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Comentarios:</label>
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label>Oficio Respuesta:</label>
+                            {{ form.pdf_respuesta }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btCerrar" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        $("#form_cerrar_oficio").submit(function (e) {
+
+            $("#btCerrar").attr("disabled", true);
+            return true;
+
+        });
+    });
+</script>

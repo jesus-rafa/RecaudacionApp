@@ -1,0 +1,166 @@
+{% load static %}
+{% load tags %}
+						{% for group in request.user.groups.all %}
+							{% if group.name == 'RECAUDACION' %}
+							<!-- menu item Home-->
+                            <li>
+                                <a href="{% url 'home_app:inicio' %}"><i class="ti-home"></i><span class="right-nav-text">Inicio</span>
+                                </a>
+                            </li> 
+							 <li> 
+                                <a href="{% url 'home_app:organigrama' %}"><i class="fa fa-sitemap"></i><span class="right-nav-text">Organigrama</span> 
+                                </a>
+                            </li> 
+                            <!-- menu item Home-->
+							 
+							{% endif %}
+							
+							{% if group.name == 'AUDITORIA' %}
+							 <li>
+                                <a href="{% url 'home_app:home2' %}"><i class="ti-home"></i><span class="right-nav-text">Inicio</span>
+                                </a>
+                            </li> 
+							
+							
+							<li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">Auditoria</li>
+							
+							
+                            <li>
+                                <a href="{% url 'transferidos_app:lista-auditoria' %}"><i class="fa fa-list-alt"></i><span class="right-nav-text">Propuestas</span> <span class="badge badge-pill badge-success float-right mt-1">{% get_count_auditoria %}</span> </a>
+                            </li>
+							<li>
+                                <a href="{% url 'transferidos_app:lista-programacion-auditoria' %}"><i class="fa fa-list-alt"></i><span class="right-nav-text">Seguimiento</span> </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'transferidos_app:consulta' %}"><i class="fa fa-search"></i><span class="right-nav-text">Consulta</span> </a>
+                            </li>
+							 
+							{% endif %}
+							
+							{% if group.name == 'EJECUCION' %}
+							 <li>
+                                <a href="{% url 'home_app:home3' %}"><i class="ti-home"></i><span class="right-nav-text">Inicio</span>
+                                </a>
+                            </li> 
+							 
+							{% endif %}
+						
+						
+						{% endfor %}
+							
+
+                        {% for group in request.user.groups.all %}
+						
+							{% if group.name == 'FULL' %}
+							 <li>
+                                <a href="http://172.31.113.187:81/modelos/"><i class="fa fa-cogs"></i><span class="right-nav-text">Modelos</span></a>
+                            </li>
+							
+							{% endif %}
+                            
+                            {% if group.name == 'REPORTES' or group.name == 'FULL' %}
+                            <!-- menu item Reports-->
+                            <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">Reportes </li>
+                            <!-- <li> -->
+                                <!-- <a href="javascript:void(0);" data-toggle="collapse" data-target="#elements"> -->
+                                  <!-- <div class="pull-left"><i class="ti-palette"></i><span class="right-nav-text">Tableros</span></div> -->
+                                  <!-- <div class="pull-right"><i class="ti-plus"></i></div><div class="clearfix"></div> -->
+                                <!-- </a> -->
+                                <!-- <ul id="elements" class="collapse" data-parent="#sidebarnav"> -->
+                                  <!-- <li><a href="{% url 'home_app:reporte-ingresos' %}">Reporte de Ingresos</a></li> -->
+                                  <!-- <li><a href="{% url 'home_app:reporte-vehicular' %}">Reporte Vehicular</a></li> -->
+                                  <!-- <li><a href="{% url 'home_app:padron-vehicular' %}">Padron Vehicular</a></li> -->
+								  <!-- <li><a href="{% url 'home_app:REC' %}">REC</a></li> -->
+                                <!-- </ul> -->
+                            <!-- </li> -->
+							<li>
+                                <a href="{% url 'rec_app:lista-rec-2' %}"><i class="fa fa-line-chart"></i><span class="right-nav-text">Resumen</span> </a>
+                            </li>
+							
+							<li>
+                                <a href="javascript:void(0);" data-toggle="collapse" data-target="#elements">
+                                    <div class="pull-left"><i class="ti-palette"></i><span class="right-nav-text">Tablero</span></div>
+                                    <div class="pull-right"><i class="ti-plus"></i></div>
+                                    <div class="clearfix"></div>
+                                </a>
+                                <ul id="elements" class="collapse" data-parent="#sidebarnav">
+                                    <li><a href="{% url 'home_app:reporte-ingresos' %}">Recursos Fiscales</a></li>
+                                    <li><a href="{% url 'home_app:REC' %}">REC</a></li>
+
+                                    <li>
+                                        <a href="javascript:void(0);" data-toggle="collapse" data-target="#auth">Padron Vehicular<div
+                                                class="pull-right"><i class="ti-plus"></i></div>
+                                            <div class="clearfix"></div>
+                                        </a>
+                                        <ul id="auth" class="collapse">
+                                            <li><a href="{% url 'home_app:padron-vehicular' %}">&nbsp;&nbsp;&nbsp;Padron Vehicular</a></li>
+                                            <li><a href="{% url 'home_app:reporte-vehicular' %}">&nbsp;&nbsp;&nbsp;Reporte Vehicular</a></li>                                            
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- menu item Reports-->
+                            {% endif %}
+
+                            {% if group.name == 'OFICIOS' or group.name == 'FULL' %}
+                            <!-- menu item Control-->
+                            <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">Correspondencia</li>
+                            <!-- <li> -->
+                                <!-- <a href="{% url 'oficios_app:lista-oficios' 0 %}"><i class="ti-folder"></i><span -->
+                                        <!-- class="right-nav-text">Oficios</span> </a> -->
+                            <!-- </li> -->
+							<li>
+                                <a href="{% url 'oficios_app:correspondencia' 0 %}"><i class="ti-email"></i><span
+                                        class="right-nav-text">Correspondencia</span> </a>
+                            </li>
+                            <!-- menu item Control-->
+                            {% endif %}
+
+                            {% if group.name == 'SEGUIMIENTO' or group.name == 'FULL' %}
+                            <!-- menu item Programing-->
+                            <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">Vigilancia y Control de Obligaciones</li>
+                            <!-- <li> -->
+                                <!-- <a href="#"><i class="ti-layout-tab-window"></i><span class="right-nav-text">Programacion</span> </a> -->
+                            <!-- </li> -->
+							<li>
+                                <a href="{% url 'programacion_app:autorizacion' %}"><i class="fa fa-check-square-o"></i><span class="right-nav-text">Autorizacion</span>  <span id="spCount" class="badge badge-pill badge-success float-right mt-1">{% get_count_folios request.user.username %}</span></a>
+                            </li>
+							
+							<li>
+                                <a href="{% url 'programacion_app:lista-programacion' 0 %}"><i class="fa fa-list-alt"></i><span class="right-nav-text">Vigilancia</span> </a>
+                            </li>
+							
+							<li>
+                                <a href="{% url 'padrones_app:lista-programacion-2' %}"><i class="fa fa-list-alt"></i><span class="right-nav-text">Padrones</span> </a>
+                            </li>
+                            <!-- menu item Programing-->
+                            {% endif %}
+							
+							{% if group.name == 'TRANSFERIDOS' or group.name == 'FULL' %}
+							<li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">Transferidos</li>
+							 <li>
+                                <a href="{% url 'transferidos_app:lista-transferencias' %}"><i class="fa fa-reply-all"></i><span class="right-nav-text">Reporte</span> <span id="spCount" class="badge badge-pill badge-success float-right mt-1">{% get_count_transfer %}</span></a>
+                            </li>
+                            <li>
+                                <a href="{% url 'transferidos_app:lista-ejecucion' %}"><i class="fa fa-list-alt"></i><span class="right-nav-text">Ejecucion</span> <span class="badge badge-pill badge-success float-right mt-1">{% get_count_ejecucion %}</span></a>
+                            </li>
+
+							{% endif %}
+							
+							
+							
+							{% if group.name == 'REC' or group.name == 'FULL' %}
+                             <!-- menu item Contacts-->
+                            <li class="mt-10 mb-10 text-muted pl-4 font-medium menu-title">REC</li>
+                            <li>
+                                <a href="{% url 'rec_app:lista-rec' %}"><i class="fa fa-user-circle-o"></i><span class="right-nav-text">Contactos</span> </a>
+                            </li>
+							
+							
+							
+							
+							
+                            <!-- menu item Contacts-->
+                            {% endif %}
+
+                        {% endfor %}

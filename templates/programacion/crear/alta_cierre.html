@@ -1,0 +1,64 @@
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Cierre</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_cierre" action="{% url 'programacion_app:alta-cierre' programa_id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label id="lbOficio2">Oficio:</label>
+                            {{ form.programa_id }}
+                            <input type="text" class="form-control" id="tbID4">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label id="lbFecha2">Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <div class="text-center">
+                                <h4><label id="lbSelected4" for="lbSelected4" class="text-primary"></label></h4>
+                            </div>
+                            <label id="lbEstatus">Estatus:</label>
+                            {{ form.estatus }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btReject" class="btn btn-primary">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        $("#form_alta_cierre").submit(function (e) {
+
+            $("#btReject").attr("disabled", true);
+            return true;
+
+        });
+
+        $('.change_estatus').change(function () {
+            $('#id_comentarios_area').toggle();
+            $('#lbArea').toggle();
+        });
+    });
+</script>

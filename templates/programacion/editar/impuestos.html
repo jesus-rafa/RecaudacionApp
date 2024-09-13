@@ -1,0 +1,212 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Impuestos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-2">
+                        <div class="text-center">
+                            <input type="hidden" id="hfContribuyente">
+                            <h5 id="lbContribuyente"></h5>
+                        </div>
+                        {{ form.impuesto.label }}
+                        {{ form.impuesto }}
+                        <input type="hidden" id="hfImpuesto" value="">
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table id="table-impuestos" class="table table-sm">
+                            <thead id="table-header">
+                            </thead>
+                            <tbody id="table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                data-bs-dismiss="modal">Cancelar</button>
+            <button id="btnSend" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+        </div>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        var myURL = "{% url 'programacion_app:admin-impuestos' 'A' 'B' %}";
+        var myRFC = $('#hfContribuyente').val();
+        var myImpuesto = $('#hfImpuesto').val();
+        var selectize = $(document.getElementById('id_impuesto'))[0].selectize;
+
+        if (myImpuesto !== '0'){
+            var myID = 0;
+
+            {% for item in impuestos %}
+                if (myImpuesto == '{{ item.comentario }}') 
+                    myID = '{{ item.id }}';
+            {% endfor %}
+            
+            selectize.setValue(myID);
+
+            clear_table();
+            get_table(myURL, myRFC, myID);
+        } else {
+            selectize.setValue('');
+        }
+
+        $("#id_impuesto").change(function () {
+            let myTax = $('#id_impuesto').val();
+            clear_table();
+            get_table(myURL, myRFC, myTax);
+        });
+
+        $("#table-impuestos").on("click", "td", function () {
+            $(this).toggleClass("iluminar-celda");
+            $(this).toggleClass("apagar-celda");
+            $(this).hasClass('iluminar-celda') ? $(this).text('1') : $(this).text('0');
+        });
+
+        $("#btnSend").click(function() {
+            let myTax = $('#id_impuesto').val();
+            update_table(myURL, myRFC, myTax);
+            $("#btnSend").on("disabled", true);
+        });
+
+    });
+
+    function cargar(){
+        let myTax = $('#id_impuesto').val();
+            clear_table();
+            get_table(myURL, myRFC, myTax);
+    }
+
+    function clear_table() {
+        $("#table-header").empty();
+        $("#table-body").empty();
+    }
+
+    function get_table(myURL, myRFC, myTax) {
+
+        function get_color(value) {
+            return value == '1' ? "iluminar-celda":"apagar-celda";
+        }
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', myTax),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                $.map(data, function (value, index) {
+
+                    if (index > 0) {
+
+                        $('#table-impuestos > tbody:last').append(
+                            '<tr><th style="display: none;">' + value.id + '</th><th>' +
+                            value.periodo + '</th><td class="' + get_color(value.ejercicio) + '">' +
+                            value.ejercicio + '</td><td class="' + get_color(value.ejercicio_1) + '">' +
+                            value.ejercicio_1 + '</td><td class="' + get_color(value.ejercicio_2) + '">' +
+                            value.ejercicio_2 + '</td><td class="' + get_color(value.ejercicio_3) + '">' +
+                            value.ejercicio_3 + '</td><td class="' + get_color(value.ejercicio_4) + '">' +
+                            value.ejercicio_4 + '</td><td class="' + get_color(value.ejercicio_5) + '">' +
+                            value.ejercicio_5 + '</td></tr>'
+                        );
+
+                    } else {
+                        $('#table-impuestos > thead:last').append(
+                            '<tr><th style="display: none;"></th><th>' +
+                            value.periodo + '</th><th class="column">' +
+                            value.ejercicio + '</th><th class="column">' +
+                            value.ejercicio_1 + '</th><th class="column">' +
+                            value.ejercicio_2 + '</th><th class="column">' +
+                            value.ejercicio_3 + '</th><th class="column">' +
+                            value.ejercicio_4 + '</th><th class="column">' +
+                            value.ejercicio_5 + ' </th></tr>'
+                        );
+                    }
+
+                });
+
+                addEvents_Header();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+
+    }
+
+    function addEvents_Header() {
+
+        $(".column").each(function(index) {
+            $(this).on("click", function(){
+                var element = $('#table-impuestos td:nth-child(' + (index + 3) + ')')
+                element.toggleClass("iluminar-celda");
+                element.toggleClass("apagar-celda");
+                element.hasClass('iluminar-celda') ? element.text('1') : element.text('0');
+            });
+        });
+
+    }
+
+    function update_table(myURL, myRFC, myTax) {
+
+        var myData = [];
+
+        $('#table-impuestos > tbody > tr').each(function(index, tr) { 
+            var myRow = {};
+            $(tr).children().each(function (index, td) {
+
+                if (index == 0) myRow.id = $(td).text();
+                if (index == 2) myRow.ejercicio = $(td).text();
+                if (index == 3) myRow.ejercicio_1 = $(td).text();
+                if (index == 4) myRow.ejercicio_2 = $(td).text();
+                if (index == 5) myRow.ejercicio_3 = $(td).text();
+                if (index == 6) myRow.ejercicio_4 = $(td).text();
+                if (index == 7) myRow.ejercicio_5 = $(td).text();
+
+            });
+            myData.push(myRow);
+        });
+
+        //console.log(JSON.stringify(myData));
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', myTax),
+            type: "POST",
+            dataType: "JSON",
+            data: {'data': JSON.stringify(myData)},
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                location.reload();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,341 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Contribuyentes Revisados {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Contribuyentes Revisados</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-10 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group">
+
+                        <div class="form-floating col">
+                            <input type="text" class="form-control input-rec" id="kword" name="kword" placeholder="RFC o Nombre..." aria-describedby="basic-addon1">
+                            <label>RFC</label>
+                        </div>
+                        <div class="text-center col">
+                            <div class="row">
+        
+                                    <i class="mdi-24px mdi mdi-help-circle text-primary" title="La Busqueda por RFC, abarca todos los años." tabindex="0"
+                                        data-plugin="tippy" data-tippy-placement="bottom"></i>
+                                
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <select name="year" id="year" class="form-control" data-toggle="select2" data-width="100%">
+                                <option value="TODOS">TODOS</option>
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select name="month" id="month" class="form-control" data-toggle="select2" data-width="100%">
+                                <option value="TODOS">TODOS</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn" target="_blank" value="Buscar"> 
+                            <i class="fa fa-search"></i>
+                            Buscar
+                        </button>
+
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if individual%}
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">                
+                <div class="table-responsive">
+                    <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100 no-footer dtr-inline collapsed" id="datatable2" style="width: 1021px ;">
+                        <thead>
+                            <tr>
+                                <td>Ejercicio</td>
+                                <td>Periodo</td>
+                                <td>Rfc</td>
+                                <td>Estatus</td>
+                                <td>Motivo</td>
+                                <td>Comentarios</td>
+                                <td>Fecha inicio</td>
+                                <td>Fecha fin</td>
+                                <td>Tiempo</td>
+                                <td>Usuario</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for contribuyente in individual %}
+                            <tr>
+                                <td>{{ contribuyente.ejercicio|floatformat }}</td>
+                                <td>{{ contribuyente.periodo|floatformat }}</td>
+                                <td>{{ contribuyente.rfc }}</td>
+                                <td>{{ contribuyente.estatus }}</td>
+                                <td>{{ contribuyente.motivo }}</td>
+                                <td>{{ contribuyente.comentarios }}</td>                                
+                                <td>{{ contribuyente.fecha_inicio|date:'d/m/Y'  }}</td>
+                                <td>{{ contribuyente.fecha_fin|date:'d/m/Y'  }}</td>
+                                <td>{{ contribuyente.tiempo }}</td>
+                                <td>{{ contribuyente.usuario }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <input id="search1" type="text" class="form-control input-rec" placeholder="Buscar">
+                            <label for="search1">Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100 dataTable no-footer dtr-inline collapsed" id="datatable1" style="width: 1021px ;">
+                        <thead>
+                            <tr>
+                                <td>Ejercicio</td>
+                                <td>Periodo</td>
+                                <td>Revisadas</td>
+                                <td>Procedentes</td>
+                                <td>No procedentes</td>
+                                <td>Dias</td>
+                                <td></td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for contribuyente in contribuyentes %}
+                            <tr>
+                                <td>{{ contribuyente.ejercicio|floatformat }}</td>
+                                <td>{{ contribuyente.periodo|floatformat }}</td>
+                                <td class="col1">{{ contribuyente.revisadas }}</td>
+                                <td class="col2">{{ contribuyente.procedentes }}</td>
+                                <td class="col3">{{ contribuyente.no_procedentes }}</td>
+                                <td>{{ contribuyente.dias|floatformat:-2 }}</td>
+                                <td>
+                                    <div class="btn-group dropdown">
+                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                            data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="{% url 'rec_app:excel-contribuyentes' contribuyente.ejercicio|floatformat contribuyente.periodo|floatformat %}" class="dropdown-item" target="_self">
+                                                <i class="far fa-file-excel"></i>
+                                                Excel
+                                            </a>                                                
+                                        </div>
+                                    </div>
+
+                                </td> 
+                                <!-- <td>
+                                    <div class="text-center">
+                                        {% with programa_=carta.programa ejercicio_=carta.ejercicio_|floatformat  periodo_=carta.periodo_|floatformat area_=carta.area %}
+                                        <a href="/excel-masivo/{% replace_url programa_ %}/{{ ejercicio_ }}/{{ periodo_ }}/{{ area_ }}/" title="Descargar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                            class="btn btn-success btn-sm" target="_self">
+                                            <i class="far fa-file-excel"></i>
+                                        </a>
+                                        {% endwith %}
+                                    </div>
+                                </td> -->
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Total</th>
+                                <th class="total"></th>
+                                <th class="total"></th>
+                                <th class="total"></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datatables/buttons.min.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+<!-- nuevas -->
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>	
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>	
+<script src="{% static 'assets/js/pages/form-masks.init.js' %}"></script>	
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>	
+<script src="{% static 'assets/libs/autonumeric/autoNumeric.min.js' %}"></script> 	
+<script src="{% static 'assets/js/pages/form-wizard.init.js' %}"></script>	
+<script src="{% static 'assets/libs/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js' %}"></script>	
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>	
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>	
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        simple_table('#datatable1', '#search1', [6]);
+
+        let searchParams = new URLSearchParams(window.location.search);
+        let year = searchParams.get('year');
+        let month = searchParams.get('month');
+        let area = searchParams.get('area');
+
+        let fecha_actual = new Date();
+        let year_value, month_value, area_value;
+
+        if(year !== null)
+            year_value = String(year); 
+        else
+            year_value = String(fecha_actual.getFullYear());
+        $("#year option[value='" + year_value + "']").attr('selected', 'selected');
+
+        if(month !== null)
+            month_value = String(month); 
+        else
+            month_value = 'TODOS';
+        $("#month option[value='" + month_value + "']").attr('selected', 'selected');
+              
+        Get_Advance();
+
+    });
+
+    function Get_Advance() {
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#datatable1').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+
+        $('#datatable1').find('.total').each(function (index, element) {
+
+            /* if (index === 1 | index === 2){
+                var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$' + total);
+
+            }else{ */
+                var total = getSum(index + 1).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text(total);
+            /* } */
+            
+        });
+
+        $('#datatable1').find('.format').each(function (index, element) {
+            var number = $(element).text()
+            $(this).text(number.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+        });
+        
+    }
+    controles = [
+                        {control : 'year'},
+                        {control : 'month'}      
+        ]
+        /* controles.forEach(function(elemento){
+            if (elemento.control == 'year') {
+                var selectize = $(document.getElementById(elemento.control))[0].selectize;
+                selectize({create: true,sortField: "text",})
+                selectize.addOption({value: 'TODOS', text: 'TODOS', disabled: true});
+                selectize.addItem('TODOS');
+                selectize.addOption({value: '2020', text: '2020', disabled: true});
+                selectize.addItem('2020');
+                selectize.addOption({value: '2021', text: '2021', disabled: true});
+                selectize.addItem('2021');
+                selectize.addOption({value: '2022', text: '2022', disabled: true});
+                selectize.addItem('2022');
+
+            }else {
+                var selectize = $(document.getElementById(elemento.control))[0].selectize;
+                    selectize.addOption({value: '1', text:  '1' , disabled: true});
+                    selectize.addOption({value: '2', text:  '2' , disabled: true});
+                    selectize.addOption({value: '3', text:  '3' , disabled: true});
+                    selectize.addOption({value: '4', text:  '4' , disabled: true});
+                    selectize.addOption({value: '5', text:  '5' , disabled: true});
+                    selectize.addOption({value: '6', text:  '6' , disabled: true});
+                    selectize.addOption({value: '7', text:  '7' , disabled: true});
+                    selectize.addOption({value: '8', text:  '8' , disabled: true});
+                    selectize.addOption({value: '9', text:  '9' , disabled: true});
+                    selectize.addOption({value: '10', text: '10', disabled: true});
+                    selectize.addOption({value: '11', text: '11', disabled: true});
+                    selectize.addOption({value: '12', text: '12', disabled: true});
+                    selectize.addItem('1');
+                    selectize.addItem('2');
+                    selectize.addItem('3');
+                    selectize.addItem('4');
+                    selectize.addItem('5');
+                    selectize.addItem('6');
+                    selectize.addItem('7');
+                    selectize.addItem('8');
+                    selectize.addItem('9');
+                    selectize.addItem('10');
+                    selectize.addItem('11');
+                    selectize.addItem('12');
+                }
+            }); */
+                
+
+
+</script>
+{% endblock extrajs %}

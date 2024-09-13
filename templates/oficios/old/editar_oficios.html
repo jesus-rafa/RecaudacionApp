@@ -1,0 +1,68 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Editar Oficio</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'oficios_app:editar-oficios' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Folio:</label>
+                        {{ form.folio }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>A quien va dirigido:</label>
+                    {{ form.nombre }}
+                </div>
+                <div class="form-group">
+                    <label>Puesto:</label>
+                    {{ form.puesto }}
+                </div>
+                <div class="form-group">
+                    <label>Dependencia:</label>
+                    {{ form.dependencia }}
+                </div>
+                <div class="form-group">
+                    <label>Asunto:</label>
+                    {{ form.asunto }}
+                </div>
+               
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Enviado por:</label>
+                        {{ form.enviado }}
+						<input id="hfSend_by" type="hidden" value="{{ selected_enviado }}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Firma:</label>
+                        {{ form.firma }}
+                        <input id="hfFirm" type="hidden" value="{{ selected_firm }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Archivo:</label>
+                    {{ form.pdf }}
+                </div>
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

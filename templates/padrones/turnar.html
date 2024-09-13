@@ -1,0 +1,39 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Asignar Contribuyentes</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'padrones_app:turnar' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.lista }}
+                            <input type="hidden" id="hfList" name="hfList" value="">
+                            <div class="text-center">
+                                <h4><label id="lbSelected" for="lbSelected" class="text-primary"></label></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Asignar a:</label>
+                            {{ form.seguimiento }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Asignar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

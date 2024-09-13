@@ -1,0 +1,73 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right"> 
+                <button onclick="location.href=`{% url 'juridico_app:panel-resolutor' %}`"
+                    class="btn btn-outline-secondary waves-effect" target="_blank">
+                    <i class="fa fa-reply"></i> Volver
+                </button>
+            </div>
+            <h4 class="page-title">Carpeta/Expediente: {{detalle.carpeta}}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+            <div class="row mb-3">
+                <div class="col">
+                    Solicitante : <label><b>{{ detalle.solicitante.rfc }}</b></label>
+                </div>
+                <div class="col">
+                    Carpeta / Expediente : <label><b>{{ detalle.carpeta }}</b></label>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    Oficio : <label><b>{{ detalle.oficio }}</b></label>
+                </div>
+                <div class="col">
+                    Abogado :
+                    <label><b>{{detalle.abogado}}</b></label>
+                </div>
+            </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <label><b>Cargar reporte</b></label>
+            <div class="col">
+                <form id="form-archivo" method="POST" action="{% url 'juridico_app:cargaReportes' pk %}" enctype="multipart/form-data">
+                    {% csrf_token %}                        
+                    <div class="">
+                        <div class="">
+                            {{form.archivo}}
+                        </div>
+                        <button type="submit" class="btn fondo-boton waves-effect gris-oscuro float-end"> Guardar </button>
+                    </div>
+                </form>
+            </div>     
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+
+
+<script>    
+</script>
+{% endblock extrajs %}

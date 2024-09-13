@@ -1,0 +1,325 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+{% load permissions %}
+
+{% block head %}
+<style>
+    button{
+      cursor:pointer;
+    }
+    .chip-group{
+      display:flex;
+      flex-wrap:wrap;
+    }
+    .chip.chip-checkbox > .chip-add-icon::after {
+      content:"add"
+    }
+    .chip.chip-checkbox.active > .chip-add-icon::after {
+      content:"done"
+    }
+    .chip > * {
+      margin-right:2px;
+      margin-left:2px;
+      color: #757373;
+    }
+    .chip input {
+      display: none;
+    }
+    .chip.chip-checkbox,
+    .chip.chip-toggle,
+    .chip.clickable{
+      cursor: pointer;
+    }
+    .chip.active {
+      background-color: #d3d2d2;
+      border-color:#c3c2c2;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.12)
+    }
+    .chip:hover, .chip:focus {
+      background-color: #e3e2e2;
+    }
+    .chip:active:focus{
+      background-color: #d3d2d2;  
+    }
+    .chip button{
+      border:none;
+      margin-top:0;
+      margin-bottom:0;
+      padding:0;
+      background:none;
+      display:inline-flex;
+    }
+    .chip {
+      transition: all 0.3s ease-in-out;
+      background-color: #fff;
+      border-radius: 30px;
+      border: 1px solid #d3d2d2;
+      display: inline-flex;
+      align-items:center;
+      padding: 4px 6px 4px 6px;
+      margin-right:6px;
+      margin-bottom:6px;
+    }
+    .chip i.material-icons {
+      font-size: 18px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    </style>
+{% endblock head %}
+
+{% block title %} Auditoria {% endblock title %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                {% has_perms request.user 'add_programa_transferidos' as add_programa_transferidos %}
+				{% has_perms request.user 'change_programa_transferidos' as change_programa_transferidos %}
+
+                <button id="btNew" onclick="Agregar_Contribuyente('{% url 'transferidos_app:alta-contribuyente-2' %}')" 
+                    class="btn btn-outline-secondary waves-effect btn-volver"
+                    target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Contribuyente
+                </button>
+
+            </div>
+            <h4 class="page-title">{% block titulo %} {% endblock titulo %}</h4>
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+
+                    <li class="nav-item">
+                        <a href="#home-20" onclick="location.href = '{% url 'transferidos_app:seguimiento-auditoria' %}';" 
+                            id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link {% if 'seguimiento-auditoria' in request.build_absolute_uri %} active {% endif %} ">
+                            <i class="fa fa-files-o"></i>
+                            Seguimiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-30" onclick="location.href = '{% url 'transferidos_app:concluidos-auditoria' %}';" 
+                            id="profile-30-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link {% if 'concluidos-auditoria' in  request.build_absolute_uri %} active {% endif %}"
+                            aria-controls="profile-40" aria-selected="false">
+                            <i class="fa fa-check-square-o"></i>
+                            Concluidos
+                        </a>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content">
+                    
+                    {% block seguimiento %} {% endblock seguimiento %}
+                    
+                    
+                    {% block concluidos %} {% endblock concluidos %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+<div class="modal fade" id="mdContribuyente" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+        }  
+		$('.sp_date').hide();
+        
+        {% if messages %}
+            {% for message in messages %}                   
+                toastr.success('{{ message|safe }}')
+            {% endfor %}
+        {% endif %}
+
+        var seguimiento = $('#datatable1').DataTable({
+            {% if not is_paginated and total_seguimiento %}pageLength: {{ total_seguimiento }},{%  endif %}
+            sDom: "rt",
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: [0,1,2,3,4,5,6],
+                },
+            ],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+
+        var concluidos = $('#datatable2').DataTable({
+            {% if not is_paginated and total_concluidos %}pageLength: {{ total_concluidos }},{%  endif %}
+            sDom: "rt",
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: [0,1,2,3,4,5,6],
+                },
+            ],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+		
+    });
+
+    function View_Modal(myURL, myNombre, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbNombre').html(myNombre);
+            $('#lbRFC').html(myRFC);
+
+            $(this).modal('show');
+        });
+    }
+
+    function Fecha_Cierre(myURL, myID, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbOficio').html(myID);
+            $('#lbRFC').html(myRFC);
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Agregar_Contribuyente(myURL) {
+        $('#mdContribuyente').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $("#id_metodo_envio option[value='204']").attr('selected','selected');
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Editar_Contribuyente(myURL, myID) {
+        $('#mdContribuyente').load(myURL, function () {
+            $('#id_folio').prop('readonly', 'readonly');
+			$('#id_rfc').prop('readonly', 'readonly');
+            $('#id_folio').hide();
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+            $(this).modal('show');
+        });
+    }
+
+    function Cerrar_Contribuyente(myURL, myID, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbOficio').html(myID);
+            $('#lbRFC').html(myRFC);
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $("#id_etapa option[value='65']").attr('selected','selected');
+            $("#id_estatus option[value='39']").attr('selected','selected');
+
+            $("#id_fecha").hide();
+            $("#id_etapa").hide();
+            $("#id_estatus").hide();
+            $("#lbFecha").hide();
+            $("#lbEtapa").hide();
+            $("#lbEstatus").hide();
+
+            $('.add').text('Cerrar Contribuyente');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

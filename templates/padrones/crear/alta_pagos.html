@@ -1,0 +1,72 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Crear Pago</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'padrones_app:alta-pagos-2' programa_id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Oficio:</label>
+                        {{ form.programa_id }}
+                        <input type="text" class="form-control" id="tbID3">
+                        
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        {{ form.fecha }}
+                        <label class="text-danger" id="validar_fecha"></label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Tipo:</label>
+                        {{ form.tipo }}
+						<label>Presuntiva:</label>
+                        {{ form.presuntiva }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Ejercicio:</label>
+                        {{ form.ejercicio }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Periodo:</label>
+                        {{ form.periodo }}
+                    </div>
+                </div>
+                <div class="form-row">
+				 <div class="form-group col-md-4">
+                        <label>Impuesto:</label>
+                        {{ form.impuesto }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Accesorios:</label>
+                        {{ form.accesorios }}
+                        
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Recargos:</label>
+                        {{ form.recargos }}
+                    </div>
+                   
+                </div>
+                
+                <div class="form-group">
+                    <label>Comentarios:</label>
+                    {{ form.comentarios }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>

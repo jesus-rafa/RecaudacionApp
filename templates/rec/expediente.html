@@ -1,0 +1,162 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Expediente {% endblock titulo %}
+
+
+{% block content %} 
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Expediente</h4>
+        </div>
+    </div>
+</div>
+
+<div id="app">
+
+    <div class="row">
+        <div class="col-xl-12 mb-30">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="">
+                        <div class="">
+                            <div class="form-floating">
+                                <!-- <span class="input-group-text"> 
+                                    <i class="fas fa-search"></i>
+                                </span> -->        
+                                <input id="expediente_id" type="search" class="form-control input-rec" v-model="kword" placeholder="RFC ó Nombre">
+                                <label for="expediente_id">RFC ó Nombre</label>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="table-responsive">
+                        <table id="table" class="table table-sm table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>RFC</th>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in rec" :key="item.rfc">
+                                    <td>
+                                        <a :href="'/resumen-ejecutivo/' + item.rfc"
+                                            title="Expediente" tabindex="0" data-plugin="tippy"
+                                            data-tippy-placement="top"  
+                                            class="btn btn-light" target="_self">
+                                            <i class="far fa-folder-open"></i>
+                                        </a>
+                                    </td>
+                                    <td>${ item.rfc }</td>
+                                    <td>${ item.nombre }</td>
+                                    <td>${ item.direccion }</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script type="text/javascript">
+    let success = 0;
+    let error = 0;
+    let warning = 0;
+    new Vue({
+      el: '#app',
+      delimiters: ['${','}'],
+      data: {
+        API_URL: window.location.origin,
+        loading: false,
+        kword: null,
+        message: false,
+        info: '',
+        rec: []
+      },
+      watch: {
+        kword: function(val) {
+
+            if(val.length >= 6){
+                this.getData(val);
+            }
+
+            if(val.length == 0){
+                this.clear();
+            }
+                
+        }
+      },
+      methods: {
+        getData(kword) {            
+            axios.get(this.API_URL + "/api/rec/" + kword).then(response => {
+
+                this.rec = response.data;
+
+                if (this.rec.length == 0){
+
+                    if (!warning){
+                        toastr.warning("", "No hay Resultados!", {
+                            "positionClass": "toast-bottom-right",                        
+                            "closeButton": true
+                        });
+                        success = 0;
+                        error = 0;
+                        warning = 1;
+                    }                                        
+
+                }else{
+                    if (!success)  {
+                        toastr.success("", "Resultados Encontrados!", {
+                            "positionClass": "toast-bottom-right",
+                            "closeButton": true
+                        });
+
+                        success = 1;
+                        error = 0;
+                        warning = 0;
+                    }                    
+
+                }
+
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+        clear(){
+            this.rec = []
+
+            if (!error)  {
+                toastr.error("", "Borrado!", {
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": true,
+                "closeButton": true
+                });
+
+                success = 0;
+                error = 1;
+                warning = 0;
+            }            
+        }
+      }
+    });
+  </script>
+{% endblock extrajs %}
+                    
+

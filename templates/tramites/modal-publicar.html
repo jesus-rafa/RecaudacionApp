@@ -1,0 +1,62 @@
+{% load static %}
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered " role="dialogo">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Publicar Prestación Laboral</h4>
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+            
+        <h4>Estas seguro de publicar</h4>
+    </div>
+    <form  id="revision" method="post">{% csrf_token %}          
+    </form>
+
+</div>
+
+<script>
+
+    
+
+
+
+
+    // function Editar(id,estatus) {
+    //     let formulario = document.getElementById('nueva-alta');
+    //     let fd = new FormData(formulario);
+    //     fd.append("activar", id);
+    //     fd.append("estatus", estatus);
+    //     // fd.append("comentarios", document.getElementById('id_comentarios').value  );
+
+    //     $.ajax({
+    //         url: "{% url 'tramites_app:rechazar_edicion' %}",
+    //         type: "POST",
+    //         data: fd,
+    //         processData: false,
+    //         contentType: false,
+    //         success: function (result) {
+    //             if (!result.error)
+    //             {
+    //                 toastr.success(result.msj);
+
+    //                 setTimeout(() => {
+    //                     location.reload();
+    //                 }, 200);
+    //             }
+    //             else
+    //             {
+    //                 return toastr.error(result.msj);
+    //             }
+    //         },error: function (error) {
+    //             toastr.error(error);
+    //         }
+    //     });
+    // };
+
+    
+
+</script>

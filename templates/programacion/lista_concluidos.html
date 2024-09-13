@@ -1,0 +1,252 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Concluidos {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet"
+    type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+
+            </div>
+            <h4 class="page-title">Concluidos</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="tab-pane active" id="profile-30">
+                    <div class="table-responsive">
+                        <table id="datatable2" class="table table-sm table-bordered p-0">
+                            <thead>
+                                <tr>
+                                    <th>Oficio</th>
+                                    <th>RFC</th>
+                                    <th>Nombre</th>
+                                    <th>Programa</th>
+                                    <th>Presuntiva</th>
+                                    <th>Recaudado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Fecha Conclusión</th>
+                                    <th>Seguimiento</th>
+                                    <th>Estatus</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for programa in concluidos %}
+                                <tr class="{% if programa.is_close == True %}table-success{% endif %}">
+                                    <td>
+                                        <a href="{% url 'programacion_app:admin-programacion' programa.id %}"
+                                            class="btn btn-link" target="_self">{{ programa.folio }}</a>
+                                    </td>
+                                    <td>{{ programa.rfc }}</td>
+                                    <td>{{ programa.nombre }}</td>
+                                    <td>{{ programa.programa }}</td>
+                                    <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                    <td>
+                                        {% if programa.recaudado != None %}
+                                        $ {{ programa.recaudado|unlocalize|intcomma }}
+                                        {% else %}
+                                        $ 0.00
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ programa.fecha|date:'d/m/Y' }}
+                                    </td>
+                                    <td>
+                                        {% for row in programa.detalle_programa.all %}
+                                        {% if row.estatus == 'CONCLUIDO' %}
+
+                                        {% ifchanged row.estatus%}
+                                        {{ row.fecha|date:'d/m/Y' }}
+                                        {% endifchanged %}
+
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+
+                                    <td>{% get_user_info programa.seguimiento %}</td>
+                                    <td>
+                                        {% for row in programa.detalle_programa.all %}
+                                        {% if row.estatus == 'PAGO TOTAL' and row.is_active == True %}
+                                        {% ifchanged row.estatus%}
+                                        PAGO TOTAL
+                                        {% endifchanged %}
+                                        {% elif row.estatus == 'TRANSFERIDO' and row.is_active == True %}
+                                        {% ifchanged row.estatus%}
+                                        TRANSFERIDO
+                                        {% endifchanged %}
+                                        {% elif row.estatus == 'ACLARACION' and row.is_active == True %}
+                                        {% ifchanged row.estatus%}
+                                        ACLARACION
+                                        {% endifchanged %}
+                                        {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <div class="text-center">
+                                            {% if permission == 'DIRECTOR' %}
+                                            <button id="btClose"
+                                                onclick="Close_Modal('{% url 'programacion_app:cerrar-rfc' programa.id %}')"
+                                                title="Cerrar RFC" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-success btn-xs"
+                                                target="_blank"><i class="fas fa-check"></i>
+                                            </button>
+
+                                            <a href="{% url 'programacion_app:ver-reporte' programa.id %}"
+                                                title="Reporte" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-primary btn-xs"
+                                                target="_self"><i class="ti-file"></i>
+                                            </a>
+                                            {% endif %}
+
+                                            <button id="btDetail"
+                                                onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')"
+                                                title="Detalle" tabindex="0" data-plugin="tippy"
+                                                data-tippy-placement="left" class="btn btn-primary btn-xs"
+                                                target="_blank"><i class="fas fa-eye"></i>
+                                            </button>
+
+                                            
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'admin/js/buttons.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+        var table2 = $("#datatable2").DataTable({
+            //pageLength : 100,
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "csv", text: "CSV", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+    });
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Close_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable) {
+
+        $(myTable).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[6, 'desc']],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+    }
+</script>
+{% endblock extrajs %}

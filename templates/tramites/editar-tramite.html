@@ -1,0 +1,308 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Editar Tramite {% endblock titulo %}
+
+{% block content %} 
+
+<div class="content">
+
+    <!-- Start Content-->
+    <div class="container-fluid ">
+
+        <form  id="form_alta_pagos" action="{% url 'tramites_app:editar-campo' object.id %}" method="POST" >
+            {% csrf_token %}
+            <div class="d-none">
+
+                <div class="row mb-2 px-4">
+                    <div class="col">
+                        <div class="">                                                
+                            <label >{{form.tipo.label}}</label>  
+                            {{form.tipo}}                                        
+                        </div>
+                    </div>
+    
+                    <div class="col">
+                        <div class="">
+                            <label >{{form.servicio.label}}</label>
+                            {{form.servicio}}
+                        </div>
+                    </div>                                        
+                </div>  
+                
+                <fieldSet>
+                    <legend><h6 style="margin-left: 35px;">Tipo de contrato</h6></legend>
+                    <div class="row mb-2 px-4">  
+    
+                        <div class="col ">
+                            <div class="row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.confianza.label}}</label>
+                                    {{form.confianza}}                                                   
+                                </div>                                                                                         
+                            </div>
+                        </div>                                        
+                        
+                        <div class="col ">
+                            <div class=" row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.plaza.label}}</label>
+                                    {{form.plaza}}                                                   
+                                </div>                                                                                         
+                            </div>
+                        </div>
+    
+                        <div class="col ">
+                            <div class="row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.honorarios.label}}</label>                                            
+                                    {{form.honorarios}}
+                                </div>
+
+                                <div class="col">
+                                    <div class="row pt-3 ">
+                                        <label >{{form.tramite.label}}</label>
+                                        {{form.tramite}}                                                                                                             
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+    
+                    </div>
+                </fieldSet>
+    
+                
+    
+                    <div class="col-6 ">
+                        <div class="row pt-3 ">
+                            <label >{{form.tramite.label}}</label>
+                            {{form.tramite}}                                                                                                             
+                        </div>
+                    </div>
+
+                    <div class="col-6 ">
+                        <div class="row pt-3 ">
+                            <label >Prueba</label>
+                            {{form.comentarios}}                                                                                                             
+                        </div>
+                    </div>
+
+                    <div class="row mb-2 mt-3 px-4">
+                        <div class="col">
+                            <div class="">
+                                {{form.estatus}}
+                            </div>
+                        </div>
+                    </div>
+            </div>
+            
+           
+
+            <div class="row mb-2 mt-3 px-4">
+                <div class="col">
+                    <div class="">
+                        {{form.titulo_formato}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-2 mt-3 px-4">
+                <div class="col">
+                   
+                    <button type="button"  onclick="$(location).attr('href','{% url 'tramites_app:tramites-servicios' %}');" class="btn fondo-boton " ><i class="fas fa-times"></i> Cerrar</button>
+                  
+                    <button class="btn fondo-boton waves-effect waves-light text-start" type="submit" >  <i class="mdi mdi-send ms-2"></i> Guardar</button>
+                    
+                    
+
+                    {% if permission == 'TRAMITES ADMINISTRADOR' %}
+
+                    {% for item in verEditar%}
+                         
+                        <button type="button"   class="btn fondo-boton " onclick="Rechazar('{% url 'tramites_app:observaciones' item.id  %}')" ><i class="mdi mdi-send ms-2"></i> Rechazar</button>            
+                    
+                    {% endfor %}
+
+                    {% for item in verEditar %}                                          
+                    <button type="button"   class="btn fondo-boton " onclick="PublicarView('{{item.id}}','Activo (prestación activa)')"; ><i class="mdi mdi-send ms-2"></i> Publicar</button>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if permission == 'TRAMITES EDITOR' %}
+            <div class="row mb-2 mt-3 px-4">
+                <div class="col-10">
+
+                    <!-- <h4>Comentarios: </h4> -->
+
+                    <table id="comentarios" class="table table-sm  p-0  table-hover" >
+
+                        <thead>
+                            <tr>
+                                <th>Comentarios</th>
+                                <th>Fecha realizada</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in tablaVista %}
+                            <tr>
+                                <td> {{item.detalle}} </td>  
+                                <td>  {{item.fecha_realizada}}</td>                                              
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                     
+                    <!-- {% for item in tablaVista %}
+                   
+                        <li> {{item.detalle}}</li> 
+                   
+                    {% endfor %} -->
+
+                </div>
+            </div>
+            {% endif %}
+        </form>
+
+        
+        
+    </div>
+</div>
+
+
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+
+<script src="{% static 'assets/js/app.min.js' %}"></script>
+<script  src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script  src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script  src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+
+<script> 
+
+    function Rechazar(myURL){
+        $('#mdView').load(myURL, function(){
+            $(this).modal('show');
+        });
+    };
+
+    function Publicar(myURL){
+        $('#mdView').load(myURL, function(){
+            $(this).modal('show');
+        });
+    };
+    $(document).ready(function(){
+
+        render_table('#comentarios');
+
+    });
+    
+
+
+
+    function PublicarView(id,estatus){
+
+        Swal.fire({
+            title:"¿Seguro que quieres publicar? " ,
+            // input: 'text',
+            //text:"Observaciones" ,
+            icon:"info",showCancelButton:!0,
+            showCancelButton: true,
+            confirmButtonColor:"#3C4854",
+            cancelButtonColor:"#3C4854",
+            confirmButtonText:"Publicar",
+            preConfirm: () => {
+                console.log('vas bien');
+                
+                // if (e.value) {
+                let formulario = document.getElementById('form_alta_pagos');
+                let fd = new FormData(formulario);
+                fd.append("activar", id);
+                fd.append("estatus", estatus);
+
+                $.ajax({
+                    url: "{% url 'tramites_app:vista_publicar' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            toastr.success(result.msj);
+
+                            setTimeout(() => {
+                                window.location.href = "{% url 'tramites_app:tramites-servicios' %}";
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+                
+            },
+            cancelButtonText: 'Cancelar'
+        
+        });
+    }
+
+
+    function Guardar(id,estatus) {
+        let formulario = document.getElementById('form_alta_pagos');
+        let fd = new FormData(formulario);
+        fd.append("activar", id);
+        fd.append("estatus", estatus);
+
+        $.ajax({
+            url: "{% url 'tramites_app:guardar_estatus' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error)
+                {
+                    toastr.success(result.msj);
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+                else
+                {
+                    return toastr.error(result.msj);
+                }
+            },error: function (error) {
+                toastr.error(error);
+            }
+        });
+    };
+
+
+    
+</script>
+
+
+
+
+{% endblock extrajs %}

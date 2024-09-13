@@ -1,0 +1,2704 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tagsJuridico %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Datos Juicio {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet"
+    type="text/css" /> -->
+{% endblock head %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <div class="btn-group mb-2 dropstart">
+                    <a target="_self" href="{% url 'juridico_app:juridico' %}"
+                        class="btn btn-outline-secondary waves-effect btn-volver">
+                        <i class="fa fa-reply"></i> Volver
+                    </a>
+                </div>
+
+            </div>
+            <h4 class="page-title">Datos Juicio</h4>
+        </div>
+    </div>
+</div>
+
+<!-- PANEL DE INFORMACION GENERAL -->
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <!-- <div class="card-widgets">
+                    <a data-bs-toggle="collapse" href="#cardCollpase5" role="button" aria-expanded="false" aria-controls="cardCollpase5"><i class="mdi mdi-minus"></i></a>
+                </div> -->
+                <div id="cardCollpase5" class="collapse show">
+                    {% for elemento in detalleDemanda %}
+                    <div class="row mb-3">
+                        <div class="col">
+                            Carpeta:
+                            <br>
+                            <label><b>{{ elemento.carpeta|upper }}</b></label>
+                        </div>
+                        <div class="col">
+                            Estado procesal:
+                            <br>
+                            <label><b>{{ elemento.estado_procesal|upper }}</b></label>
+                        </div>
+                        <div class="col">
+                            Abogado dictaminador:
+                            <br>
+                            <label><b>{{ elemento.dictaminador|upper }}</b></label>
+                        </div>
+                        <div class="col centrado">
+                            Dias Restantes:
+                            <br>
+                            <div class="negritas">
+                                {% with None as dias %}
+                                {% dias_restantes elemento.fecha_interno as dias %}
+                                {% if dias >= 10 %}
+                                <div class="enTiempo"> {{ dias }}</div>
+                                {% elif dias >= 5 and dias < 10%} 
+                                <div class="atrasado">{{ dias }}</div>
+                                {% elif dias > 0 and dias < 5%} 
+                                <div class="vencer">{{ dias }}</div>
+                                {% elif dias <= 0 %} 
+                                <div class="vencido">{{ dias }}</div>
+                                {%endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            No. Expediente:
+                            <br>
+                            <label><b>{{ elemento.expediente|upper }}</b></label>
+                        </div>
+                        <div class="col">
+                            Juicio:
+                            <br>
+                            <label><b>{{ elemento.juicio|upper }}</b></label>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            Subtipo:
+                            <br>
+                            <label><b>{{ elemento.subtipo|upper }}</b></label>
+                        </div>
+                        <div class="col">
+                            Tribunal:
+                            <br>
+                            <label><b>{{ elemento.tribunal|upper }}</b></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            Fecha de notificación:
+                            <br>
+                            <label><b>{{ elemento.fecha_notificacion|date:'d/m/Y' }}</b></label>
+                        </div>
+                        <div class="col">
+                            Fecha fatal:
+                            <br>
+                            <label><b>{{ elemento.fecha_fatal|date:'d/m/Y' }}</b></label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- INICIO DE TABS -->
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="">
+                        <div class="page-title-box">
+                            <div class="m-0 page-title-right">
+                                <div class="btn-group dropstart">
+                                    <ul class="nav" id="nav-tabs">
+                                        {% if etapa_1 %}
+                                        <li>
+                                            <a href="#tab-contestacion" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2 active">
+                                                <!-- <i class="mdi mdi-bank me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Contestacion</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if etapa_2 %}
+                                        <li>
+                                            <a href="#tab-ampliacion" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-scale-balance me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Ampliacion</span>
+                                            </a>
+                                        </li>
+                                        {% endif%}
+                                        {% if etapa_3 %}
+                                        <li>
+                                            <a href="#tab-sentencia" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Sentencia</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if etapa_4 %}
+                                        <li>
+                                            <a href="#tab-firmeza" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Firmeza</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if suspension %}
+                                        <li>
+                                            <a href="#tab-suspension" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Suspension</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if cautelares %}
+                                        <li>
+                                            <a href="#tab-cautelares" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">M. Cautelares</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if reclamacion %}
+                                        <li>
+                                            <a href="#tab-reclamacion" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">R. Reclamación</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if incidentes %}
+                                        <li>
+                                            <a href="#tab-incidentes" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Incidentes</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if periciales %}
+                                        <li>
+                                            <a href="#tab-periciales" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Periciales</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% if quejas %}
+                                        <li>
+                                            <a href="#tab-quejas" data-bs-toggle="tab" data-toggle="tab" class="nav-link button-nav pt-2">
+                                                <!-- <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i> -->
+                                                <span class="d-none d-sm-inline">Quejas</span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                    <button type="button" class="btn waves-effect gris-oscuro"
+                                        data-bs-toggle="dropdown" name="select_proceso" id="idProceso"
+                                        aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-chevron-left"></i> Nuevo proceso
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        {% for combo in opcion %}
+
+                                        <button type="button" tabindex="0"
+                                            onclick="Mostrar_Formulario('{% url 'juridico_app:alta-proceso' combo.formulario demanda 0 combo.id%}')"
+                                            class="dropdown-item" target="_self">
+                                            {{ combo.nombre }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="tab-content pb-3">        
+                    <div class="tab-pane active" id="tab-contestacion">   
+                        <div id="contestacion">
+                            <div id="cardCollpase1" class="collapse show">
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-08" id="home-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+<!--                                     <li class="nav-item">
+                                        <a href="#portfolio-08" id="portfolio-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Proceso
+                                        </a>
+                                    </li> -->
+                                    <li class="nav-item">
+                                        <a href="#profile-08" id="profile-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>                      
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-08">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0" id="contestacion-seguimiento">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <!-- <th>Creacion</th> -->
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_1 %}
+                                                    <tr>
+                                                        <!-- <td>{{ row.created|date:'d/m/Y' }}</td> -->
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td>
+        
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>        
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            {% if row.rubro_id != 137 %}
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                            {% csrf_token %}
+                                                            <button 
+                                                                onclick="eliminar('{% url 'juridico_app:elimina-proceso' %}', {{row.id}}, '{{ row.rubro }}')" 
+                                                                id="btn-delete" title="Eliminar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                            {% endif %}
+        
+
+                                                        </td>
+        
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+        
+                                   <!--  <div class="tab-pane fade" id="portfolio-08">
+                                        <div class="table-responsive">
+                                            <table id="table_proceso" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Creacion</th>
+                                                        <th>Estado procesal</th>
+                                                        <th>Rubro</th>
+                                                        <th>Dias</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_1 %}
+        
+                                                    <tr>
+                                                        <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                        <td>{{ row.etapa }}</td>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+        
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div> -->
+        
+                                    <div class="tab-pane fade" id="profile-08">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <!-- <th>Etapa</th> -->
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_1 %}
+                                                    <tr>
+                                                        <!-- <td>{{ row.etapa }}</td> -->
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-ampliacion">
+                        <div id="ampliacion">
+                            <div id="cardCollpase2" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-09" id="home-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <!-- <li class="nav-item">
+                                        <a href="#portfolio-09" id="portfolio-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Proceso
+                                        </a>
+                                    </li> -->
+                                    <li class="nav-item">
+                                        <a href="#profile-09" id="profile-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-09">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0" id="ampliacion-seguimiento">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <!-- <th>Creacion</th> -->
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_2 %}
+                                                    <tr>
+                                                        <!-- <td>{{ row.created|date:'d/m/Y' }}</td> -->
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td>
+                                                            
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                            tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+                                                            
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>                                                        
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+        
+                                                            {% csrf_token %}
+                                                            <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                                <i class="fas fa-times"></i>
+                                                            </button> -->
+                                                        </td>
+        
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>                                        
+                                        </div>
+                                    </div>
+        
+                                    <!-- <div class="tab-pane fade" id="portfolio-09">
+                                        <div class="table-responsive">
+                                            <table id="table_proceso" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Creacion</th>
+                                                        <th>Estado procesal</th>
+                                                        <th>Rubro</th>
+                                                        <th>Dias</th>
+        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_2 %}
+                                                    <tr>
+                                                        <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                        <td>{{ row.etapa }}</td>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+        
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total1"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+         -->
+                                    <div class="tab-pane fade" id="profile-09">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_2 %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-sentencia">
+                        <div id="sentencia">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-10" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-10" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-10">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                        <th>Subprocesos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                     
+                                                    {% for row in etapa_3 %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td>
+        
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>  
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>                                                                 
+                                                        </td>
+                                                        <td>
+                                                            {% if row.rubro.nombre == "Sentencias" %}
+                                                            <button
+                                                                onclick="Mostrar_Formulario('{% url 'juridico_app:alta-proceso' 10 demanda row 0%}')"
+                                                                id="btUpdate_Detail" title="Amparo" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-book"></i>
+                                                            </button>
+                                                            <button
+                                                                onclick="Mostrar_Formulario('{% url 'juridico_app:alta-proceso' 11 demanda row 0%}')"
+                                                                id="btUpdate_Detail" title="Recurso revision/Reclamacion" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-search"></i>
+                                                            </button>
+                                                            <button
+                                                                onclick="Mostrar_Formulario('{% url 'juridico_app:alta-proceso' 12 demanda row 0%}')"
+                                                                id="btUpdate_Detail" title="Firmeza" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-chess-rook"></i>
+                                                            </button>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    {% for ins in segunda_instancia %}
+                                                    {% if ins.padre == row%}
+                                                    <tr>
+                                                        <td style="text-align: center;">{{ ins.rubro }}</td>                                                        
+                                                        <td>
+                                                            <div class="avatar-sm" title="{{ ins.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ ins.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido ins.created %}</td>  
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' ins.id ins.rubro.formulario %}', '{{ ins.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' ins.id ins.rubro.formulario %}', '{{ ins.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>                                                                 
+                                                        </td>
+                                                        <td></td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    <tr style="background-color: #98a6ad29;">
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    {% endfor %}                                                    
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+            
+                                    <div class="tab-pane fade" id="profile-10">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <!-- <th>Etapa</th> -->
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_3 %}                                   
+                                                    <tr>
+                                                        <!-- <td>{{ row.etapa }}</td> -->
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-firmeza">
+                        <div id="firmeza">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-11" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <!-- <li class="nav-item">
+                                        <a href="#portfolio-11" id="portfolio-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Proceso
+                                        </a>
+                                    </li> -->
+                                    <li class="nav-item">
+                                        <a href="#profile-11" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-11">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <!-- <th>Creacion</th> -->
+                                                        <th>Rubro</th>
+                                                        <!-- <th>Comentarios</th> -->
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in etapa_4 %}
+                                                    <tr>
+                                                        <!-- <td>{{ row.created|date:'d/m/Y' }}</td> -->
+                                                        <td>{{ row.rubro }}</td>
+                                                        <!-- <td>{{ row.comentario }}</td> -->
+                                                        <td>
+        
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>    
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+        
+                                                            {% csrf_token %}
+                                                            <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                                <i class="fas fa-times"></i>
+                                                            </button> -->
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+        
+                                    <!-- <div class="tab-pane fade" id="portfolio-11">
+                                        <div class="table-responsive">
+                                            <table id="table_proceso" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Creacion</th>
+                                                        <th>Estado procesal</th>
+                                                        <th>Rubro</th>
+                                                        <th>Dias</th>
+        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_4 %}                                   
+                                                    <tr>
+                                                        <!-- <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                        <td>{{ row.etapa }}</td>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div> -->
+        
+                                    <div class="tab-pane fade" id="profile-11">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in etapa_4 %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-suspension">
+                        <div id="suspension">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-12" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-12" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in suspension %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+        
+                                    <div class="tab-pane fade" id="profile-12">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in suspension %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-cautelares">
+                        <div id="cautelares">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-13" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-13" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-13">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in cautelares %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+                                    <div class="tab-pane fade" id="profile-13">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in cautelares %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-reclamacion">
+                        <div id="reclamacion">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-14" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-14" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-14">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in reclamacion %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+                                    <div class="tab-pane fade" id="profile-14">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in reclamacion %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="tab-incidentes">
+                        <div id="reclamacion">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-15" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-15" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-15">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in incidentes %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+                                    <div class="tab-pane fade" id="profile-15">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in incidentes %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane" id="tab-periciales">
+                        <div id="periciales">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-16" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-16" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-16">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in periciales %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+                                    <div class="tab-pane fade" id="profile-16">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in periciales %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                        
+                    <div class="tab-pane" id="tab-quejas">
+                        <div id="quejas">
+                            <div id="cardCollpase3" class="collapse show">
+        
+                                <ul class="nav nav-tabs nav-bordered">
+                                    <li class="nav-item">
+                                        <a href="#home-17" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link active">
+                                            Seguimiento
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#profile-17" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                            class="nav-link">
+                                            Archivos
+                                        </a>
+                                    </li>
+                                </ul>
+                                <br>
+        
+                                <div class="tab-content">
+                                    <div class="tab-pane fade active show" id="home-17">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Usuario</th>
+                                                        <th>Dias</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>                                            
+                                                    {% for row in quejas %}
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td> 
+                                                            <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                                tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                                <span
+                                                                    class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                    {{ row.created_by.get_initials }}
+                                                                </span>
+                                                            </div>
+        
+                                                        </td>
+                                                        <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+        
+                                                            <button
+                                                                onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                                id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                                data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                
+                                    <div class="tab-pane fade" id="profile-17">
+                                        <div class="table-responsive">
+                                            <table id="table_archivos" class="table table-sm  mb-0">
+                                                <thead>
+                                                    <tr class="text-dark">
+                                                        <th>Rubro</th>
+                                                        <th>Archivos</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for row in quejas %}                                   
+                                                    <tr>
+                                                        <td>{{ row.rubro }}</td>
+                                                        <td class="col1">{% count_files row.id %}</td>
+                                                        <td>
+                                                            <button
+                                                                onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                                title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                                data-tippy-placement="left"
+                                                                class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                                target="_blank">
+                                                                <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Total:</th>
+                                                        <th class="total"></th>
+                                                    </tr>
+                                                </tfoot>
+        
+                                            </table>
+        
+                                        </div>
+                                    </div>
+        
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- tab-content -->
+            </div>
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+
+<!-- <div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <!-- <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box">
+                            <div class="m-0 page-title-right">
+                                <div class="btn-group dropstart">
+                                    <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                        data-bs-toggle="dropdown" name="select_proceso" id="idProceso"
+                                        aria-haspopup="true" aria-expanded="false">
+                                        <i class="mdi mdi-chevron-left"></i> Nuevo proceso
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        {% for combo in opcion %}
+
+                                        <button type="button" tabindex="0"
+                                            onclick="Mostrar_Formulario('{% url 'juridico_app:alta-proceso' combo.formulario demanda 0 0 %}')"
+                                            class="dropdown-item" target="_self">
+                                            {{ combo.nombre }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 {% if etapa_4%}
+                    <div id="firmeza">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <h4 class="page-title">FIRMEZA
+                                        <div class="card-widgets">
+                                            <a data-bs-toggle="collapse" href="#cardCollpase4" role="button"
+                                                aria-expanded="false" aria-controls="cardCollpase4"><i
+                                                    class="mdi mdi-minus"></i></a>
+                                        </div>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="cardCollpase4" class="collapse show">
+
+                            <ul class="nav nav-tabs nav-bordered">
+                                <li class="nav-item">
+                                    <a href="#home-11" id="home-11-tab" data-bs-toggle="tab" aria-expanded="false"
+                                        class="nav-link active">
+                                        Seguimiento
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#portfolio-11" id="portfolio-11-tab" data-bs-toggle="tab" aria-expanded="false"
+                                        class="nav-link">
+                                        Proceso
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#profile-11" id="profile-11-tab" data-bs-toggle="tab" aria-expanded="false"
+                                        class="nav-link">
+                                        Archivos
+                                    </a>
+                                </li>
+                            </ul>
+                            <br>
+
+                            <div class="tab-content">
+                                <div class="tab-pane fade active show" id="home-11">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm  mb-0">
+                                            <thead>
+                                                <tr class="text-dark">
+                                                    <th>Creacion</th>
+                                                    <th>Rubro</th>
+                                                    <th>Comentarios</th>
+                                                    <th>Usuario</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in etapa_3 %}
+                                                <tr>
+                                                    <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                    <td>{{ row.rubro }}</td>
+                                                    <td>{{ row.comentario }}</td>
+                                                    <td>
+
+                                                        <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                            tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                            <span
+                                                                class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                                {{ row.created_by.get_initials }}
+                                                            </span>
+                                                        </div>
+
+                                                    </td>
+
+                                                    <td>
+                                                        <button
+                                                            onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                            id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                            data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                            target="_blank">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+
+                                                        <button
+                                                            onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                            id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                            data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                            target="_blank">
+                                                            <i class="fas fa-pen"></i>
+                                                        </button>
+
+                                                        {% csrf_token %}
+                                                        <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                            data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="portfolio-11">
+                                    <div class="table-responsive">
+                                        <table id="table_proceso" class="table table-sm  mb-0">
+                                            <thead>
+                                                <tr class="text-dark">
+                                                    <th>Creacion</th>
+                                                    <th>Estado procesal</th>
+                                                    <th>Rubro</th>
+                                                    <th>Dias</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in etapa_3 %}
+                                                <tr>
+                                                    <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                    <td>{{ row.etapa }}</td>
+                                                    <td>{{ row.rubro }}</td>
+                                                    <td class="col1">{% dias_trasncurrido row.created %}</td>
+
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th>Total:</th>
+                                                    <th class="total"></th>
+                                                </tr>
+                                            </tfoot>
+
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="profile-11">
+                                    <div class="table-responsive">
+                                        <table id="table_archivos" class="table table-sm  mb-0">
+                                            <thead>
+                                                <tr class="text-dark">
+                                                    <th>Etapa</th>
+                                                    <th>Rubro</th>
+                                                    <th>Archivos</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in etapa_3 %}
+                                                <tr>
+                                                    <td>{{ row.etapa }}</td>
+                                                    <td>{{ row.rubro }}</td>
+                                                    <td class="col1">{% count_files row.id %}</td>
+                                                    <td>
+                                                        <button
+                                                            onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                            title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                            data-tippy-placement="left"
+                                                            class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                            target="_blank">
+                                                            <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th></th>
+                                                    <th>Total:</th>
+                                                    <th class="total"></th>
+                                                    <th></th>
+                                                </tr>
+                                            </tfoot>
+
+                                        </table>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>                    
+                {% endif %}
+
+                {% if etapa_3%}
+                <div id="sentencia">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <h4 class="page-title">SENTENCIA
+                                    <div class="card-widgets">
+                                        <a data-bs-toggle="collapse" href="#cardCollpase3" role="button"
+                                            aria-expanded="false" aria-controls="cardCollpase3"><i
+                                                class="mdi mdi-minus"></i></a>
+                                    </div>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardCollpase3" class="collapse show">
+
+                        <ul class="nav nav-tabs nav-bordered">
+                            <li class="nav-item">
+                                <a href="#home-10" id="home-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link active">
+                                    Seguimiento
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portfolio-10" id="portfolio-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Proceso
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-10" id="profile-10-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Archivos
+                                </a>
+                            </li>
+                        </ul>
+                        <br>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade active show" id="home-10">
+                                <div class="table-responsive">
+                                    <table class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Rubro</th>
+                                                <th>Comentarios</th>
+                                                <th>Usuario</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>                                            
+                                            {% for row in etapa_3 %}
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td>{{ row.comentario }}</td>
+                                                <td>
+
+                                                    <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                        tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                        <span
+                                                            class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                            {{ row.created_by.get_initials }}
+                                                        </span>
+                                                    </div>
+
+                                                </td>
+
+                                                <td>
+                                                    <button
+                                                        onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+
+                                                    <button
+                                                        onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+
+                                                    {% csrf_token %}
+                                                    <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="portfolio-10">
+                                <div class="table-responsive">
+                                    <table id="table_proceso" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Estado procesal</th>
+                                                <th>Rubro</th>
+                                                <th>Dias</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_3 %}                                   
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% dias_trasncurrido row.created %}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="profile-10">
+                                <div class="table-responsive">
+                                    <table id="table_archivos" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Etapa</th>
+                                                <th>Rubro</th>
+                                                <th>Archivos</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_3 %}                                   
+                                            <tr>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% count_files row.id %}</td>
+                                                <td>
+                                                    <button
+                                                        onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                        title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                        data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if etapa_2 %}
+<!--                 <div id="ampliacion">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <h4 class="page-title">AMPLIACIÓN
+                                    <div class="card-widgets">
+                                        <a data-bs-toggle="collapse" href="#cardCollpase2" role="button"
+                                            aria-expanded="false" aria-controls="cardCollpase2"><i
+                                                class="mdi mdi-minus"></i></a>
+                                    </div>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardCollpase2" class="collapse show">
+
+                        <ul class="nav nav-tabs nav-bordered">
+                            <li class="nav-item">
+                                <a href="#home-09" id="home-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link active">
+                                    Seguimiento
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portfolio-09" id="portfolio-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Proceso
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-09" id="profile-09-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Archivos
+                                </a>
+                            </li>
+                        </ul>
+                        <br>
+
+                        <div class="tab-content">
+                            <div class="tab-pane fade active show" id="home-09">
+                                <div class="table-responsive">
+                                    <table class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Rubro</th>
+                                                <th>Comentarios</th>
+                                                <th>Usuario</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_2 %}
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td>{{ row.comentario }}</td>
+                                                <td>
+
+                                                    <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                        tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                        <span
+                                                            class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                            {{ row.created_by.get_initials }}
+                                                        </span>
+                                                    </div>
+
+                                                </td>
+
+                                                <td>
+                                                    <button
+                                                        onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+
+                                                    <button
+                                                        onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+
+                                                    {% csrf_token %}
+                                                    <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </td>
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="portfolio-09">
+                                <div class="table-responsive">
+                                    <table id="table_proceso" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Estado procesal</th>
+                                                <th>Rubro</th>
+                                                <th>Dias</th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_2 %}
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% dias_trasncurrido row.created %}</td>
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="profile-09">
+                                <div class="table-responsive">
+                                    <table id="table_archivos" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Etapa</th>
+                                                <th>Rubro</th>
+                                                <th>Archivos</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_2 %}
+                                            <tr>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% count_files row.id %}</td>
+                                                <td>
+                                                    <button
+                                                        onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                        title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                        data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if etapa_1 %}
+                <!-- <div id="contestacion">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box">
+                                <h4 class="page-title">CONTESTACIÓN
+                                    <div class="card-widgets">
+                                        <a data-bs-toggle="collapse" href="#cardCollpase1" role="button"
+                                            aria-expanded="false" aria-controls="cardCollpase1"><i
+                                                class="mdi mdi-minus"></i></a>
+                                    </div>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cardCollpase1" class="collapse show">
+                        <ul class="nav nav-tabs nav-bordered">
+                            <li class="nav-item">
+                                <a href="#home-08" id="home-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link active">
+                                    Seguimiento
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#portfolio-08" id="portfolio-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Proceso
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-08" id="profile-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                                    class="nav-link">
+                                    Archivos
+                                </a>
+                            </li>
+                        </ul>
+                        <br>                      
+                        <div class="tab-content">
+                            <div class="tab-pane fade active show" id="home-08">
+                                <div class="table-responsive">
+                                    <table class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Rubro</th>
+                                                <th>Usuario</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_1 %}
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td>
+
+                                                    <div class="avatar-sm" title="{{ row.created_by.get_full_name }}"
+                                                        tabindex="0" data-plugin="tippy" data-tippy-placement="right">
+                                                        <span
+                                                            class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                                            {{ row.created_by.get_initials }}
+                                                        </span>
+                                                    </div>
+
+                                                </td>
+
+                                                <td>
+                                                    <button
+                                                        onclick="Ver_Detalle('{% url 'juridico_app:ver-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Ver Detalle" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    {% if row.rubro_id != 91 %}
+                                                    <button
+                                                        onclick="actualiza_detalle('{% url 'juridico_app:actualiza-detalle-proceso' row.id row.rubro.formulario %}', '{{ row.etapa }}')"
+                                                        id="btUpdate_Detail" title="Editar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    {% csrf_token %}
+                                                    <!-- <button id="btDelete_Detail" title="Eliminar" tabindex="0"
+                                                        data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </td>
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="portfolio-08">
+                                <div class="table-responsive">
+                                    <table id="table_proceso" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Creacion</th>
+                                                <th>Estado procesal</th>
+                                                <th>Rubro</th>
+                                                <th>Dias</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_1 %}
+
+                                            <tr>
+                                                <td>{{ row.created|date:'d/m/Y' }}</td>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% dias_trasncurrido row.created %}</td>
+
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="profile-08">
+                                <div class="table-responsive">
+                                    <table id="table_archivos" class="table table-sm  mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th>Etapa</th>
+                                                <th>Rubro</th>
+                                                <th>Archivos</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for row in etapa_1 %}
+                                            <tr>
+                                                <td>{{ row.etapa }}</td>
+                                                <td>{{ row.rubro }}</td>
+                                                <td class="col1">{% count_files row.id %}</td>
+                                                <td>
+                                                    <button
+                                                        onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' row.id %}')"
+                                                        title="Agregar Archivos" tabindex="0" data-plugin="tippy"
+                                                        data-tippy-placement="left"
+                                                        class="btn btn-outline-secondary waves-effect gris-oscuro"
+                                                        target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th></th>
+                                                <th>Total:</th>
+                                                <th class="total"></th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endif %}            
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+<!-- Modal View -->
+<!-- <div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"></div> -->
+<div class="modal fade" id="mdView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true"></div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<!-- Plugins js-->
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<!-- <script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script> -->
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<!-- <script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script> -->
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        //var table1 = data_table("#Table_payments");
+
+        {% if messages %}
+        {% for message in messages %}
+
+        /* {% if message.tags == 'info' %}
+            {% if message|safe == 'pagos' %}
+            $('#portfolio-08-tab').tab('show');
+
+            {% elif message|safe == 'archivos' %}
+            $('#profile-08-tab').tab('show');
+
+            {% elif message|safe == 'contactos' %}
+            $('#contacts-08-tab').tab('show');
+
+            {% else %}
+            $('#home-08-tab').tab('show');
+                
+            {% endif %}
+        {% endif %} */
+
+        toastr.success('{{ message|safe }}', 'Éxito', { positionClass: "toast-bottom-right" })
+
+        {% endfor %}
+
+        /*  $('#home-08-tab').tab('show');
+         $('#home-09-tab').tab('show');
+         $('#home-10-tab').tab('show');
+         $('#home-11-tab').tab('show');  */
+        {% endif %}
+
+        Get_Advance('#contestacion-seguimiento');
+        Get_Advance('#table_archivos');
+        Get_Advance('#table_proceso');
+
+    });
+
+    function Mostrar_Formulario(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Ver_Detalle(myURL, myEtapa) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbProceso').html(myEtapa);
+
+            $(this).modal('show');
+        });
+    }
+
+    function actualiza_detalle(myURL, myEtapa) {
+        ;
+        $('#mdView').load(myURL, function () {
+
+            $('#lbProceso').html(myEtapa);
+
+            $(this).modal('show');
+        });
+    }
+
+    function Subir_Archivos(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Get_Advance(myTable) {
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $(myTable).find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        $(myTable).find('.total').each(function (index, element) {
+            var total = getSum(index + 1);
+            $(this).text(total);
+        });
+    }
+
+    //--------------------------------UPDATE-----------------------------------//
+
+
+    function data_table(myTable) {
+
+        $(myTable).DataTable({
+            pageLength: 100,
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[2, 3, 'desc']],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+    }
+</script>
+{% endblock extrajs %}

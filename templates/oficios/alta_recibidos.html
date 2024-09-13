@@ -1,0 +1,135 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Recibir Oficio</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'oficios_app:alta-recibidos' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Folio:</label>
+                            {{ form.folio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Remitente:</label>
+                            {{ form.remitente }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Puesto:</label>
+                            {{ form.puesto }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Dependencia:</label>
+                            {{ form.dependencia }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Asunto:</label>
+                            {{ form.asunto }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Dirigido a:</label>
+                            <select name="area" id="id_area" class="form-control">
+                                {% for item in area %}
+                                <option value="{{ item.id }}">{{ item.comentario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Para:</label>
+                            <select name="para" id="id_para" class="form-control">
+                                {% for item in para %}
+                                <option value="{{ item.id }}" data-chained="{{ item.area }}">{{item.nombres}}
+                                    {{item.apellidos}} ({{ item.username }})</option>
+                                {% endfor %}
+                                {% for item in todos %}
+                                <option value="{{ item.id }}" data-chained="46">
+                                    {{item.nombres}} {{item.apellidos}} ({{ item.username }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label>CCO:</label>
+                                <select id="copiar_a" name="copiar_a" class="form-control select2-multiple" data-toggle="select2"
+                                    data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                    {% for row in usuarios %}
+                                    <option value="{{row.username}}">{{row.get_user}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Firma:</label>
+                            {{ form.firma }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Comentarios:</label>
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Oficio:</label>
+                            {{ form.pdf }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#id_para').chained('#id_area');
+    });
+</script>

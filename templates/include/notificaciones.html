@@ -1,0 +1,36 @@
+<li class="dropdown notification-list topbar-dropdown">
+    <a class="nav-link dropdown-toggle waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button"
+        aria-haspopup="false" aria-expanded="false">
+        <i class="fe-bell noti-icon"></i>
+        {% if total != 0 %}
+        <span style="background-color:#F3536E !important;" class="badge bg-success rounded-circle noti-icon-badge">
+            {{ total }}
+        </span>
+        {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-end dropdown-lg">
+        <div class="dropdown-item noti-title text-center">
+            <h5 class="m-0">
+                <span class="float-center">
+                </span>Notificaciones
+            </h5>
+        </div>
+        <div class="noti-scroll" data-simplebar>
+            {% for item in notificaciones %}
+            <a href="{{ item.url }}" class="dropdown-item notify-item">
+                <div class="notify-icon bg-secondary">
+                    {% if item.nombre != 'Correspondencia' %}
+                    <i class="mdi mdi-bell"></i>
+                    {% else %}
+                    <i class="ti-email"></i>
+                    {% endif %}
+                </div>
+                <p class="notify-details">{{ item.nombre }}
+                    <b class="float-end negritas">{{ item.total }}</b>
+                    <small class="text-muted">{{ item.comentarios|safe }}</small>
+                </p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</li>

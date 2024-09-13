@@ -1,0 +1,1084 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tagsJuridico %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button id="btNew" onclick="location.href=`{% url 'juridico_app:alta_solicitante' %}`"
+                    class="btn btn-outline-secondary waves-effect mr-2" target="_blank">
+                    <i class="fas fa-briefcase"></i> Agregar resolutor
+                </button>
+            </div>
+            <h4 class="page-title">Panel <br>
+                {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                ROL: DIRECTOR
+                {% elif perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                ROL: COORDINADOR
+                {% elif perfil_usuario == "RESOLUTORES" %}                                       
+                ROL: ABOGADO
+                {% elif perfil_usuario == "RESOLUTORES EJECUCION" %}
+                ROL: EJECUTOR
+                {% endif %}
+            </h4>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <ul class="nav nav-tabs nav-bordered ">
+                    {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                    <li class="nav-item">
+                        <a href="#listado" id="listado-tab" data-bs-toggle="tab" aria-current="page"
+                            class="nav-link active">
+                            Por asignar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#revisar" id="revisar-tab" data-bs-toggle="tab" aria-current="page" class="nav-link">
+                            Por revisar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#requerimientos" id="seguimiento-tab" data-bs-toggle="tab" aria-current="page" class="nav-link">
+                            Requisitos
+                        </a>
+                    </li>
+                    {% elif perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                    <li class="nav-item">
+                        <a href="#firmar" id="firmar-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                            Por firmar
+                        </a>
+                    </li>
+                    {% elif perfil_usuario == "RESOLUTORES EJECUCION" %}
+                    <li class="nav-item">
+                        <a href="#ejecucion" id="ejecucion-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                            Asignados Ejecucion
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a href="#asignados" id="asignados-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                            Asignados
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perfil_usuario != "RESOLUTORES EJECUCION" %}
+                    <li class="nav-item">
+                        <a href="#concluir" id="concluir-tab" data-bs-toggle="tab" aria-current="page" class="nav-link">
+                            Por concluir
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a href="#concluidos" id="concluidos-tab" data-bs-toggle="tab" aria-current="page" class="nav-link">
+                            Concluidos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            <!-- TAB 1 POR ASIGNAR -->
+            <div class="tab-pane fade active show" id="listado">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_resolutor" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_resolutor"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for listado in listado_resolutor %}
+                                <tr>
+                                    <td>{{ listado.solicitante.rfc }}</td>
+                                    <td>{{ listado.oficio }}&nbsp;<span>/</span>&nbsp;{{ listado.carpeta }}</td>
+                                    <td>
+                                        {% if listado.abogado %}
+                                        {% if listado.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                                <a type="button" id="btnAsiganacion{{listado.id}}"
+                                                    onclick="asignar_abogados('{{listado.id}}')" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Asignar
+                                                </a>
+                                                <a type="button" id="btnAsiganacion{{listado.id}}"
+                                                    href="{% url 'juridico_app:actualiza_resolutor' listado.id %}" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Editar
+                                                </a>
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES" %}                                                  
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorDetalle' listado.id %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Requisitos</a>                                                                                                                
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB POR REVISAR -->
+            <div class="tab-pane fade" id="revisar">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_revisar" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_revisar"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for listado in revisar %}
+                                <tr>
+                                    <td>{{listado.resolutor.solicitante.rfc}}</td>
+                                    <td>{{listado.resolutor.oficio}}&nbsp;<span>/</span>&nbsp;{{listado.resolutor.carpeta}}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                                <a type="button" onclick="window.location.href=`{% url 'juridico_app:resolutorRevision' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Revision</a>
+                                                <a type="button" id="btnAsiganacion{{listado.id}}"
+                                                    href="{% url 'juridico_app:actualiza_resolutor' listado.resolutor %}" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Editar
+                                                </a>
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES" %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB REQUERIMIENTOS -->
+            <div class="tab-pane fade" id="requerimientos">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_requerimientos" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="button" id="" class="btn waves-effect gris-oscuro fondo-boton float-end" onclick="mostrarModal(`{% url 'juridico_app:resolutorRequisito-alta' tramite.id %}`).then(()=>{iniciaSelect('#id_tramite');});">                            <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Agregar
+                        </button>
+                        <table id="dt_requerimientos"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>¿Requisito obligatorio?</th>
+                                    <th>Activo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for requisito in requisitos %}
+                                <tr>
+                                    <td>{{ requisito.nombre }}</td>
+                                    <td>{% setBooleano requisito.obligatorio %}</td> 
+                                    <td>{% setBooleano requisito.activo %}</td> 
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                <a type="button" onclick="mostrarModal(`{% url 'juridico_app:resolutorRequisito-actualiza' requisito.id %}`).then(()=>{iniciaSelect('#id_tramite');});"class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Editar</a>
+                                                    <a onclick="Delete_Detail(`{% url 'juridico_app:resolutorRequisito-elimina' requisito.id %}`)" class="dropdown-item" href="#"><i
+                                                        class="fas fa-times me-2 text-muted font-18 vertical-middle"></i>Desactivar</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB FIRMA -->
+            <div class="tab-pane fade" id="firmar">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_firmar" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_firmar"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for listado in firmar %}
+                                <tr>
+                                    <td>{{listado.resolutor.solicitante.rfc}}</td>
+                                    <td>{{listado.resolutor.oficio}}&nbsp;<span>/</span>&nbsp;{{listado.resolutor.carpeta}}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                                <a type="button" onclick="generaPdf(`{{listado.resolutor}}`)" class="dropdown-item" download>
+                                                    <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Refrendo</a>
+                                                <a type="button" onclick="generaPdf(`{{listado.resolutor}}`)" class="dropdown-item" download>
+                                                    <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Tenencia</a>
+                                                <a type="button" onclick="generaPdf(`{{listado.resolutor}}`)" class="dropdown-item" download>
+                                                    <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Refrendo y Tenencia</a>
+                                                <a type="button" onclick="window.location.href =`{% url 'juridico_app:cargaReportes' idArchivo %}`" class="dropdown-item">
+                                                    <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Cargar formatos</a>
+                                                <a type="button" onclick="Concluir(`{% url 'juridico_app:concluirManual' listado.resolutor %}`)" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Concluir</a>
+                                                {% endif %}
+                                                {% comment %}
+                                                <button onclick="generaPdf(1)" class="btn btn-outline-secondary waves-effect mr-2">
+                                                    <i class="fas fa-paper-plane"></i>Reporte
+                                                </button>
+                                                {% endcomment %}
+                                                    
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB EJECUTADO -->
+            <div class="tab-pane fade " id="ejecucion">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_ejecutado" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_ejecutado"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {% for listado in ejecucion %}
+                                <tr>
+                                    <td>{{ listado.resolutor.solicitante.rfc }}</td>
+                                    <td>{{ listado.resolutor.oficio }}&nbsp;<span>/</span>&nbsp;{{ listado.resolutor.carpeta }}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                                <a type="button" id="btnAsiganacion{{listado.resolutor}}"
+                                                    onclick="asignar_abogados('{{listado.resolutor}}')" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Asignar
+                                                </a>
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES" %}                                                  
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorDetalle' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Requisitos</a>                                                                                                                
+                                                {% endif %}
+                                                {% if perfil_usuario == "RESOLUTORES EJECUCION" %}                                                  
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorEjecucion' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Requisitos</a>                                                                                                                
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB ASIGNA2 -->
+            <div class="tab-pane fade " id="asignados">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_asignado" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_asignado"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {% for listado in asignadosAbogado %}
+                                <tr>
+                                    <td>{{ listado.resolutor.solicitante.rfc }}</td>
+                                    <td>{{ listado.resolutor.oficio }}&nbsp;<span>/</span>&nbsp;{{ listado.resolutor.carpeta }}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">                                                 
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorDetalle' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Carga requisitos</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB CONCLUIR -->
+            <div class="tab-pane fade " id="concluir">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_concluir" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_concluir"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {% for listado in concluir %}
+                                <tr>
+                                    <td>{{ listado.resolutor.solicitante.rfc }}</td>
+                                    <td>{{ listado.resolutor.oficio }}&nbsp;<span>/</span>&nbsp;{{ listado.resolutor.carpeta }}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">                                          
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorLectura' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Detalle</a>
+                                                {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                                    <a type="button" onclick="Concluir(`{% url 'juridico_app:concluirManual' listado.resolutor %}`)" class="dropdown-item">
+                                                        <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Concluir</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- TAB CONCLUI2 -->
+            <div class="tab-pane fade " id="concluidos">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input id="search_concluidos" type="text" class="float-label form-control input-rec"
+                            placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <table id="dt_concluidos"
+                            class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                            <thead>
+                                <tr>
+                                    <th>RFC</th>
+                                    <th>Número / Carpeta</th>
+                                    <th>Abogado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {% for listado in concluidos %}
+                                <tr>
+                                    <td>{{ listado.resolutor.solicitante.rfc }}</td>
+                                    <td>{{ listado.resolutor.oficio }}&nbsp;<span>/</span>&nbsp;{{ listado.resolutor.carpeta }}</td>
+                                    <td>
+                                        {% if listado.resolutor.abogado %}
+                                        {% if listado.resolutor.abogado.avatar %}
+
+                                        <img width="20%" height="20%" src="{{ listado.resolutor.abogado.avatar.url }}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% else %}
+                                        <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                            alt="contact-img" title="{{ listado.resolutor.abogado.get_full_name }}"
+                                            class="avatar rounded-circle avatar-sm me-1" />
+
+                                        {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group dropdown">
+                                            <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">                                          
+                                                <a type="button" onclick="window.location.href = `{% url 'juridico_app:resolutorLectura' listado.resolutor %}`" class="dropdown-item">
+                                                    <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Detalle</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar abogado -->
+<div class="modal fade" id="mdl-asignar_abogados" tabindex="-1" role="dialog" aria-labelledby="asignar_abogadosLabel"
+    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title ">Asignación de abogados</h4>
+                <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal"
+                    style="font-size: 10pt;" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <form id="form-asignar_abogados" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="resolutor_id" name="resolutor_id">
+                    <div class="row px-2 mb-2">
+                        <div class="col">
+                            <label class="etiqueta-combo" for="listado_abogados">Abogado</label>
+                            <select id="listado_abogados" name="listado_abogados"
+                                class="form-control selectize-select selectized" placeholder="Abogado">
+                                {% for usuario in usuarios_dictiminador %}
+                                <option value="{{ usuario.id }}">{{usuario.get_user}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2 px-2 pull-right">
+                        <div class="col">
+                            <button type="button" id="btnGuardarAsignacion" onclick="guardar_asignacion_abogados()"
+                                class="btn fondo-boton">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para agregar archivos-->
+<div class="modal fade" id="mdl-89988" tabindex="-1" role="dialog" aria-labelledby="asignar_abogadosLabel"
+    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title ">Agrega archivos</h4>
+                <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal"
+                    style="font-size: 10pt;" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <form id="form-asignar_abogados" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="resolutor_id" name="resolutor_id">
+                    <div class="row px-2 mb-2">
+                        <div class="col">
+                            {{form.archivo}}
+                            {%comment%}
+                            <label class="etiqueta-combo" for="listado_abogados">Abogado</label>
+                            <select id="listado_abogados" name="listado_abogados"
+                                class="form-control selectize-select selectized" placeholder="Abogado">
+                                {% for usuario in usuarios_dictiminador %}
+                                <option value="{{ usuario.id }}">{{usuario.get_user}}</option>
+                                {% endfor %}
+                            </select>
+                            {%endcomment%}
+                        </div>
+                    </div>
+                    <div class="row mb-2 px-2 pull-right">
+                        <div class="col">
+                            <button type="button" id="btnGuardarAsignacion" onclick="guardar_asignacion_abogados()"
+                                class="btn fondo-boton">Guardar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal View -->
+<div class="modal fade" id="mdView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+<!-- Modal View -->
+<div class="modal fade" id="mdViewChild" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table-destroy.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+
+<script>
+    // Inicializar componente de listado de abogados
+    // const controles =  [ 
+    //     {control : '#id_tramite', etiqueta:'Responsable'},
+    //     {control : '#listado_abogados', etiqueta:'Responsable'},
+    // ];
+    const datatables = [
+        {tabla: '#dt_resolutor' , buscar: '#search_resolutor' },
+        {tabla: '#dt_revisar' , buscar: '#search_revisar' },
+        {tabla: '#dt_requerimientos' , buscar: '#search_requerimientos' },
+        {tabla: '#dt_firmar' , buscar: '#search_firmar' },
+        {tabla: '#dt_ejecutado' , buscar: '#search_ejecutado' },
+        {tabla: '#dt_asignado' , buscar: '#search_asignado' },
+        {tabla: '#dt_concluir' , buscar: '#search_concluir' },
+        {tabla: '#dt_concluidos' , buscar: '#search_concluidos' },
+    ]
+    var select_abogados = $("#listado_abogados").selectize();
+    var selectize_abogados = select_abogados[0].selectize;
+
+    $(document).ready(function () {
+
+        //{% if messages %}
+        //{% for message in messages %}
+        toastr.success('{{ message|safe }}')
+        //{% endfor %}
+        //{% endif %}
+
+        $('.sp_date').hide();
+        
+
+        var cols_no_visible = [];
+        //{% if perfil_usuario == "RESOLUTOR" %}
+        cols_no_visible = [3];
+        //{% endif %}
+
+        datatables.forEach( function(row){
+            render_table_destroy(row.tabla, row.buscar, cols_no_visible);
+        });
+
+        selectize_abogados.setValue([]);
+
+        $('.alert-success').fadeOut(6000);
+
+        //{% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+            $("#listado").removeClass("active show");
+            $("#firmar").addClass("active show");
+        //{%elif perfil_usuario == "RESOLUTORES"%}
+            $("#listado").removeClass("active show");
+            $("#asignados").addClass("active show");
+        //{%elif perfil_usuario == "RESOLUTORES EJECUCION"%}
+            $("#listado").removeClass("active show");
+            $("#ejecucion").addClass("active show");
+        //{% endif %}        
+    });
+
+    function iniciaSelect(control){
+        var campo = $(control).selectize();
+        var selCampo = campo[0].selectize;
+        //selCampo.setValue('');//empty to show a placeholder defined in form.py      
+        // var select_abogados = $(control).selectize();
+        // var selectize_abogados = select_abogados[0].selectize;
+        // selectize_abogados.setValue([]);
+    }
+
+    $('#form-asignar_abogados').on('hidden.bs.modal', function (e) {
+        let formulario = document.getElementById('form-asignar_abogados');
+        formulario.reset();
+
+        selectize_abogados.setValue([]);
+    });
+
+    $('#form-comentarios').on('hidden.bs.modal', function (e) {
+        let formulario = document.getElementById('form-comentarios');
+        formulario.reset();
+
+        selectize_abogados.setValue([]);
+    });
+
+    function asignar_abogados(resolutor_id) {
+        let formulario = document.getElementById("form-asignar_abogados");
+        let fd = new FormData(formulario);
+        fd.append("resolutor_id", resolutor_id);
+
+        $.ajax({
+            url: "{% url 'juridico_app:buscar-abogados-asignados' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error) {
+                    
+                    selectize_abogados.setValue(result.abogados_asignados);
+
+                    $("#resolutor_id").val(resolutor_id);
+                    $("#mdl-asignar_abogados").modal("show");
+                }
+                else {
+                    return toastr.error(result.msj);
+                }
+            }, error: function (error) {
+                toastr.error(error);
+            }
+        });
+    }
+
+    function guardar_asignacion_abogados() {
+        let formulario = document.getElementById("form-asignar_abogados");
+        let fd = new FormData(formulario);
+        //fd.append("listado_abogados", JSON.stringify($("#listado_abogados").val()) );
+
+        $.ajax({
+            url: "{% url 'juridico_app:asignar-abogados' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error) {
+                    toastr.success("Abogados asignados correctamente");
+
+                    setTimeout(() => {
+                        $("#mdl-asignar_abogados").modal("hide");
+                        location.reload();
+                    }, 1000);
+                }
+                else {
+                    return toastr.error(result.msj);
+                }
+            },
+            error: function (error) {
+                toastr.error(error);
+            }
+        });
+    }
+    function abrirModal(url,controles) {//resolutor_id){        
+        $('#mdView').load(url, function () {
+            $(this).modal('show');
+            inicializaAlta(controles);
+        });
+    }
+    function mostrarModal(url) {//resolutor_id){
+        return new Promise((resolve, reject) => {
+            $('#mdView').load(url, function () {
+                $(this).modal('show');
+                resolve(true);
+            });
+        });
+    }
+    function mostrarModalHijo(url) {//resolutor_id){
+        $('#mdViewChild').load(url, function () {
+            $(this).modal('show');
+        });
+    }
+    function guardar_detalle(idres) {
+        
+        let formulario = document.getElementById("form-altaDetalle");
+        let fd = new FormData(formulario);
+        fd.append("resolutor_id", resolutor_id_m);
+        fd.append("usuario_id", usuario_id);
+        fd.append("listado_estatus", listado_estatus);
+        fd.append("listado_etapa", listado_etapa);
+        fd.append("comentarios", comentarios);
+
+        $("#resolutor_id_m").val(idres);
+
+
+        //fd.append("listado_abogados", JSON.stringify($("#listado_abogados").val()) );
+
+        $.ajax({
+            url: "{% url 'juridico_app:detalle-agregar' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error) {
+                    toastr.success("Detalle agregado");
+                    location.reload();
+                }
+                else {
+                    return toastr.error(result.msj);
+                }
+            },
+            error: function (error) {
+                toastr.error(error);
+            }
+        });
+    }
+    function inicializaAlta(grpControles) {
+        let arraycontroles = null;
+        $('.opciones').hide();
+        $("#id_comentarios").focus(function(){
+            $(".opciones").fadeIn(500);
+        });
+        // $("#id_comentarios").focusout(function(){
+        //     $(".opciones").fadeOut(500);
+        // });
+        switch (grpControles) {
+            case 1:
+                arraycontroles = [
+                    { control: '#id_estatus', etiqueta: 'Estatus' },
+                    { control: '#id_etapa', etiqueta: 'Etapa' },
+                ];
+                break;
+            default:
+                break;
+        }
+        cargaOpcionesDefault(arraycontroles);
+
+    }
+    
+    function cargaOpcionesDefault(array) {
+        array.forEach(function (elemento) {
+            $(elemento.control).selectize({
+                // Set default value
+                onInitialize: function() {
+                    this.setValue(''); // Set Option 2 as default
+                }
+            });
+            // var campo = $(elemento.control).selectize();
+            // var selectizeCampo = campo.selectize;
+            // selectizeCampo.setValue('');
+            // var selectize = $(document.getElementById(elemento.control)).selectize;
+            // selectize.setValue('');
+        });
+    }
+
+    function Delete_Detail(myURL) {
+        Swal.fire({
+            title: "¿Estas seguro? <br> Se desactivara el registro: ",
+            //text:"Eliminar carpeta" + myCarpeta,
+            icon: "warning", showCancelButton: !0,
+            showCancelButton: true,
+            confirmButtonColor: "#28bb4b",
+            cancelButtonColor: "#f34e4e",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar'
+        }).then(function (e) {
+            if (e.value) {
+                console.log('AQUIIII')
+                
+                // fetch(myURL)
+                //     .then(response => response.json())
+                //     .then(data => {
+                //         console.log(data);
+                // });
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    }
+                });
+
+                $.ajax({
+                    // data: {
+                    //     csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    // },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        Swal.fire("¡Desactivado!", "Registro desactivado.", "Success").then(function (e) {location.reload();})
+                        // location.reload();
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+            }
+            // Swal.fire({
+            //     title: "Deleted!",
+            //     text: "Your file has been deleted.",
+            //     icon: "success",
+            //     confirmButtonColor: "#4a4fea"
+            // }).then(function (e) {
+            //     location.reload();
+            // })
+
+
+        })
+    }
+
+    function verArchivo(){
+        if($(".divArchivo").hasClass("d-none")){
+            $(".divArchivo").removeClass("d-none");
+        }else{
+            $(".divArchivo").addClass("d-none");
+        }
+    }
+    function generaPdf(val){
+        debugger;
+        let api = window.location.origin;
+
+        
+        fetch(api + "/generate-pdf/" + val)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                window.open(url);
+            });
+    }
+    function Concluir(url){
+        let fd = new FormData();
+        confirm().then((val) =>{
+            fetch(url,{
+                method: 'POST',
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                body: fd, // data can be `string` or {object}!
+                })
+                .then(response =>  response.json())
+                .then(
+                    data => {
+                        console.log(data)
+                        toastr.success(data.result)
+                        setTimeout(() => {
+                            location.href = `{% url 'juridico_app:panel-resolutor' %}`;
+                        }, 1000);
+                    } 
+                );            
+        }).catch((val) => {
+        })
+    }
+    function confirm(){
+        return new Promise((resolve, reject) => {
+            Swal.fire({
+                    title: "¿Estas seguro?",
+                    icon: "warning", showCancelButton: !0,
+                    showCancelButton: true,
+                    confirmButtonColor: "#28bb4b",
+                    cancelButtonColor: "#f34e4e",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: 'Cancelar'
+                }).then(function (e) {
+                    if (e.value) {
+                        resolve(true);
+                    } else{
+                        reject(false);
+                    }
+                })
+        });
+    }
+</script>
+{% endblock extrajs %}

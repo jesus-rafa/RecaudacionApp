@@ -1,0 +1,92 @@
+{% load humanize %}
+{% load tags%}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+       
+        <form method="GET">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h6>Detalle</h6>
+                {% if detail.estatus == 'EN PROCESO' %}
+                <span class="badge badge-danger">{{ detail.estatus }}</span>
+                {% else %}
+                <span class="badge badge-success">{{ detail.estatus }}</span>
+                {% endif %}
+            </div>
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label><strong>Folio:</strong></label>
+                        <label>{{ detail.folio }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Fecha Recibido:</strong></label>
+                        <label>{{ detail.fecha|date:'d/m/Y' }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Fecha Respuesta:</strong></label>
+                        <label>{{ detail.fecha_respuesta|date:'d/m/Y' }}</label>
+                    </div>
+                </div>
+               
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label><strong>Remitente:</strong></label>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label>{{ detail.remitente }}</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label><strong>Puesto:</strong></label>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label>{{ detail.puesto }}</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label><strong>Dependdencia:</strong></label>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label>{{ detail.dependencia }}</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label><strong>Asunto:</strong></label>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label>{{ detail.asunto }}</label>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label><strong>Para:</strong></label>
+                        <label>{% get_user_info detail.para %}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Firma:</strong></label>
+                        <label>{{ detail.firma }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Area:</strong></label>
+                        <label>{{ detail.area }}</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><strong>Comentarios:</strong></label>
+                    <label>{{ detail.comentarios }}</label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

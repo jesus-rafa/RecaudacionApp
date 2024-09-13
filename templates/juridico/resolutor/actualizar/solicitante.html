@@ -1,0 +1,247 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Alta resolutor {% endblock title %}
+
+{% block head %}
+<!-- <link href="{% static 'css/RecApp.scss' %}" rel="stylesheet" type="text/css" /> -->
+{% endblock head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <!-- <a onclick="View_Modal()" class="btn waves-effect btn-volver>
+                    <i class="fa fa-folder-open"></i> Expediente
+                </a>
+                <a onclick="Open_Modal('{% url 'juridico_app:alta-opciones'%}')" class="btn waves-effect btn-volver>
+                    <i class="fa fa-folder-open"></i> Expediente
+                </a> -->
+                <a href="{% url 'juridico_app:panel-resolutor' %}" 
+                    class="btn waves-effect btn-volver">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Resolutor</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div id="progressbarwizard">
+                    <ul class="nav nav-tabs nav-bordered" id="nav-tabs">
+                        <li class="nav-item">
+                            <a href="#account-2" aria-controls="account-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2 active">
+                                <i class="mdi mdi-bank me-1"></i>
+                                <span class="d-none d-sm-inline">Solicitante</span>
+                            </a>
+                        </li>                       
+                    </ul>
+                
+                    <div class="tab-content pb-3">                
+                        <!-- <div id="bar" class="progress mb-3" style="height: 7px;">
+                            <div class="bar progress-bar progress-bar-striped sateg-negro"  ></div>
+                        </div> -->
+                        <!-- TAB SOLICITANTE EDITAR -->
+                        <div class="tab-pane active" id="account-2">
+                            <form id="form_alta_sol" action="{% url 'juridico_app:actualiza_solicitante' solicitante.id %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div id="">
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">                                
+                                            {{ form.rfc }}
+                                            <label class="etiqueta-combo col-11">{{form.rfc.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.nombre }}
+                                            <label class="etiqueta-combo">{{form.nombre.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.apeP }}
+                                            <label class="etiqueta-combo">{{form.apeP.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.apeM }}
+                                            <label class="etiqueta-combo">{{form.apeM.label}}</label>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row mb-2">                                                                    
+                                        <div class="form-floating col">                                
+                                            {{ form.calle }}
+                                            <label class="etiqueta-combo">{{form.calle.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.numero }}
+                                            <label class="etiqueta-combo">{{form.numero.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.colonia }}
+                                            <label class="etiqueta-combo">{{form.colonia.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.ciudad }}
+                                            <label class="etiqueta-combo">{{form.ciudad.label}}</label>
+                                        </div>                                 
+                                    </div>
+        
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">                                
+                                            {{ form.cp }}
+                                            <label class="etiqueta-combo">{{form.cp.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.telefono }}
+                                            <label class="etiqueta-combo">{{form.telefono.label}}</label>
+                                        </div>  
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro"><i class="fa fa-plus-circle"></i> Actualizar </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div> <!-- tab-content -->
+                </div> <!-- end #progressbarwizard-->                
+            </div>
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+
+{% include 'juridico/resolutor/actualizar/resolutor.html' %}
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        {% if messages %}
+            {% for message in messages %}
+                toastr.success('{{ message|safe }}')              
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script>
+    const controles =  [ 
+        {control : '#id_concepto', etiqueta:'Concepto'},
+        {control : '#id_solicitante', etiqueta:'RFC solicitante'},            
+        {control : '#id_documentacion', etiqueta:'Documentacion'},     
+        {control : '#id_titular', etiqueta:'Titular'},         
+        {control : '#id_municipio', etiqueta:'Municipio'},
+        //{control : '#id_solicitante-selectized', etiqueta:'RFC solicitante'},
+    ];
+    $('#id_ejercicio_ini').mask('0000')
+    $('#id_ejercicio_fin').mask('0000')
+
+    $(document).ready(function() {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        });
+        cargaOpcionesDefault();
+
+        {% if messages %}
+            {% for message in messages %}
+                // toastr.options = {
+                //     "closeButton": true,
+                //     "positionClass": "toast-bottom-right",
+                //     "timeOut": 0,
+                //     "extendedTimeOut": 0,
+                //     "tapToDismiss": false
+                // }
+                toastr.success('{{ message|safe }}')
+                //toastr.success('{{ message|safe }}', 'Éxito')               
+            {% endfor %}
+        {% endif %}
+    });    
+    function cargaOpcionesDefault(data){
+        controles.forEach(function(elemento){
+            var campo = $(elemento.control).selectize();
+            var selCampo = campo[0].selectize;
+            selCampo.setValue('');
+            if (elemento.control === '#id_solicitante'){
+                selCampo.clearOptions();
+                if(data){
+                    //selCampo
+                    selCampo.addOption({value:data.id,text:data.solicitante}); 
+                    selCampo.addItem(data.id); 
+                    selCampo.setValue(data.id);
+                    //selCampo.disable(); si es disable no se manda
+                }
+            } 
+        });
+    }
+    // function guardar(){
+    //     debugger;
+    //     event.preventDefault();
+    //     // if (!document.getElementById('id_rfc').value){
+    //     //     solicitanteActivo();
+    //     //     //cambiaTab();
+    //     //     return;
+    //     // } 
+    //     const form = document.getElementById("form_alta_sol");
+    //     f = new FormData(form)
+
+    //     fetch("{% url 'juridico_app:alta_solicitante' %}", {
+    //         method: 'POST',
+    //         headers: {
+    //             //'Content-Type': 'application/json',
+    //             'X-CSRFToken': "{{ csrf_token }}",
+    //         },
+    //         body: f
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         //cambiaTab();
+    //         solicitanteActivo();
+    //         document.forms["form_alta_res"].submit();
+    //     })
+    //     .catch(error => {
+    //         //cambiaTab();
+    //         solicitanteActivo();
+    //         //console.error(error);
+    //     });
+    // }
+
+    // function cambiaTab(){
+    //     $('.nav-tabs a[href="#profile-tab-2"]').tab('show');
+    // }
+    //API REST #INTERFACE QUE USAN 2 COMPUTADORAS PARA INTERCAMBIAR INFORMACION SEGURA
+    // function solicitanteActivo(){
+    //     fetch("{% url 'juridico_app:solicitanteActivo' %}", {
+    //         method: 'GET',
+    //         headers: {
+    //             'X-CSRFToken': '{{ csrf_token }}',
+    //         },
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         debugger;
+    //         cargaOpcionesDefault(data);
+    //         document.forms["form_alta_res"].submit();
+    //     })
+
+    // }
+
+</script>
+{% endblock extrajs %}
+

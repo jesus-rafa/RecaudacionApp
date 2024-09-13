@@ -1,0 +1,482 @@
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Detalle</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'programacion_app:ver-programacion' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <label>{{id}}</label>
+                <div class="form-row">
+                    
+                    <div class="form-group col-md-6">
+                        <label><strong>RFC:</strong></label>
+                        <label>{{ detail.rfc }}</label>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label><strong>Programa:</strong></label>
+                        <label>{{ detail.programa }}</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label><strong>Nombre:</strong></label>
+                        <label>{{ detail.nombre }}</label>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label><strong>Direccion:</strong></label>
+                        <label>{{ detail.direccion }}</label>
+                    </div>
+
+                </div>
+               
+                <div class="tab round shadow">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active show" id="home-08-tab" data-toggle="tab" href="#home-08"
+                                role="tab" aria-controls="home-08" aria-selected="true"> <i class="fa fa-list-ul"></i>
+                                Seguimiento </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profile-08-tab" data-toggle="tab" href="#profile-08" role="tab"
+                                aria-controls="profile-08" aria-selected="false"><i class="fa fa-file"></i> Archivos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="portfolio-08-tab" data-toggle="tab" href="#portfolio-08" role="tab"
+                                aria-controls="portfolio-08" aria-selected="false"><i class="fa fa-money"></i> Pagos
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="home-08" role="tabpanel" aria-labelledby="home-08-tab">
+                            <div class="table-responsive mt-15">
+                                <table class="table center-aligned-table mb-0">
+                                    <thead>
+                                        <tr class="text-dark">
+                                            <th>Fecha</th>
+                                            <th>Comentarios</th>
+                                            <th>Etapa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for detalle in detalles %}
+                                        <tr>
+                                            <td>{{ detalle.fecha|date:'d/m/Y' }}</td>
+                                            <td>{% if detalle.comentarios != None %}{{ detalle.comentarios }} {% endif %}</td>
+                                            <td>{{ detalle.estatus }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="profile-08" role="tabpanel" aria-labelledby="profile-08-tab">
+                            <div class="table-responsive mt-15">
+                                <table class="table center-aligned-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Comentarios</th>
+                                            <th>Archivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for archivo in archivos %}
+                                        <tr>
+                                            <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ archivo.tipo }}</td>
+                                            <td>{{ archivo.comentarios }}</td>
+                                            <td>
+                                                <a href="{{ archivo.archivo.url }}" class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i></a>
+                                            </td>
+                                        </tr>   
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="portfolio-08" role="tabpanel" aria-labelledby="portfolio-08-tab">
+                            <div class="card-body">
+                                <div class="row">
+                
+                                    <div class="col-md-10">
+                                        <div class="text-center text-md-center">
+                                            Recaudado:
+                                            <strong><label class="total_impuestos text-primary" data-toggle="popover" data-placement="top"
+                                                title="Impuesto" ></label></strong>
+                                            <!-- ( -->
+                                                <!-- <strong><label class="porcentaje_impuestos text-primary"></label></strong> -->
+                                            <!-- ) -->
+                                            +
+                                            <strong><label class="total_accesorios text-warning" data-toggle="popover" data-placement="top"
+                                                    title="Actualizaciones"></label></strong>
+                                                    <!-- ( -->
+                                                        <!-- <strong><label class="porcentaje_accesorios text-warning"></label></strong> -->
+                                                    <!-- ) -->
+                                            +
+                                            <strong><label class="total_recargos text-danger" data-toggle="popover" data-placement="top"
+                                                    title="Recargos"></label></strong>
+                                                    <!-- ( -->
+                                                        <!-- <strong><label class="porcentaje_recargos text-danger"></label></strong> -->
+                                                    <!-- ) -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="text-center text-md-right">
+                                            <strong><label class="text-success recaudado" data-toggle="popover" data-placement="right"
+                                                    title="Total Recaudado"></label></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                        
+                                <div class="progress">
+                                    <div class="progress bg-primary progress-payments" role="progressbar" aria-valuenow="" aria-valuemin="0"
+                                        aria-valuemax="100">
+                                    </div>
+                                    <div class="progress-bar bg-warning progress-accesorios" role="progressbar" aria-valuenow=""
+                                        aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                    <div class="progress-bar bg-danger progress-recargos" role="progressbar" aria-valuenow="" aria-valuemin="0"
+                                        aria-valuemax="100">
+                                    </div>
+                        
+                                </div>
+                            </div>
+                        <label>Presuntiva</label>
+        
+                        <div class="table-responsive mt-15">
+                            <table id="Table_payments" class="mb-0 table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Periodo/Ejercicio</th>
+										<th>Impuesto</th>
+                                       
+                                        <th>Actualizaciones</th>
+                                         <th>Recargos</th>
+        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pago in pagos_presuntiva %}
+                                    <tr>
+                                        <td>{{ pago.fecha|date:'d/m/Y' }}</td>
+                                        <td>{{ pago.tipo }}</td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        {% get_month pago.periodo %}/{{ pago.ejercicio }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        {% if pago.comentarios %}
+                                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="popover" title="{{ pago.comentarios}}" data-content="{{ pago.comentarios}}"><i class="fa fa-comment-o"></i></button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>         
+                                            </div>
+                                        </td>
+        
+                                         {% if pago.impuesto %}
+                                            {% if pago.impuesto < 0 %}
+                                                <td class="col1 text-danger">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col1">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col1">$ 0.00</td> 
+                                        {% endif %}
+        
+                                        {% if pago.accesorios %}
+                                            {% if pago.accesorios < 0 %}
+                                                <td class="col2 text-danger">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col2">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col2">$ 0.00</td> 
+                                        {% endif %}
+        
+                                       
+										
+										{% if pago.recargos %}
+                                            {% if pago.recargos < 0 %}
+                                                <td class="col3 text-danger">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col3">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col3">$ 0.00</td> 
+                                        {% endif %}
+                                    </tr> 
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Subtotal:</th>
+										<th class="subtotal subtotal_impuestos impuesto"></th>
+										<th class="subtotal subtotal_accesorios"></th>
+                                        <th colspan="2" class="subtotal subtotal_recargos"></th>
+                                        
+                                        
+                                    </tr>
+        
+                                </tfoot>
+        
+                            </table>
+        
+                            <br>
+        
+                            <label>Otros pagos</label>
+                            <table id="Table_payments_2" class="mb-0 table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Periodo/Ejercicio</th>
+										<th>Impuesto</th>
+                                        
+                                        <th>Actualizaciones</th>
+                                        <th>Recargos</th>
+        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pago in pagos %}
+                                    <tr>
+                                        <td>{{ pago.fecha|date:'d/m/Y' }}</td>
+                                        <td>{{ pago.tipo }}</td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        {% get_month pago.periodo %}/{{ pago.ejercicio }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="text-left">
+                                                        {% if pago.comentarios %}
+                                                        <button type="button" class="btn btn-sm btn-warning" data-toggle="popover" title="{{ pago.comentarios}}" data-content="{{ pago.comentarios}}"><i class="fa fa-comment-o"></i></button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>         
+                                            </div>
+                                        </td>
+										
+										 {% if pago.impuesto %}
+                                            {% if pago.impuesto < 0 %}
+                                                <td class="col1 text-danger">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col1">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col1">$ 0.00</td> 
+                                        {% endif %}
+										
+										 {% if pago.accesorios %}
+                                            {% if pago.accesorios < 0 %}
+                                                <td class="col2 text-danger">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col2">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col2">$ 0.00</td> 
+                                        {% endif %}
+        
+                                        {% if pago.recargos %}
+                                            {% if pago.recargos < 0 %}
+                                                <td class="col3 text-danger">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col3">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col3">$ 0.00</td> 
+                                        {% endif %}
+        
+                                       
+        
+                                       
+                                    </tr> 
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Subtotal:</th>
+										<th class="subtotal subtotal_impuestos"></th>
+										<th class="subtotal subtotal_accesorios"></th>
+                                        <th colspan="2" class="subtotal subtotal_recargos"></th>
+                                        
+                                        
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                   </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="text-primary">Total:</th>
+										<th class="total_impuestos text-primary"></th>
+										<th class="total_accesorios text-primary"></th>
+                                        <th colspan="2" class="total_recargos text-primary"></th>
+                                        
+                                        
+                                    </tr>
+        
+                                </tfoot>
+        
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+               
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% block extrajs %}
+
+<script>
+    $(document).ready(function () {
+        //$('[data-toggle="tooltip"]').tooltip();
+
+        $('.alert-success').fadeOut(6000);
+
+    
+        Get_Advance();
+
+    });
+
+    function Get_Advance() {
+
+            var RECAUDADO = 0;
+            var progress = 0;
+            var collected = 0;
+            var estimated = 0;
+            var fill_progress_recargos = 0;
+            var fill_progress_accesorios = 0;
+            var fill_progress_impuestos = 0;
+            var total_recargos = 0;
+            var total_accesorios = 0;
+            var total_impuestos = 0;
+
+            var getSum = function (colNumber) {
+                var sum = 0;
+                var selector = '.col' + colNumber;
+
+                $('#Table_payments').find(selector).each(function (index, element) {
+                    var num = $(element).text().replace('$', '').replace(/,/g, '')
+                    sum += parseFloat(num);
+                });
+
+                return sum;
+            };
+
+            var getSum2 = function (colNumber) {
+                var sum = 0;
+                var selector = '.col' + colNumber;
+
+                $('#Table_payments_2').find(selector).each(function (index, element) {
+                    var num = $(element).text().replace('$', '').replace(/,/g, '')
+                    sum += parseFloat(num);
+                });
+
+                return sum;
+            };
+
+            $('#Table_payments').find('.subtotal').each(function (index, element) {
+                var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$  ' + total);
+            });
+
+            $('#Table_payments_2').find('.subtotal').each(function (index, element) {
+                var total = getSum2(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$  ' + total);
+            });
+
+
+            $('.subtotal_recargos').each(function () {
+                total_recargos += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+            });
+            $('.subtotal_accesorios').each(function () {
+                total_accesorios += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+            });
+            $('.subtotal_impuestos').each(function () {
+                total_impuestos += parseFloat($(this).text().replace('$', '').replace(/,/g, ''));
+            });
+            var total1, total2, total3;
+            total1 = total_recargos.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            total2 = total_accesorios.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            total3 = total_impuestos.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+            RECAUDADO = total_recargos + total_accesorios + total_impuestos;
+            total_recaudado = RECAUDADO.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+            
+
+            collected = $('.impuesto').text().replace('$', '').replace(/,/g, '');
+            estimated = $('.estimado').text().replace('$', '').replace(/,/g, '');
+
+            if (collected != 0) {
+                progress = collected * 100 / estimated;
+            } else {
+                progress = 0;
+            }
+            $('.porcentaje').text(progress.toFixed(2) + '%');
+
+            fill_progress_recargos = total_recargos * 100 / RECAUDADO;
+            fill_progress_accesorios = total_accesorios * 100 / RECAUDADO;
+            fill_progress_impuestos = total_impuestos * 100 / RECAUDADO;
+
+            $(".progress-recargos").css({ "width": fill_progress_recargos.toFixed(2) + '%' });
+            $(".progress-accesorios").css({ "width": fill_progress_accesorios.toFixed(2) + '%' });
+            $(".progress-payments").css({ "width": fill_progress_impuestos.toFixed(2) + '%' });
+
+            $('.total_recargos').text('$ ' + total1);
+            $('.total_accesorios').text('$ ' + total2);
+            $('.total_impuestos').text('$ ' + total3);
+
+            $('.porcentaje_recargos').text(fill_progress_recargos.toFixed(2) + '%');
+            $('.porcentaje_accesorios').text(fill_progress_accesorios.toFixed(2) + '%');
+            $('.porcentaje_impuestos').text(fill_progress_impuestos.toFixed(2) + '%');
+
+            $('.recaudado').text('$ ' + total_recaudado.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+        }
+
+</script>
+
+{% endblock extrajs %}

@@ -1,0 +1,470 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button id="btNew" onclick='location.href="{% url 'juridico_app:alta-demanda' %}"'
+                    class="btn btn-outline-secondary waves-effect btn-volver" target="_blank">
+                    <i class="fe-user-plus"></i> Agregar demanda
+                </button>
+            </div>
+            <h4 class="page-title">Juicios {{papa}}</h4>
+        </div>
+    </div>
+</div>
+
+{% comment %} <div class="" id="addSection">
+    {% include 'juridico/alta_demanda.html' %}
+</div> {% endcomment %}
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-20">
+
+                        <div class="text-center mb-2" > {% comment %} style="border-bottom: 1px solid #002060;" {% endcomment %}
+                            Ultima demanda: <strong class="sateg-negritas">{{ last_folio.carpeta }}</strong>&nbsp;&nbsp;&nbsp;Expediente: <strong class="sateg-negritas">{{ last_folio.expediente }}</strong>&nbsp;&nbsp;&nbsp;Registrado: <strong class="sateg-negritas">{{ last_folio.created }}</strong>
+                        </div>
+
+                        <div class="dropdown float-end" style="top: 40px;">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar Excel</a>
+                                <!-- <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar CSV</a> -->
+                    
+                            </div>
+                        </div>
+
+
+                        <div class="row pb-3">
+                            <div class="col-md-12">
+                                <div class="form-floating">
+                                    <input id="search1" type="text" class="form-control input-rec" placeholder="Buscar">
+                                    <label for="search1">Buscar</label>
+                                </div>
+                            </div>
+                        </div>
+
+
+                       <!--  <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar Excel</a>
+                                <!-- <a href="javascript:void(0);" class="dropdown-item">
+                                    <i class="mdi mdi-download"></i> Descargar CSV</a>
+                    
+                            </div>
+                        </div> -->
+
+                        <div class="col">
+                            <table id="datatable2" class="table table-hover m-0 table-centered dt-responsive nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <td class="all no-sort">Carpeta</td>
+                                        <td class="all">Tipo</td>
+                                        <td class="all">Subtipo</td>
+                                        <!-- <td class="all">Tribunal</td> -->
+                                        <!-- <td class="all">Estado procesal</td> -->
+                                        <td class="all">Fecha vencimiento</td>
+                                        <td class="all">Cuantia</td>
+                                        <td class="all">Dias restantes</td>
+                                        <td class="all hidden-sm">Acciones</td>
+                                        <td class="none">.</td>
+                                        <td class="none"></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for elemento in orderer %}
+                                    <tr>
+                                        <!-- <td style="display:none">{{ elemento.created }}</td> -->
+                                        <td>{{ elemento.carpeta }}</td>
+                                        <td>{{ elemento.juicio }}</td>
+                                        <td>{{ elemento.subtipo }}</td>
+                                        <!-- <td style="text-align: center;">{{ elemento.expediente }}</td> -->
+                                        <!-- <td>{{ elemento.tribunal }}</td> -->
+                                        <!-- <td>{{ elemento.estado_procesal }}</td> -->
+                                        <td class="centrado">{{ elemento.fecha_interno|date:'d/m/Y' }}</td>
+                                        <td class="centrado"> $ {{ elemento.cuantia|intcomma }}</td>
+                                        <td class="centrado negritas">
+                                            {% if elemento.days >= 10 %}
+                                            <div class="enTiempo" style="font-size: initial;"> {{ elemento.days }} </div>
+                                            {% elif elemento.days >= 5 and elemento.days < 10%}
+                                            <div class="atrasado" style="font-size: initial;">{{ elemento.days }} </div>
+                                            {% elif elemento.days > 0 and elemento.days < 5%}
+                                            <div class="vencer" style="font-size: initial;">{{ elemento.days }} </div>
+                                            {% elif elemento.days <= 0 %}
+                                            <div class="vencido" style="font-size: initial;">{{ elemento.days }} </div>
+                                            {%endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'juridico_app:ver-demanda' elemento.id %}')" class="dropdown-item" target="_blank">
+                                                        <i class="fas fa-eye"></i>
+                                                        Detalle
+                                                    </a>
+                                                    <a href="{% url 'juridico_app:edita-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-pen"></i>
+                                                        Editar
+                                                    </a>                                                
+                                                    <!-- Administrar Demanda -->
+                                                    <a href="{% url 'juridico_app:admin-demanda' elemento.id %}" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-gavel"></i>
+                                                        Proceso
+                                                    </a>
+												    {% csrf_token %}
+                                                    <a onclick="eliminar('{% url 'juridico_app:elimina-demanda' elemento.id %}', '{{ elemento.carpeta }}')" class="dropdown-item" target="_self">
+                                                        <i class="fas fa-trash"></i>
+                                                        Eliminar
+                                                    </a>                                       
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                        <td class="ocultar">{{ elemento.orden }}</td>
+                                        <td>
+                                            <div class="row">
+                                                <div class="table-responsive">
+                                                    <table style="width:100%; table-layout: fixed;" class="table">
+                                
+                                                        <div class="grid-structure m-1" style="white-space: initial;">
+                                                            <div class="row">
+                                                                <div class="col-lg-3">
+                                                                    Abogado dictaminador:
+                                                                    <br>
+                                                                    <b>{{ elemento.dictaminador }}</b>
+                                                                </div>
+                                                                <div class="col-lg-3">
+                                                                    Contribuyente:
+                                                                    <br>
+                                                                    <b>{{ elemento.contribuyente }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    RFC:
+                                                                    <br>
+                                                                    <b>{{ elemento.rfc|upper }}</b>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Estado:
+                                                                        <br>
+                                                                        <b>{{ elemento.estado_procesal }}</b>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Cuantia:
+                                                                        <br>
+                                                                        <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Cuantia:
+                                                                                <br>
+                                                                                <b> $ {{ elemento.cuantia|intcomma }}</b>
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        < div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>$ {{ row.presuntiva|unlocalize|intcomma }}</b>
+                                                                                <br>
+                                                                                <br>
+                                                                                {% if row.recaudado %}
+                                                                                <b>$ {{ row.recaudado|unlocalize|intcomma }}</b>
+                                                                                {% else %}
+                                                                                -
+                                                                                {% endif %}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                            <br>
+                                                            <div class="row">
+                                                                <div class="col-lg-4">
+                                                                    Abogado promovente:
+                                                                    <br>
+                                                                    <b>{{ elemento.abogado_prom }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Notificacion:
+                                                                    <br>
+                                                                    <b>{{ elemento.fecha_notificacion|date:'d/m/Y' }}</b>
+                                                                    <!-- {% if row.fecha_notificacion %}
+                                                                    &nbsp;<span  class="badge bg-secondary noti-icon-badge">{{ row.notificado }}</span>
+                                                                    {% else %}
+                                                                    -
+                                                                    {% endif %} -->
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Autoridad:
+                                                                    <br>
+                                                                    <b>{{ elemento.autoridad_rec|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Tribunal:
+                                                                    <br>
+                                                                    <b>{{ elemento.tribunal|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Materia:
+                                                                    <br>
+                                                                    <b>{{ elemento.materia|truncatechars:40 }}</b>
+                                                                </div>
+                                                                <!-- <div class="col-lg-2">
+                                                                    <div class="text-center">
+                                                                        Dias en Seguimiento:
+                                                                        <br>
+                                                                        {% if row.color %}
+                                                                        <span style="background-color: {{ row.color }};" class="badge noti-icon-badge">{{ row.dias_seguimiento|floatformat:"0" }}</span>
+                                                                        {% else %}
+                                                                        <b>{{ row.dias_seguimiento|floatformat:"0" }}</b>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    Requerimiento:
+                                                                    <br>
+                                                                    <b>-</b>
+                                                                </div>
+                                
+                                                                <div class="col-lg-2">
+                                
+                                                                    <div class="row">
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-end">
+                                                                                Avance:
+                                                                            </div>
+                                
+                                                                        </div>
+                                                                        <div class="col-lg-5">
+                                                                            <div class="float-start">
+                                                                                <b>{{ row.avance }}</b>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                            </div>
+                                                        </div>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile-20">
+                       
+                    </div>
+                    <div class="tab-pane fade" id="profile-40">
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %} {% if messages %}
+    {% for message in messages %}
+    <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+        {{ message|safe }}
+    </div>
+    {% endfor %}
+{% endif %} {% endcomment %}
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table-destroy.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+
+
+
+{% comment %} static\assets\libs\toastr\nuget\content\scripts\toastr.min.js {% endcomment %}
+<script>
+    var modalConfirmacion = false;
+    $(document).ready(function () {
+        $('.sp_date').hide();
+        let objSort = {
+            order: [[0, "desc"]],
+            columnas: [null,null,null,null,null,null,null,{'visible': false},null]
+            //columnas: [{"data": "carpeta"},{"data": "juicio"},{"data": "subtipo"}]
+        };
+
+        {% if existe %}
+            objSort.order = [[7, "desc"]];
+        {% else %}
+            objSort.order = [[5, "asc"]];
+        {% endif %}
+
+        // Seguimiento Juridico
+        //simple_table('#datatable1', '#search1', [8]);
+        //simple_table('#datatable2', '#search1', [5], objSort);
+        var cols_no_visible = [];
+        cols_no_visible = [3];
+        render_table_destroy('#datatable2', '#search1', cols_no_visible);
+        
+        {% if messages %}
+            {% for message in messages %}
+                toastr.options = {
+                    "closeButton": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": 0,
+                    "extendedTimeOut": 0,
+                    "tapToDismiss": false
+                }
+                toastr.success('{{ message|safe }}')
+                //toastr.success('{{ message|safe }}', 'Éxito')
+               
+            {% endfor %}
+        {% endif %}
+        $('.alert-success').fadeOut(6000);
+
+    });
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $("#id_metodo_envio option[value='209']").attr('selected','selected');
+
+            $(this).modal('show');
+
+        });
+    }
+		
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Confirmacion(myURL, myCarpeta){
+        if (modalConfirmacion){
+            return
+        }
+        modalConfirmacion = true;
+        //toastr confirmacion
+        /*  */
+        toastr.options = {
+            "closeButton": true,
+            "positionClass": "toast-top-center",
+            "timeOut": 0,
+            "extendedTimeOut": 0,
+            // "tapToDismiss": false
+        }
+        toastr.warning(`<br><button type='button' id='confirmationButtonYes' class='btn btn btn-outline-secondary waves-effect btn-volver'>Confirmar</button>
+        <button type='button' id='confirmationButtonNo' class='btn btn btn-outline-secondary waves-effect btn-volver mx-3'>Cancelar</button>`, myCarpeta + `<br>Estas seguro de eliminar la demanda?`,
+        {
+            closeButton: false,
+            allowHtml: true,
+            onShown: function (toast) {
+                $("#confirmationButtonYes").click(function(){
+                    location.href = myURL
+                });
+                $("#confirmationButtonNo").click(function(){
+                    toastr.clear();
+                    modalConfirmacion = false;
+                });
+            }
+        });
+    }
+
+    function eliminar(myURL, myCarpeta){
+        Swal.fire({
+            title:"¿Estas seguro? <br> Se eliminara carpeta: " + myCarpeta,
+            //text:"Eliminar carpeta" + myCarpeta,
+            icon:"warning",showCancelButton:!0,
+            showCancelButton: true,
+            confirmButtonColor:"#28bb4b",
+            cancelButtonColor:"#f34e4e",
+            confirmButtonText:"Eliminar",
+            cancelButtonText: 'Cancelar'
+        }).then(function(e){
+                if (e.value) {
+                    /* $.ajax({
+                        data: {
+                            csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                        },
+                        url: myURL,
+                        type: "GET",
+                        success: function (response) {
+                            console.log(response);
+                            //Swal.fire("¡Eliminado!","La carpeta se elimino.","Success")
+                            location.reload();  
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    }); */
+
+                }
+                Swal.fire({
+                    title:"Deleted!",
+                    text:"Your file has been deleted.",
+                    icon:"success",
+                    confirmButtonColor:"#4a4fea"
+                }).then(function (e){
+                    location.reload();
+                })       
+
+
+        })
+    }
+</script>
+{% endblock extrajs %}

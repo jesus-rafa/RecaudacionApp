@@ -1,0 +1,434 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Ejecucion {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+
+                <button id="btNew" onclick="Carga_Masiva('{% url 'transferidos_app:batch' %}')"
+                    class="btn btn-outline-secondary btn-volver" target="_blank">
+                    <i class="fe-user-plus"></i> Carga Masiva
+                </button>
+
+                <button id="btNew" onclick="Add_Modal('{% url 'transferidos_app:alta-ejecucion' %}')"
+                    class="btn btn-outline-secondary btn-volver" target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Contribuyente
+                </button>
+
+            </div>
+            <h4 class="page-title">{% block titulo %} {% endblock titulo %}</h4>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+     {% for message in messages %}
+         <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+             {{ message|safe }}
+         </div>
+     {% endfor %}
+{% endif %}
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+
+                    <li class="nav-item">
+                        <a href="#home-20" onclick="location.href = '{% url 'transferidos_app:seguimiento-ejecucion' %}';" 
+                            id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link {% if 'seguimiento-ejecucion' in request.build_absolute_uri %} active {% endif %} ">
+                            <i class="fa fa-files-o"></i>
+                            Seguimiento
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-30" onclick="location.href = '{% url 'transferidos_app:concluidos-ejecucion' %}';" 
+                            id="profile-30-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link {% if 'concluidos-ejecucion' in  request.build_absolute_uri %} active {% endif %}"
+                            aria-controls="profile-40" aria-selected="false">
+                            <i class="fa fa-check-square-o"></i>
+                            Concluidos
+                        </a>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content">
+                    
+                    {% block seguimiento %} {% endblock seguimiento %}
+                    
+                    {% block concluidos %} {% endblock concluidos %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+<div class="modal fade" id="mdBatch" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+        $('.alert-success').fadeOut(6000);
+
+        var myURL = "{% url 'transferidos_app:excel-ejecucion' 'ARCHIVO' %}";
+
+
+        {% if messages %}
+            {% for message in messages %}
+
+                var msg = `{{ message|safe }}`;
+
+                {% if message.tags == 'error' %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: msg,
+                    showConfirmButton: !1
+                });  
+
+                {% elif message.tags == 'info' %}
+
+                    window.location = myURL.replace('ARCHIVO', msg);
+                    
+                    console.log(msg);
+
+                {%  else %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "success",
+                    title: msg,
+                    showConfirmButton: !1
+                }); 
+                
+                {% endif %}
+               
+            {% endfor %}
+        {% endif %}
+
+        var seguimiento = $('#datatable1').DataTable({
+            {% if not is_paginated and total_seguimiento %}pageLength: {{ total_seguimiento }},{%  endif %}
+            sDom: "rt",
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: [0,1,2,3,4,5,6,7],
+                },
+            ],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+
+        var concluidos = $('#datatable2').DataTable({
+            {% if not is_paginated and total_concluidos %}pageLength: {{ total_concluidos }},{%  endif %}
+            sDom: "rt",
+            columnDefs: [
+                {
+                    orderable: false,
+                    targets: [0,1,2,3,4,5,6],
+                },
+            ],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+            $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+		
+    });
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $("#id_metodo_envio option[value='209']").attr('selected','selected');
+            $("#id_programa option[value='210']").attr('selected','selected');
+
+            $('select').selectize({
+                
+            });
+
+            $(this).modal('show');
+
+        });
+    }
+
+    
+    function Carga_Masiva(myURL) {
+        $('#mdBatch').load(myURL, function () {
+            $('select').selectize({
+                
+            });
+
+            //$("#id_programa option[value='210']").attr('selected','selected');
+            //$("#id_metodo_envio option[value='209']").attr('selected','selected');
+
+            $(this).modal('show');
+
+        });
+    }
+	
+	
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+    function Update_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+		
+			//$('#id_fecha').show();
+
+            var value = $('#hfProgram').val();
+            $("#id_programa option[value='" + value + "']").attr('selected','selected');
+
+            var method = $('#hfMethod').val();
+            $("#id_metodo_envio option[value='" + method + "']").attr('selected','selected');
+
+            $('#id_folio').prop('readonly', 'readonly');
+			
+			$('#id_rfc').prop('readonly', 'readonly');
+			$('#id_nombre').prop('readonly', 'readonly');
+			
+            $('#id_folio').hide();
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $('select').selectize({
+                
+            });
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Detail_Modal(myURL, myID, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbOficio').html(myID);
+            $('#lbRFC').html(myRFC);
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $("#id_etapa option[value='65']").attr('selected','selected');
+            $("#id_estatus option[value='39']").attr('selected','selected');
+
+            $("#id_fecha").hide();
+            $("#id_etapa").hide();
+            $("#id_estatus").hide();
+            $("#lbFecha").hide();
+            $("#lbEtapa").hide();
+            $("#lbEstatus").hide();
+
+            $('.add').text('Cerrar Contribuyente');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+
+            /* $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $("#id_etapa option[value='65']").attr('selected','selected');
+            $("#id_estatus option[value='39']").attr('selected','selected');
+
+            $("#tbID1").hide();
+            $("#id_fecha").hide();
+            $("#id_etapa").hide();
+            $("#id_estatus").hide();
+
+            $('#lbOficio').hide();
+            $("#lbFecha").hide();
+            $("#lbEtapa").hide();
+            $("#lbEstatus").hide();
+
+            $('#btReject').text('Guardar');
+            $('.add').text('Cerrar Contribuyente');
+
+            $('#tbID1').val(myFolio);
+            $('#tbID1').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show'); */
+        });
+    }
+
+    function data_table(myTable){
+
+        $(myTable).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            //order: [[ 6, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+    }
+
+    function cambiar_etapa(myURL, myID, myRFC) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbOficio').html(myID);
+            $('#lbRFC').html(myRFC);
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+            /*
+            $("#id_etapa option[value='65']").attr('selected','selected');
+            $("#id_estatus option[value='39']").attr('selected','selected'); */
+
+            $("#id_fecha").hide();
+            $("#id_etapa").hide();
+            $("#id_estatus").hide();
+            $("#lbFecha").hide();
+            $("#lbEtapa").hide();
+            $("#lbEstatus").hide();
+
+            $('.add').text('Cambiar Etapa');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $('#id_etapa').selectize({
+                
+            });
+
+            $(this).modal('show');
+        })
+    }
+
+    // function filtraPeriodo(control){
+    //     debugger
+    //     if (!control.value) return;
+    //     console.log(control.value)
+    //     //var tipo_Juicio = control.value != '10' ? '9' : '0';
+    //     let proceso =  lstImpuestos.filter(e => e.id == control.value);
+    //     if (!!proceso){
+    //         let selectize = $('#id_programa').selectize;
+    //         selectize.clearOptions();
+    //         proceso.forEach(function(elemento){
+    //             selectize.addOption({value: elemento.id, text: elemento.nombre});
+    //             selectize.addItem('');
+    //         });
+    //     }
+    // }
+
+</script>
+{% endblock extrajs %}

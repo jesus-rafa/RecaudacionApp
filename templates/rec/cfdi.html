@@ -1,0 +1,169 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+
+{% block title %} CFDI {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">CFDI</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-10 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" id="basic-addon1">Contribuyente</span>
+                        <input type="text" class="form-control input-lg" id="kword" name="kword" placeholder="RFC, Nombre, Valor..." aria-describedby="basic-addon1">
+
+                        <button 
+                            type="submit" 
+                            class="btn btn-primary btn" 
+                            target="_blank" 
+                            value="Buscar"> 
+                            <i class="fa fa-search"></i> Buscar
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="row">
+                            <div class="switchery-demo">
+                                <input type="checkbox" 
+                                    name="busqueda_avanzada"
+                                    data-plugin="switchery" 
+                                    data-size="small"
+                                    data-color="#1bb99a"  
+                                    />
+                                <b>Busqueda Avanzada</b>
+    
+                                <i class="mdi-24px mdi mdi-help-circle text-primary" title="Busca informacion especifica dentro del CFDI" tabindex="0"
+                                    data-plugin="tippy" data-tippy-placement="bottom"></i>
+                            </div>
+
+                            
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="datatable" class="table table-sm table-bordered p-0">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Emisor RFC</th>
+                                <th>Emisor Nombre</th>
+                                <th>Receptor RFC</th>
+                                <th>Receptor Nombre</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in cfdi %}
+                            <tr>
+                                <td>
+                                    <a onclick="View_Modal('{% url 'rec_app:ver-cfdi' row.id %}')"
+                                        title="Ver CFDI" tabindex="0" data-plugin="tippy"
+                                        data-tippy-placement="top" class="btn btn-white btn-lg" target="_self">
+                                        <i class="far fa-file-code"></i>
+                                    </a>
+                                </td>
+                                <td>{{ row.emisor_rfc }}</td>
+                                <td>{{ row.emisor_nombre }}</td>
+                                <td>{{ row.receptor_rfc }}</td>
+                                <td>{{ row.receptor_nombre }}</td>
+                                <td>{{ row.fecha|slice:":10" }}</td>
+                                <td>
+                                    {% if row.tipo_id == 'I' %}
+                                    <span class="badge bg-primary rounded-pill">INGRESO</span>
+                                    {% elif row.tipo_id == 'E' %}
+                                    <span class="badge bg-primary rounded-pill">EGRESO</span>
+                                    {% elif row.tipo_id == 'T' %}
+                                    <span class="badge bg-primary rounded-pill">TRASLADO</span>
+                                    {% elif row.tipo_id == 'N' %}
+                                    <span class="badge bg-primary rounded-pill">NOMINA</span>
+                                    {% elif row.tipo_id == 'P' %}
+                                    <span class="badge bg-primary rounded-pill">PAGO</span>
+                                    {% else %}
+                                    <span class="badge bg-primary rounded-pill">{{ row.tipo_id|upper }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+		
+		var table = $('#datatable').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            }
+        });
+		
+    });
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

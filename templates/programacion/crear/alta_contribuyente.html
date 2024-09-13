@@ -1,0 +1,137 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_contribuyente" action="{% url 'programacion_app:alta-contribuyente' %}" method="POST"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form.fecha }}
+                        <div class="form-floating mb-2">
+                            {{ form.rfc }}
+                            <label>{{ form.rfc.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div style="display: none;" class="alert text-center col-md-12">
+                        <i class="fa fa-exclamation-circle text-danger"></i>
+                        <label class="text-danger">RFC ACTIVO</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.nombre }}
+                            <label>{{ form.nombre.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.direccion }}
+                            <label>{{ form.direccion.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.interlocutor }}
+                            <label>{{ form.interlocutor.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.programa.label }}</label>
+                            {{ form.programa }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            {{ form.presuntiva }}
+                            <label>{{ form.presuntiva.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button id="btNewContribuyente" type="submit"
+                    class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-masks.init.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        var myURL = "{% url 'transferidos_app:get-contribuyente-2' 'RFC' %}";
+        var myRFC = $("#id_rfc").val();
+        $("#id_rfc").attr("readonly", true);
+
+        load_data(myURL, myRFC);
+
+        $("#form_alta_contribuyente").submit(function (e) {
+            $("#btNewContribuyente").attr("disabled", true);
+            return true;
+        });
+    });
+
+    function load_data(myURL, myRFC) {
+        $.ajax({
+            url: myURL.replace('RFC', myRFC),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                try {
+                    $("#id_nombre").val(data[0].nombre);
+                    $("#id_direccion").val(data[0].direccion);
+
+                    if (data[1].message) {
+                        $(".alert").show();
+                    } else {
+                        $(".alert").hide();
+                    }
+                }
+                catch (err) {
+                    $("#id_nombre").val('sin datos*');
+                    $("#id_direccion").val('sin datos*');
+                }
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+</script>
+{% endblock extrajs %}

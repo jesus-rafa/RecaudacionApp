@@ -1,0 +1,57 @@
+
+{% for item in menu %}
+{% if item.hijos.all and item.nivel == 0 %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle arrow-none" href="#" id="{{ item.nombre }}" role="button"
+        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="{{ item.icono }}"></i> {{ item.nombre }} <div class="arrow-down"></div>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="{{ item.padre }}">
+    {% for child in menu %}
+        {% if child.hijos.all and child.nivel == 1 and child.padre.id == item.id %}
+        <div class="dropdown">
+            <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="{{ child.nombre }}" role="button"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="{{ child.icono }} me-1"></i> {{ child.nombre }} <div class="arrow-down"></div>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="{{ child.padre }}">
+            {% for item in menu %}
+                {% if item.hijos.all and item.nivel == 2 and item.padre.id == child.id %}
+                <div class="dropdown">
+                    <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="{{ item.nombre }}" role="button"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="{{ item.icono }} me-1"></i> {{ item.nombre }} <div class="arrow-down"></div>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="{{ item.padre }}">
+                    {% for child in menu %}
+                        {% if not child.hijos.all and child.nivel == 3 and child.padre.id == item.id %}
+                            <a href="{{ child.url }}" class="dropdown-item"><i class="{{ child.icono }} me-1"></i> {{ child.nombre }}</a>
+
+                        {% endif %}
+                    {% endfor %}        
+                    </div>
+                </div>
+                {% elif not item.hijos.all and item.nivel == 2 and item.padre.id == child.id %}
+                <a href="{{ item.url }}" class="dropdown-item"><i class="{{ item.icono }} me-1"></i> {{ item.nombre }}</a>
+                
+                {% endif %}
+            {% endfor %}
+            </div>
+        </div>
+        {% elif not child.hijos.all and child.nivel == 1 and child.padre.id == item.id %}
+        <a href="{{ child.url }}" class="dropdown-item"><i class="{{ child.icono }} me-1"></i> {{ child.nombre }}</a>
+
+        {% endif %}
+    {% endfor %}
+    </div>
+</li>
+{% elif not item.hijos.all and item.nivel == 0 %}
+<li>
+    <a class="nav-link dropdown-toggle arrow-none" href="{{ item.url }}" role="button">
+        <i class="{{ item.icono }}"></i>
+        {{ item.nombre }}
+    </a>
+</li>
+{% endif %}
+
+{% endfor %}

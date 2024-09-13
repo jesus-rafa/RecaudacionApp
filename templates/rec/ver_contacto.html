@@ -1,0 +1,283 @@
+{% load humanize %}
+{% load permissions %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Contribuyente</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <!-- <form  method="POST" enctype="multipart/form-data"> -->
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+				<div class="form-group col-md-8">
+                        <label><strong>Nombre:</strong></label>
+                        <label>{{ detail.nombre }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>RFC:</strong></label>
+                        <label>{{ detail.rfc }}</label>
+                    </div>
+                    
+                </div>
+				<div class="form-group">
+                    <label><strong>Direccion:</strong></label>
+                    <label>
+						{% if detail.direccion != None %}
+							{{ detail.direccion }}
+                        {% endif %}
+					</label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label><strong>Correo:</strong></label>
+                        <label>
+						{% if detail.correo != None %}
+							{{ detail.correo }}
+                        {% endif %}
+						</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Telefono:</strong></label>
+                        <label>
+						{% if detail.telefono != None %}
+							{{ detail.telefono }}
+                        {% endif %}
+						</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Fecha Alta:</strong></label>
+                        <label>
+						{% if detail.fecha_alta != None %}
+							{{ detail.fecha_alta|date:'d/m/Y' }}
+						{% endif %}	
+						</label>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="table-responsive mt-15">
+                    <table class="table center-aligned-table mb-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <th>Obligaciones</th>
+                                <th>Fecha Alta</th>
+                                <th>Estatus</th> 
+                                <th>Fecha Bloqueo</th>                              
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for obligacion in obligaciones %}
+                            <tr>
+                                <td>
+                                    {% if obligacion.obligacion != None %}
+                                        {{ obligacion.obligacion }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if obligacion.fecha_alta != None %}
+                                        {{ obligacion.fecha_alta|date:'d/m/Y' }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if obligacion.estatus != None %}
+                                        {{ obligacion.estatus }}
+                                    {% endif %}
+                                </td>    
+                                <td>
+                                    {% if obligacion.fecha_bloqueo != None %}
+                                        {{ obligacion.fecha_bloqueo|date:'d/m/Y' }}
+                                    {% endif %}
+                                </td>    
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                <br>
+
+
+                <div class="table-responsive mt-15">
+                    <table class="table center-aligned-table mb-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <!-- <th>RFC</th> -->
+                                <th>Contacto</th>
+                                <th>Puesto</th>
+                                <th>Direccion</th>
+                                <th>Correo</th>
+                                <th>Telefono</th>
+                                <th>Fecha</th>
+                                
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+							{% has_perms request.user 'change_contacto' as change_contacto %}
+							{% has_perms request.user 'delete_contacto' as delete_contacto %}
+							
+                            {% for detalle in detalles %}
+                            <tr>
+                                <!-- <td>{{ detalle.rfc }}</td> -->
+                                <td>
+                                    {% if detalle.nombre != None %}
+                                        {{ detalle.nombre }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if detalle.puesto != None %}
+                                        {{ detalle.puesto }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if detalle.direccion != None %}
+                                        {{ detalle.direccion }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if detalle.correo != None %}
+                                        {{ detalle.correo }}
+                                    {% endif %}    
+                                </td>
+                                <td>
+                                    {% if detalle.telefono != None %}
+                                        {{ detalle.telefono }}    
+                                    {% endif %}
+									{% if detalle.ext != None %} 
+										Ext: {{ detalle.ext }}  
+									{% endif %} 
+                                </td>
+                                <td>{{ detalle.fecha_alta|date:'d/m/Y'}}</td>
+                               
+                                <td>
+                                    {% if change_contacto is True %}
+                                    <button id="btUpdate_Contacts" onclick="Update_Contacts('{% url 'rec_app:editar-rec' detalle.id 0 %}', '{{detalle.id}}', '{{detalle.rfc}}')" 
+                                        data-toggle="tooltip" data-placement="top" title="Editar" 
+                                        class="btn btn-warning btn-sm" target="_blank">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
+									{% endif %}
+									{% if delete_contacto is True %}
+									{% csrf_token %}
+                                                <button id="btDelete_Detail" onclick="Delete_Contact('{% url 'rec_app:eliminar-rec' detalle.id %}', '{{detalle.id}}')" 
+                                                    data-toggle="tooltip" data-placement="top" title="Eliminar" 
+                                                    class="btn btn-danger btn-sm" target="_blank">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+												{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <!-- <button type="submit" class="btn btn-primary">Crear</button> -->
+            </div>
+
+        <!-- </form> -->
+    </div>
+</div>
+
+<div class="modal fade" id="mdUpdate_Contacts" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+
+<div class="modal fade" id="mdDelete_Contacts" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% block extrajs %}
+
+<script>
+
+    function Update_Contacts(myURL, myID, myRFC) {
+        $('#mdUpdate_Contacts').load(myURL, function () {
+
+            $("#id_rfc option[value='" + myID + "']").attr('selected','selected');
+            $("#id_rfc").hide();
+
+            $('#tbRFC').prop('readonly', 'readonly');
+            $('#tbRFC').val(myRFC);
+
+            var value = $('#hfJob').val();
+            $("#id_puesto option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+	
+	  function Delete_Contact(myURL, myID){
+
+        swal({
+            title: 'Seguro que desea eliminar?',
+            text: "este contacto!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonClass: 'btn btn-danger',
+            cancelButtonClass: 'btn btn-secondary',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+
+                        console.log(error);
+                    }
+            });
+
+                swal(
+                'Eliminado!',
+                'Exitosamente.',
+                'success'
+                )
+            } else if (
+                // Read more about handling dismissals
+                result.dismiss === swal.DismissReason.cancel
+            ) {
+                swal(
+                'Cancelado',
+                '',
+                'error'
+                )
+            }
+        })
+
+       
+
+    }
+
+
+
+
+</script>
+
+{% endblock extrajs %}

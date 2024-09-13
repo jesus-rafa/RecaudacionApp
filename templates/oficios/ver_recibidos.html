@@ -1,0 +1,685 @@
+{% load static %}
+{% load tags %}
+{% load tz %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+       
+        <form method="GET">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h4 class="modal-title">Ver oficio</h4>
+                <span class="badge fondo-boton text-dark">{{ detail.estatus }}</span>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div style="float: right;">
+                                <label><strong>Fecha Captura:</strong></label>
+                                <label>{{ detail.created|date:'d/m/Y' }}</label>
+                            </div>
+                    
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label><strong>Fecha Recibido:</strong></label>
+                            <label>{{ detail.fecha|date:'d/m/Y' }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label><strong>Fecha Vencimiento:</strong></label>
+                            <label>{{ detail.fecha_vencimiento|date:'d/m/Y' }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label><strong>Fecha Respuesta:</strong></label>
+                            <label>{{ detail.fecha_respuesta|date:'d/m/Y' }}</label>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Folio:</strong></label>
+                            <label>{{ detail.folio }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Creado por:</strong></label>
+                            <label>{% get_user_info detail.usuario %}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Remitente:</strong></label>
+                            <label>{{ detail.remitente }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Puesto:</strong></label>
+                            <label>{{ detail.puesto }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Dependdencia:</strong></label>
+                            <label>{{ detail.dependencia }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Asunto:</strong></label>
+                            <label>{{ detail.asunto }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Dirigido a:</strong></label>
+                            <label>{{ detail.area }}</label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label><strong>Para:</strong></label>
+                            <label>{% get_user_info detail.para %}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Firma:</strong></label>
+                            <label>{{ detail.firma }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Comentarios:</strong></label>
+                            <label>{% if detail.comentarios != None %} {{ detail.comentarios }} {% endif %}</label>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="row">
+                    <ul class="nav nav-tabs nav-bordered">
+                        <li class="nav-item">
+                            <a href="#archivos" id="archivos-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link active">
+                                Archivos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#anexos" id="anexos-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                Anexos
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="archivos">
+                            <div class="col-md-{% if detail.pdf_respuesta %}6{% else %}12{% endif %}">
+                                Oficio Recibido
+                                <div class="card m-1 shadow-none border text-center">
+                                    <div class="p-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto pe-0">
+                                                <div class="avatar-sm">
+                                                    <span class="avatar-title bg-light text-secondary rounded">
+                                                        <i class="far fa-file font-18"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {% if detail.pdf %}
+                                            <div class="col ps-0">
+                                                <a onclick="{% if origen %} 
+                                                    Visto('{% url 'oficios_app:visto' detail.id request.user.id 'T' %}')
+                                                    {% else %} 
+                                                    Visto('{% url 'oficios_app:visto' detail.id request.user.id 'C' %}')
+                                                    {% endif %}" href="{{ detail.pdf.url }}"
+                                                target="_blank" class="text-primary fw-bold"><strong>{{ detail.pdf|cut:'media/correspondencia/' }}</strong></a>
+                                                <p class="mb-0 font-13 text-primary"><i class="dripicons-download"></i></p>
+                                            </div>
+                                            {% else %}
+                                            <div class="col">
+                                                <a href="javascript:void(0);" class="text-muted fw-bold">archivo pendiente por cargar</a>
+                                                <p class="mb-0 font-13"></p>
+                                            </div>
+                                            {% endif %}
+                                        </div> <!-- end row -->
+                                    </div> <!-- end .p-2-->
+                                </div> <!-- end col -->
+                            </div> <!-- end col-->
+        
+                            {% if detail.pdf_respuesta %}
+                            <div class="col-md-6">
+                                Oficio Respuesta
+                                <div class="card m-1 shadow-none border text-center">
+                                    <div class="p-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto pe-0">
+                                                <div class="avatar-sm">
+                                                    <span class="avatar-title bg-light text-secondary rounded">
+                                                        <i class="far fa-file font-18"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col ps-0">
+                                                <a href="{{ detail.pdf_respuesta.url }}"
+                                                target="_blank" class="text-primary fw-bold"><strong>{{ detail.pdf_respuesta|cut:'media/correspondencia/' }}</strong></a>
+                                                <p class="mb-0 font-13 text-primary"><i class="dripicons-download"></i></p>
+                                            </div>
+                                        </div> <!-- end row -->
+                                    </div> <!-- end .p-2-->
+                                </div> <!-- end col -->
+                            </div> <!-- end col-->
+                            {% endif %}
+
+                        </div>
+                        <div class="tab-pane fade" id="anexos">
+                            {% for item in archivos %}
+                            <div id="archivo_{{ item.id }}" class="card mt-1 mb-0 shadow-none border">
+                                <div class="p-2">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-secondary rounded">
+                                                    <i class="far fa-file font-18"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col ps-0 text-center">
+                                            <a href="{{ item.archivo.url }}" class="text-muted fw-bold">
+                                                {{ item.archivo|cut:'media/correspondencia/' }}</a>
+                                            <p class="mb-0">{{ item.archivo.size|filesizeformat }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            {% endfor %}
+                        
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- Renglon de quien Turno el oficio y mostrar la respuesta -->
+                {% for row in origen %}
+                {% if forloop.first %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Turnado por:</strong></label>
+                            {% endif %}
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        <div class="avatar-group">
+                                            <a href="javascript: void(0);" class="avatar-group-item mb-0" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="">
+                                                {% get_user_avatar row.enviado_por as avatar%}
+                                                {% if avatar != '' %}
+                                                <img src="{{ avatar }}" class="rounded-circle avatar-xs" alt="friend">
+                                                {% else %}
+                                                <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs"
+                                                    alt="friend">
+                                                {% endif %}
+
+                                            </a>
+
+                                            {% get_user_info row.enviado_por %}
+                                        </div>
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{% get_user_info row.enviado_por %}
+                                    </p> -->
+                                    <p class="inbox-item-text">
+                                        <label>
+                                            {% if row.observaciones != None %}
+                                            {{row.observaciones }}
+                                            {% endif %}
+                                        </label>
+                                        <br />
+                                    </p>
+                                    <p class="inbox-item-date">
+                                        {{ row.created|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                                        <i class="text-primary fas fa-check" title="Turnado" tabindex="0" data-plugin="tippy" data-tippy-placement="top">
+                                        </i>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        {% if row.user.avatar %}
+                                        <img src="{{ row.user.avatar.url }}" class="rounded-circle avatar-xs" alt="">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs" alt="">
+                                        {% endif %}
+
+                                        {{ row.user }}
+
+                                        {% if row.declinado == True %}
+                                        <span class="badge bg-danger">DECLINADO</span>
+                                        {% endif %}
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{{ row.user }}
+                                        {% if row.declinado == True %}
+                                        <span class="badge bg-danger">DECLINADO</span>
+                                        {% endif %}
+                                    </p> -->
+                                    <p class="inbox-item-text">
+                                        <label>
+                                            {% if row.comentarios != None %}
+                                            {{row.comentarios }}
+                                            {% endif %}
+                                        </label>
+                                        <br />
+                                        {% if row.archivo %}
+                                    <div class="card m-1 shadow-none border text-center">
+                                        <div class="p-2">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto pe-0">
+                                                    <div class="avatar-sm">
+                                                        <span class="avatar-title bg-light text-secondary rounded">
+                                                            <i class="far fa-file font-18"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col ps-0">
+                                                    <a href="{{ row.archivo.url }}" target="_blank"
+                                                        class="text-success fw-bold"><strong>{{ row.archivo.url|cut:'media/correspondencia/' }}</strong></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                
+                                    </p>
+                
+                                    <p class="inbox-item-date">
+                                        {% if row.visto == True %}
+                                        {{ row.modified|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                                        <i class="text-success far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% else %}
+                                        <i class="text-secondary far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                        <br>
+                                        {% if row.visto == True %}
+                                        {{ row.modified|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                                        <i class="text-success fas fa-check-double" title="Contestado" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% else %}
+                                        <i class="text-secondary fas fa-check-double" title="Contestado" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                    </p>
+                
+                                </div>
+                            </div>
+                            {% if forloop.last %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+                
+                <!-- Renglon de a quienes Turne el oficio y puedo declinar -->
+                {% for row in turnados %}
+                {% if forloop.first %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Turnado a:</strong></label>
+                            {% endif %}
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        {% if row.user.avatar %}
+                                        <img src="{{ row.user.avatar.url }}" class="rounded-circle avatar-xs" alt="">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs" alt="">
+                                        {% endif %}
+
+                                        {{ row.user }} 
+
+                                        {% if row.declinado == True %}
+                                        <span class="badge bg-danger">DECLINADO</span>
+                                        {% endif %}
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{{ row.user }} 
+                                        {% if row.declinado == True %}
+                                        <span class="badge bg-danger">DECLINADO</span>
+                                        {% endif %}
+                                    </p> -->
+                                    <p class="inbox-item-text">
+                                        <label>
+                                            {% if row.comentarios != None %}
+                                            {{row.comentarios }}
+                                            {% endif %}
+                                        </label>
+                                        <br/>
+                                        {% if row.archivo %}
+                                        <div class="card m-1 shadow-none border text-center">
+                                            <div class="p-2">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto pe-0">
+                                                        <div class="avatar-sm">
+                                                            <span class="avatar-title bg-light text-secondary rounded">
+                                                                <i class="far fa-file font-18"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col ps-0">
+                                                        <a href="{{ row.archivo.url }}"
+                                                        target="_blank" class="text-success fw-bold"><strong>{{ row.archivo.url|cut:'media/correspondencia/' }}</strong></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <br>
+                                        {% endif %}
+                                        {% if detail.estatus != 'CONCLUIDO' %}
+                                            {% if row.estatus == 'CONCLUIDO' %}
+                                            <div class="text-center">
+                                                <input size="50" class="form-control-sm" id="txtCmmt2" type="text" placeholder="Comentario">
+                                                &nbsp;&nbsp;
+                                                <button id="btnDeclinar" onclick="Declinar('{% url 'oficios_app:declinar-recibido' detail.id row.user.id %}')"
+                                                    class="btn btn-outline-danger btn-xs rounded-pill waves-effect waves-light">Declinar
+                                                </button>
+                                                &nbsp;&nbsp;
+                                                <label id="lbSaved2"></label>
+                                            </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </p>
+                                   
+                                    <p class="inbox-item-date">
+                                        {% if row.visto == True %}
+                                        {{ row.fecha_visto|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                                        <i class="text-success far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% else %}
+                                        <i class="text-secondary far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                        <br>
+                                        {% if row.respuesta == True %}
+                                        {{ row.fecha_respuesta|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                                        <i class="text-success fas fa-check-double" title="Contestado" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% else %}
+                                        <i class="text-secondary fas fa-check-double" title="Contestado" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                    </p>
+
+                                </div>
+                            </div>
+                            {% if forloop.last %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+                       
+                <!-- Renglon de a quienes copie el oficio -->            
+                {% for row in cc %}
+                {% if forloop.first %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Con copia:</strong></label>
+                            {% endif %}
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        {% if row.user.avatar %}
+                                        <img src="{{ row.user.avatar.url }}" class="rounded-circle avatar-xs" alt="">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs"
+                                            alt="">
+                                        {% endif %}
+
+                                        {{ row.user }}
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{{ row.user }}</p> -->
+                                    <p class="inbox-item-text">
+                                        <label>
+                                            {% if row.comentarios != None %}
+                                            {{row.comentarios }}
+                                            {% endif %}
+                                        </label>
+                                    </p>
+                                    <p class="inbox-item-date">
+                
+                                        {% if row.visto == True %}
+                                        {{ row.modified|get_age|date:'d/m/Y H:i a' }}
+                                        &nbsp;
+                
+                                        <i class="text-success far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                
+                                        {% else %}
+                                        <i class="text-secondary far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                
+                            </div> <!-- end inbox-widget -->
+                            {% if forloop.last %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Renglon de a quienes di respuesta a la copia del oficio -->
+                {% for row in mis_copias %}
+                {% if forloop.first %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label><strong>Mis copias:</strong></label>
+                            {% endif %}
+                            <div class="inbox-widget" data-simplebar style="max-height: 350px;">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-author">
+                                        {% if row.user.avatar %}
+                                        <img src="{{ row.user.avatar.url }}" class="rounded-circle avatar-xs" alt="">
+                                        {% else %}
+                                        <img src="{% static 'assets/images/user_group.png' %}" class="rounded-circle avatar-xs" alt="">
+                                        {% endif %}
+
+                                        {{ row.user }}
+                                    </div>
+                                    <!-- <p class="inbox-item-author">{{ row.user }}</p> -->
+                                    <p class="inbox-item-text">
+                                        <label {% if request.user.username == row.user.username %} id="lbShow" {% endif %}>
+                                            {% if row.comentarios != None %}
+                                            {{row.comentarios }}
+                                            {% endif %}
+                                        </label>
+                                    </p>
+                                    <p class="inbox-item-date">
+                                        {% if row.visto == True %}
+                                        {{ row.modified|get_age|date:'d/m/Y H:i a' }}
+
+                                        &nbsp;
+                                        <i class="text-success far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        
+                                        {% else %}
+                                        <i class="text-secondary far fa-eye" title="Visto" tabindex="0" data-plugin="tippy" data-tippy-placement="top"></i>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            
+                            </div> <!-- end inbox-widget -->
+                            {% if forloop.last %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Renglon para dar respuesta a quien me copio en un oficio -->
+                {% if detail.estatus != 'CONCLUIDO' %}
+                {% for row in mis_copias %}
+                {% if request.user.username == row.user.username %}
+                <div class="row">
+                    <br>
+                    <div class="text-center">
+                        <input size="50" class="form-control-sm" id="txtCmmt" type="text" placeholder="Comentario">
+                        &nbsp;&nbsp;
+                        <button id="btnGuardar"
+                            onclick="Agregar_Comentario('{% url 'oficios_app:cmmt-recibido' detail.id request.user.id %}')"
+                            class="btn btn-outline-primary btn-xs rounded-pill waves-effect waves-light">Guardar</button>
+                        &nbsp;&nbsp;
+                        <label id="lbSaved"></label>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn fondo-boton" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $("#btnGuardar").click(function (e) {
+            e.preventDefault();
+        });
+
+        $("#btnDeclinar").click(function (e) {
+            e.preventDefault();
+        });
+
+    });
+
+
+    function Agregar_Comentario(myURL) {
+
+        var cmmt = $("#txtCmmt").val();
+
+        if(cmmt !== ''){
+            $('#lbSaved').show();
+            $('#lbSaved').removeClass("text-danger");
+            $('#lbSaved').addClass("text-success");
+            $('#lbSaved').text('Guardado!');
+            $('#lbSaved').fadeOut(6000);
+            
+
+            $.ajax({
+                url: myURL,
+                type: "POST",
+                dataType: "JSON",
+                data: {'comentarios': cmmt},
+                headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+
+                    $('#lbShow').text(cmmt);
+                },
+                error: function (error) {
+                    //console.log(error);
+                }
+            });
+            $("#txtCmmt").val('');
+
+        } else{
+            $('#lbSaved').show();
+            $('#lbSaved').removeClass("text-success");
+            $('#lbSaved').addClass("text-danger");
+            $('#lbSaved').text('Agrega un comentario');
+            $('#lbSaved').fadeOut(6000);
+        }
+                
+    }
+
+
+    function Declinar(myURL) {
+
+        var cmmt = $("#txtCmmt2").val();
+
+        if(cmmt !== ''){
+            $('#lbSaved2').show();
+            $('#lbSaved2').removeClass("text-danger");
+            $('#lbSaved2').addClass("text-success");
+            $('#lbSaved2').text('Guardado!');
+            $('#lbSaved2').fadeOut(6000);
+            
+
+            $.ajax({
+                url: myURL,
+                type: "POST",
+                dataType: "JSON",
+                data: {'comentarios': cmmt},
+                headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+                },
+                success: function (data) {
+
+                    $('#lbEstatus').text('DECLINADO');
+                    $('#lbEstatus').removeClass("bg-success");
+                    $('#lbEstatus').addClass("bg-danger");
+
+                    $("#txtCmmt2").hide();
+                    $("#btnDeclinar").hide();
+                },
+                error: function (error) {
+                    //console.log(error);
+                }
+            });
+            $("#txtCmmt2").val('');
+
+        } else{
+            $('#lbSaved2').show();
+            $('#lbSaved2').removeClass("text-success");
+            $('#lbSaved2').addClass("text-danger");
+            $('#lbSaved2').text('Agrega un comentario');
+            $('#lbSaved2').fadeOut(6000);
+        }
+                
+    }
+
+    function Visto(myURL) {
+
+        $.ajax({
+            url: myURL,
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                //console.log(data)
+            },
+            error: function (error) {
+                //console.log(error);
+            }
+        });
+                    
+    }
+</script>
+{% endblock extrajs %}

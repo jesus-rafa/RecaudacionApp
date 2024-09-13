@@ -1,0 +1,69 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Fecha Seguimiento</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_fecha_cierre" action="{% url 'transferidos_app:fecha-cierre' id_programa %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row" id="datos_generales">                
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            ID: <h4><strong id="lbOficio" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            RFC: <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.fecha }}
+                            <label>{{ form.fecha.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label>{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnGuardar" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+		$("#form_fecha_cierre").submit(function (e) {
+            $("#btnGuardar").attr("disabled", true);
+            return true;
+        });
+
+    });
+</script>
+{% endblock extrajs %}

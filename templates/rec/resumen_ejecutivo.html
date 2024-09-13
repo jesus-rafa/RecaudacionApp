@@ -1,0 +1,786 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Resumen Ejecutivo {% endblock title %}
+
+{% block head %} 
+<style type="text/css" media="print">
+    #btDetail {display:none}
+    #btPayments {display:none}
+    #btContact {display:none}
+    #btPrint {display:none}
+    #btFile {display:none}
+	#btBack {display:none}
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <button id="btDetail"
+                    onclick='$(".row_seguimiento").toggle(); $(this).toggleClass("btnRecaudacionGeneralSelected");'
+                    data-toggle="tooltip" data-placement="top" title="Mostrar/Ocultar" class="btnRecaudacionGeneral"><i
+                        class="fa fa-eye"></i> Seguimiento</button>
+                <button id="btFile"
+                    onclick='$(".row_archivos").toggle(); $(this).toggleClass("btnRecaudacionGeneralSelected");'
+                    data-toggle="tooltip" data-placement="top" title="Mostrar/Ocultar" class="btnRecaudacionGeneral"><i
+                        class="fa fa-eye"></i> Archivos</button>
+                <button id="btPayments"
+                    onclick='$(".row_pagos").toggle(); $(this).toggleClass("btnRecaudacionGeneralSelected");'
+                    data-toggle="tooltip" data-placement="top" title="Mostrar/Ocultar" class="btnRecaudacionGeneral"><i
+                        class="fa fa-eye"></i> Pagos</button>
+                <button id="btContact"
+                    onclick='$(".row_contacto").toggle(); $(this).toggleClass("btnRecaudacionGeneralSelected");'
+                    data-toggle="tooltip" data-placement="top" title="Mostrar/Ocultar" class="btnRecaudacionGeneral"><i
+                        class="fa fa-eye"></i> Contacto</button>
+
+                <button id="btPrint" type="button" class="btn btn-dark rounded-pill"
+                    onclick="javascript:window.print();">
+                    <span><i class="fa fa-print"></i> Imprimir</span>
+                </button>
+                <button id="btBack" class="btn btn-primary rounded-pill" onclick="window.history.back()">
+                    <i class="fas fa-reply"></i> Volver
+                </button>
+            </div>
+            <h4 class="page-title">Contribuyente</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="mb-0 table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>RFC</th>
+                            <th>Direccion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for programa in programacion %}
+                        <tr>
+                            {% ifchanged programa.rfc %}
+                            <td>{{ programa.nombre}}</td>
+                            <td>{{ programa.rfc }}</td>
+                            <td>{{ programa.direccion}}</td>
+                            {% endifchanged %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4> Programas</h4>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#programas" id="programas-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                            <i class="fe-settings fa-lg"></i> Programas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#masivo" id="masivo-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            <i class="fas fa-mail-bulk me-1 fa-lg"></i> Masivo
+                        </a>
+                    </li>
+                </ul>
+                <br> 
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="programas">
+                        <div class="table-responsive">
+
+                            <table id="table_programs" class="mb-0 table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Oficio</th>
+                                        <th>Programa</th>
+                                        <th>Autorizacion</th>
+                                        <th>Presuntiva</th>
+                                        <th>Recaudado</th>
+                                        <th>Área</th>
+                                        <th>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in programas %}
+                                    <tr>
+                                        {% if programa.area == 'VIGILANCIA Y CONTROL DE OBLIGACIONES' %}
+                                         <td><a href="{% url 'programacion_app:admin-programacion' programa.id %}" class="btn btn-link" target="_self">{{ programa.folio }}</a></td>
+        
+                                        {% elif programa.area == 'PADRONES' or programa.area == 'PROGRAMACION'%}
+                                        <td><a href="{% url 'padrones_app:admin-programacion-2' programa.id %}" class="btn btn-link" target = "_self">{{ programa.id }}</a></td>
+                                        
+                                        {% else %}
+                                        <td><a href="{% url 'transferidos_app:admin-programacion-3' programa.id %}" class="btn btn-link" target = "_self">{{ programa.folio }}</a></td>
+                                        {% endif %}
+                                        <td>{{ programa.programa }}</td>
+                                        <td>
+                                            <div class="text-center">
+                                                {{ programa.fecha|date:'d/m/Y' }}
+                                            </div>
+                                        </td>
+                                        <td class="col1">
+                                            <strong>
+                                                <label class="text-primary">${{ programa.presuntiva|unlocalize|intcomma}}</label>
+                                            </strong>
+                                        </td>
+                                        <td class="col2">
+                                            {% if programa.recaudado != None %}
+                                            <strong>
+                                                <label class="text-success">${{ programa.recaudado|unlocalize|intcomma}}</label>
+                                            </strong>
+                                            {% else %}
+                                            <strong>
+                                                <label class="text-success">$ 0.00</label>
+                                            </strong>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ programa.area }}</td>
+                                        <td>
+                                            {% if programa.estatus == 'CONCLUIDO' %}
+                                                <span class="badge bg-success rounded-pill">CONCLUIDO</span>
+                                            {% elif programa.estatus == 'TRANSFERIDO' %}
+                                                <span class="badge bg-danger rounded-pill">EN TRANSFERENCIA</span>
+                                            {% elif programa.estatus == 'RECHAZADO' %}
+                                                <span class="badge bg-danger rounded-pill">RECHAZADO</span>
+                                            {% else %}
+                                                <span class="badge bg-primary rounded-pill">ACTIVO</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+        
+                                    {% for programa in padrones %}
+                                    <tr>
+                                        <td><a href="{% url 'padrones_app:admin-programacion-2' programa.id %}" class="btn btn-link" target = "_self">{{ programa.id }}</a></td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td>{{ programa.fecha|date:'d/m/Y' }}</td>
+                                        <td class="col1">
+                                            <strong>
+                                                <label class="text-primary">${{ programa.presuntiva|unlocalize|intcomma}}</label>
+                                            </strong>
+                                        </td>
+                                        <td class="col2">
+                                            {% if programa.recaudado != None %}
+                                            <strong>
+                                                <label class="text-success">${{ programa.recaudado|unlocalize|intcomma}}</label>
+                                            </strong>
+                                            {% else %}
+                                            <strong>
+                                                <label class="text-success">$ 0.00</label>
+                                            </strong>
+                                            {% endif %}
+                                        </td>
+                                        <td>PADRONES</td>
+                                        <td>
+                                            {% if programa.estatus == 'CONCLUIDO' %}
+                                                <span class="badge badge-pill badge-success">CONCLUIDO</span>
+                                            {% else %}
+                                                <span class="badge badge-pill badge-primary">ACTIVO</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Total:</th>
+                                        <th class="total total_presuntiva"></th>
+                                        <th colspan="3" class="total total_recaudado"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="masivo">
+                        <div class="table-responsive">
+
+                            <table id="table_masivo" class="mb-0 table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Oficio</th>
+                                        <th>Programa</th>
+                                        <th>Autorizacion</th>
+                                        <th>Presuntiva</th>
+                                        <th>Recaudado</th>
+                                        <th>Área</th>
+                                        <th>Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in programas_masivo %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'padrones_app:admin-programacion-2' programa.id %}" class="btn btn-link" target = "_self">{{ programa.id }}</a>
+                                        </td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td>
+                                            <div class="text-center">
+                                                {{ programa.fecha|date:'d/m/Y' }}
+                                            </div>
+                                        </td>
+                                        <td class="col1">
+                                            <strong>
+                                                <label class="text-primary">${{ programa.presuntiva|unlocalize|intcomma}}</label>
+                                            </strong>
+                                        </td>
+                                        <td class="col2">
+                                            {% if programa.recaudado != None %}
+                                            <strong>
+                                                <label class="text-success">${{ programa.recaudado|unlocalize|intcomma}}</label>
+                                            </strong>
+                                            {% else %}
+                                            <strong>
+                                                <label class="text-success">$ 0.00</label>
+                                            </strong>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ programa.area }}</td>
+                                        <td>
+                                            {% if programa.estatus == 'CONCLUIDO' %}
+                                                <span class="badge bg-success rounded-pill">CONCLUIDO</span>
+                                            {% else %}
+                                                <span class="badge bg-primary rounded-pill">ACTIVO</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th>Total:</th>
+                                        <th class="total total_presuntiva"></th>
+                                        <th colspan="3" class="total total_recaudado"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                   
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4>Cartas Invitacion</h4>
+                    </div>
+                </div>
+                <br>
+                <div class="table-responsive">
+                    <table id="table_cartas" class="mb-0 table  table-hover">
+                        <thead>
+                            <tr>
+                                <th>Oficio</th>
+                                <th>Programa</th>
+                                <th>Fecha Envio</th>
+                                <th>Resultado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for programa in cartas_invitacion %}
+                            <tr>
+                                <td>{{ programa.folio }}</td>
+                                <td>{{ programa.programa }}</td>
+                                <td>{{ programa.fecha_envio|date:'d/m/Y' }}</td>
+                                <td>{{ programa.resultado }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row_seguimiento">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            
+            <div class="card-body"> 
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4> Seguimiento</h4>
+                    </div>
+                </div>
+                
+
+                <div class="table-responsive mt-15">
+                    <table id="Table_Detail" class="mb-0 table table-bordered table-hover">
+                        <thead>
+                            <tr class="text-dark">
+                                <th>Oficio</th>
+                                <th>Fecha</th>
+                                <th>Comentarios</th>
+                                <th>Estatus</th>
+                                <th>Área</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+								<td>{{ detalle.folio }}</td>
+                                <td>{{ detalle.fecha|date:'Y/m/d' }}</td>
+                                <td>{{ detalle.comentarios }}</td>
+                                <td>{{ detalle.estatus }}</td>
+                                <td>{{ detalle.area }}</td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row row_archivos">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+            
+                            <div class="row">
+                                <div class="col-md-12 text-center">
+                       
+                                    <h4> Archivos</h4>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive mt-15">
+                                <table id="Table_File" class="mb-0 table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio</th>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Comentarios</th>
+                                            <th>Archivo</th>
+                                            <th>Área</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for archivo in archivos %}
+                                        <tr>
+                                            {% if archivo.tipo == 'FICHA DE ANALISIS FISCAL DIGITAL' %}
+                                            {% if request.user.area != 'AUDITORIA' and request.user.area != 'EJECUCION' %}
+                                            <td>{{ archivo.programa_id.folio }}</td>
+                                            <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ archivo.tipo }}</td>
+                                            <td>{{ archivo.comentarios }}</td>
+                                            <td>
+                                                {{ archivo.archivo|cut:'media/programacion/' }}
+                                                <a href="{{ archivo.archivo.url }}" class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i></a>
+                                            </td>
+                                            <td>VIGILANCIA Y CONTROL DE OBLIGACIONES</td>
+                                            {% endif %}
+                                            {% else %}
+                                            <td>{{ archivo.programa_id.folio }}</td>
+                                            <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ archivo.tipo }}</td>
+                                            <td>{{ archivo.comentarios }}</td>
+                                            <td>
+                                                {{ archivo.archivo|cut:'media/programacion/' }}
+                                                <a href="{{ archivo.archivo.url }}" class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i></a>
+                                            </td>
+                                            <td>VIGILANCIA Y CONTROL DE OBLIGACIONES</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+
+                                        {% for archivo in archivos_padrones %}
+                                        <tr>
+                                            <td>{{ archivo.programa_id }}</td>
+                                            <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ archivo.tipo }}</td>
+                                            <td>{{ archivo.comentarios }}</td>
+                                            <td>
+                                                {{ archivo.archivo|cut:'media/programacion/' }}
+                                                <a href="{{ archivo.archivo.url }}" class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i></a>
+                                            </td>
+                                           <td>PADRONES</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+
+                                </table>
+                            </div>
+                   
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row row_pagos">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+     
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                       
+                        <h4> Pagos</h4>
+                    </div>
+                </div>
+                       
+                            <div class="table-responsive mt-15">
+                                
+                                <!-- <label>Presuntiva</label> -->
+                                <table id="Table_payments" class="mb-0 table table-hover Table_pay">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio</th>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Periodo/Ejercicio</th>
+                                            <th>Impuesto</th>
+                                            
+                                            <th>Actualizaciones</th>
+                                            <th>Recargos</th>
+                                            <th>Área</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pago in pagos %}
+                                        <tr>
+                                            <td>{{ pago.programa_id.folio }}</td>
+                                            <td>{{ pago.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ pago.tipo }}</td>
+                                            <td>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="text-left">
+                                                            {% get_month pago.periodo %}/{{ pago.ejercicio }}
+                                                        </div>
+                                                    </div>
+                                                
+                                                </div>
+                                            </td>
+
+                                            {% if pago.recargos %}
+                                                {% if pago.recargos < 0 %}
+                                                    <td class="col1 text-danger">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                                {% else %} 
+                                                    <td class="col1">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                                {% endif %}
+                                            {% else %} 
+                                                <td class="col1">$ 0.00</td> 
+                                            {% endif %}
+
+                                            {% if pago.accesorios %}
+                                                {% if pago.accesorios < 0 %}
+                                                    <td class="col2 text-danger">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                                {% else %} 
+                                                    <td class="col2">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                                {% endif %}
+                                            {% else %} 
+                                                <td class="col2">$ 0.00</td> 
+                                            {% endif %}
+
+                                            {% if pago.impuesto %}
+                                                {% if pago.impuesto < 0 %}
+                                                    <td class="col3 text-danger">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                                {% else %} 
+                                                    <td class="col3">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                                {% endif %}
+                                            {% else %} 
+                                                <td class="col3">$ 0.00</td> 
+                                            {% endif %}
+
+                                            <td>VIGILANCIA Y CONTROL DE OBLIGACIONES</td>
+                                            
+                                        </tr> 
+                                       
+                                        {% endfor %}
+
+
+                                        {% for pago in pagos_padrones %}
+                                        <tr>
+                                            <td>{{ pago.programa_id.id }}</td>
+                                            <td>{{ pago.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ pago.tipo }}</td>
+                                            <td>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="text-left">
+                                                            {% get_month pago.periodo %}/{{ pago.ejercicio }}
+                                                        </div>
+                                                    </div>
+                                                
+                                                </div>
+                                            </td>
+
+                                            {% if pago.impuesto %}
+                                            {% if pago.impuesto < 0 %}
+                                                <td class="col1 text-danger">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% else %} 
+                                                <td class="col1">$ {{ pago.impuesto|unlocalize|intcomma }}</td>
+                                            {% endif %}
+                                        {% else %} 
+                                            <td class="col1">$ 0.00</td> 
+                                        {% endif %}
+
+                                            
+
+                                            {% if pago.accesorios %}
+                                                {% if pago.accesorios < 0 %}
+                                                    <td class="col2 text-danger">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                                {% else %} 
+                                                    <td class="col2">$ {{ pago.accesorios|unlocalize|intcomma }}</td>
+                                                {% endif %}
+                                            {% else %} 
+                                                <td class="col2">$ 0.00</td> 
+                                            {% endif %}
+
+                                            {% if pago.recargos %}
+                                                {% if pago.recargos < 0 %}
+                                                    <td class="col3 text-danger">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                                {% else %} 
+                                                    <td class="col3">$ {{ pago.recargos|unlocalize|intcomma }}</td>
+                                                {% endif %}
+                                            {% else %} 
+                                                <td class="col3">$ 0.00</td> 
+                                            {% endif %}
+                                           
+
+                                            <td>PADRONES</td>
+                                        </tr> 
+                                       
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Total:</th>
+                                            <th class="subtotal"></th>
+                                            <th class="subtotal"></th>
+                                            <th colspan="2"  class="subtotal"></th>
+
+                                        </tr>
+
+                                    </tfoot>
+
+                                </table>
+
+                               
+                            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row_contacto">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h4> Contacto</h4>
+                    </div>
+                </div>
+
+                <div class="table-responsive mt-15">
+                    <table class="table center-aligned-table mb-0 table-hover">
+                        <thead>
+                            <tr class="text-dark">
+                                <th>Contacto</th>
+                                <th>Puesto</th>
+                                <th>Direccion</th>
+                                <th>Correo</th>
+                                <th>Telefono</th>
+                                <th>Fecha</th>
+                                <th>Capturado por</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                            <tr>
+                                <td>
+                                    {% if contacto.nombre != None %}
+                                    {{ contacto.nombre }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contacto.puesto != None %}
+                                    {{ contacto.puesto }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contacto.direccion != None %}
+                                    {{ contacto.direccion }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contacto.correo != None %}
+                                    {{ contacto.correo }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contacto.telefono != None %}
+                                    {{ contacto.telefono }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ contacto.fecha_alta|date:'d/m/Y'}}</td>
+                                <td>{% get_user_info contacto.usuario %} </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="https://cdn.rawgit.com/ashl1/datatables-rowsgroup/v1.0.0/dataTables.rowsGroup.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $('.alert-success').fadeOut(6000);
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('#btDetail').click();
+        $('#btPayments').click();
+        $('#btContact').click();
+        $('#btFile').click();
+
+        $('#Table_Detail').DataTable({
+            rowsGroup: [0, 4],
+            info: false,
+            searching: false,
+            paging: false,
+            bInfo: false,
+            ordering: false
+        });
+
+        $('.Table_pay').DataTable({
+            rowsGroup: [0, 7],
+            info: false,
+            searching: false,
+            paging: false,
+            bInfo: false,
+            ordering: false
+        });
+
+        $('#Table_File').DataTable({
+            rowsGroup: [0, 5],
+            info: false,
+            searching: false,
+            paging: false,
+            bInfo: false,
+            ordering: false
+        });
+
+        Get_Advance();
+
+    });
+
+    function Get_Advance(){
+        var progress = 0;
+        var collected = 0;
+        var estimated = 0;
+        var extra_progress = 0;
+        var fill_progress = 0;
+        var fill_progress_extra = 0;
+        var total_recargos = 0;
+        var total_presuntiva = 0;
+        var total_recaudado = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#table_programs').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        var getSum_masivo = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#table_masivo').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        var getSum2 = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#Table_payments').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+        $('#table_programs').find('.total').each(function (index, element) {
+            var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text('$  ' + total);
+        });
+
+        $('#table_masivo').find('.total').each(function (index, element) {
+            var total = getSum_masivo(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text('$  ' + total);
+        });
+
+        $('#Table_payments').find('.subtotal').each(function (index, element) {
+            var total = getSum2(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+            $(this).text('$  ' + total);
+        });
+
+    }
+</script>
+{% endblock extrajs %}

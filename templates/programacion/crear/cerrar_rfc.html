@@ -1,0 +1,119 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Cerrar o Reactivar</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_cierre" action="{% url 'programacion_app:cerrar-rfc' programa_id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <div class="text-center switchery-demo">
+                                {{ form.cerrar }}
+                                <b>{{ form.cerrar.label }}</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <div class="text-center switchery-demo">
+                                {{ form.reactivar }}
+                                <b>{{ form.reactivar.label }}</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h5><b><label id="lbAlerta" class="text-danger"></label></b></h5>
+                    </div>
+                    
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            {{ form.comentarios.label }}
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btReject" class="btn btn-primary">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+
+        $('#id_cerrar').change(function() {
+            let check_reactivar = $('#id_reactivar').prop("checked");
+
+            if(this.checked){
+                $('#lbAlerta').html('');
+
+                if(check_reactivar){
+                    $('#id_reactivar').click();
+                }
+            }
+        });
+
+        $('#id_reactivar').change(function() {
+            let check_close = $('#id_cerrar').prop("checked");
+
+            if(this.checked){
+                $('#lbAlerta').html('');
+
+                if(check_close){
+                    $('#id_cerrar').click();
+                }
+            }
+        });
+
+        $("#btReject").click(function () {
+            let check_reactivar = $('#id_reactivar').prop("checked");
+            let check_close = $('#id_cerrar').prop("checked");
+
+            if (check_reactivar === false & check_close === false){
+                $('#lbAlerta').html('Selecciona una opción');
+                return false;
+
+            } else{
+                return true;
+            }
+
+        });
+
+        $("#form_alta_cierre").submit(function (e) {
+            $("#btReject").attr("disabled", true);
+            return true;
+        });
+    });  
+</script>

@@ -1,0 +1,52 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_contribuyente" action="{% url 'programacion_app:add-contribuyente' %}" method="POST"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            <input type="text" name="rfc" class="form-control input-rec" placeholder=" ">
+                            <label>RFC</label>
+                            <input type="text" name="modelo" class="form-control d-none" value="5">
+                            <input type="text" name="prioridad" class="form-control d-none" value="1">
+                            <select name="programa" class="form-control input-rec">
+                                <option value="PROGRAMACION">PROGRAMACION</option>
+                                <option value="PADRONES">PADRONES</option>
+                            </select>
+                            <input type="text" name="fecha_inicio" id="fecha_inicio" class="form-control d-none" value="{{hoy}}">
+                            <input type="text" name="estatus" class="form-control d-none" value="EN PROCESO">
+                            <input type="text" name="usuario" class="form-control d-none" value="{{usuario}}">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button id="btNewContribuyente" type="submit"
+                    class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    // $(function(){
+    //     alert("POOOOOEEEEEEEEETA")
+    //     debugger;
+    //     $('#fecha_inicio').val(`${Date.now()}`)
+    // });
+</script>
+{% endblock extrajs %}

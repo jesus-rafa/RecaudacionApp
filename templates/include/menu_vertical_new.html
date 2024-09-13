@@ -1,0 +1,91 @@
+<div class="left-side-menu">
+    <div class="h-100" data-simplebar>
+        <div id="sidebar-menu">
+            <ul id="side-menu">
+                {% for item in menu %}
+                {% if item.hijos.all and item.nivel == 0 %}
+                <li>
+                    <a href="#{{ item.nombre.split|join:"_" }}" data-bs-toggle="collapse">
+                        <i class="{{ item.icono }}"></i>
+                        <span> {{ item.nombre }} </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="{{ item.nombre.split|join:"_" }}">
+                        <ul class="nav-second-level">
+                            {% for child in menu %}
+                            {% if child.hijos.all and child.nivel == 1 and child.padre.id == item.id %}
+                            <li>
+                                <a href="#{{ child.nombre.split|join:"_" }}" data-bs-toggle="collapse">
+                                    <i class="{{ child.icono }}"></i>
+                                    {{ child.nombre }} <span class="menu-arrow"></span>
+                                </a>
+                                <div class="collapse" id="{{ child.nombre.split|join:"_" }}">
+                                    <ul class="nav-second-level">
+                                        {% for item in menu %}
+                                        {% if item.hijos.all and item.nivel == 2 and item.padre.id == child.id %}
+                                        <li>
+                                            <a href="#{{ item.nombre.split|join:"_" }}" data-bs-toggle="collapse">
+                                                <i class="{{ item.icono }}"></i>
+                                                {{ item.nombre }} <span class="menu-arrow"></span>
+                                            </a>
+                                            <div class="collapse" id="{{ item.nombre.split|join:"_" }}">
+                                                <ul class="nav-second-level">
+                                                    {% for child in menu %}
+                                                    {% if not child.hijos.all and child.nivel == 3 and child.padre.id == item.id %}
+                                                    <li>
+                                                        <a href="{{ child.url }}">
+                                                            <i class="{{ child.icono }}"></i>
+                                                            <span> {{ child.nombre }} </span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% endfor %}
+
+                                                </ul>
+                                            </div>
+                                        </li>
+
+                                        {% elif not item.hijos.all and item.nivel == 2 and item.padre.id == child.id %}
+                                        <li>
+                                            <a href="{{ item.url }}">
+                                                <i class="{{ item.icono }}"></i>
+                                                <span> {{ item.nombre }} </span>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        {% endfor %}
+
+                                    </ul>
+                                </div>
+                            </li>
+
+                            {% elif not child.hijos.all and child.nivel == 1 and child.padre.id == item.id %}
+                            <li>
+                                <a href="{{ child.url }}">
+                                    <i class="{{ child.icono }}"></i>
+                                    <span> {{ child.nombre }} </span>
+                                </a>
+                            </li>
+
+                            {% endif %}
+
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+
+                {% elif not item.hijos.all and item.nivel == 0 %}
+                <li>
+                    <a href="{{ item.url }}">
+                        <i class="{{ item.icono }}"></i>
+                        <span> {{ item.nombre }} </span>
+                    </a>
+                </li>
+
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>

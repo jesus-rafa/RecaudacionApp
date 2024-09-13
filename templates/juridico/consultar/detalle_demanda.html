@@ -1,0 +1,280 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Datos Juicio {% endblock title %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    {% has_perms request.user 'change_visita' as change_visita %}
+    {% has_perms request.user 'delete_visita' as delete_visita %}
+
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                {% for campo in forms %}
+                {% ifchanged campo.detalle %}
+                <button type="button"
+                    onclick="View_Modal('{% url 'juridico_app:alta-proceso' campo.detalle.id demanda 0 0%}')"
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fa fa-plus"></i> {{campo.detalle|lower}}
+                </button>
+                {% endifchanged %}
+                {% endfor %}                
+                {% for demanda in detalleDemanda %}
+                {% if demanda.fecha_contestacion is None or demanda.oficio is None %}
+                <button type="button"
+                    onclick="View_Modal('{% url 'juridico_app:alta-proceso' 1 demanda.id 0 0%}')"
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fa fa-plus"></i> Contestacion
+                </button>
+                {% else %}
+                <button type="button"
+                    onclick="View_Modal('{% url 'juridico_app:alta-proceso' 129 demanda.id 0 0%}')"
+                    class="btn btn-primary rounded-pill" target="_blank">
+                    <i class="fa fa-plus"></i> Proceso
+                </button>
+                {% comment %} <select class=""
+                    name="combo_Proceso"
+                    id="combo_Procesos"
+                    onchange="myFunction(this)">
+                    <option value="Seleccionar">Seleccionar</option>
+                    {% for combo in opcion %}
+                        <option value="{{ combo.id }}">{{ combo.auxiliar }}</option>
+                    {% endfor %}
+                </select> {% endcomment %}
+                {% endif %}
+                {% endfor %}
+                <a href="{% url 'juridico_app:juridico' %}" 
+                    class="btn btn-primary  rounded-pill">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Datos de Juicio</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card p-3">
+            {% for elemento in detalleDemanda %}
+            <div class="row mb-3">
+                <div class="col">
+                    <label><strong>No. Carpeta:</strong></label>
+                    <label>{{ elemento.carpeta }}</label>
+                </div>
+                <div class="col">
+                    <label><strong>No. Expediente:</strong></label>
+                    <label>{{ elemento.expediente }}</label>
+                </div>
+            </div>
+            <div class="row mb-3">          
+                <div class="col">
+                    <label><strong>Juicio:</strong></label>
+                    <label>{{ elemento.juicio }}</label>
+                </div>
+                <div class="col">
+                    <label><strong>Subtipo:</strong></label>
+                    <label>{{ elemento.subtipo }}</label>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label><strong>Tribunal:</strong></label>
+                    <label>{{ elemento.tribunal }}</label>
+                </div>
+                <div class="col">
+                    <label><strong>Estado Procesal:</strong></label>
+                    <label>{{ elemento.estado_procesal }}</label>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label><strong>Abogado Dicatminador:</strong></label>
+                    <label>{{ elemento.dictaminador }}</label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card p-3">
+            <h4>Crea Procesos</h4>  
+            <select class="form-control"
+                name="select_proceso"
+                id="idProceso"
+                onchange="myFunction(this)">
+                <option value="Seleccionar">Seleccionar</option>                                
+                {% for combo in opcion %}
+                    <option value="{{ combo.formulario }}">{{ combo.nombre }}</option>                    
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="table-responsive mt-15">
+                    <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <th>Estado</th>
+                                <th>Comentarios</th>
+                                <th>Fecha</th>
+                                <th>Archivo</th>
+                                </tr>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for proceso in procesal %}
+                            <tr>
+                              <td>{{ proceso.procesal.nombre }}</td>
+                              <td>
+                                {% if proceso.comentario != None %} 
+                                {{ proceso.comentario }} {% endif %}
+                              </td>
+                              <td>{{ proceso.updated_at|date:'d/m/Y' }}</td>
+                              <td><a href=""
+                                title="Proceso" tabindex="0" data-plugin="tippy" data-tippy-placement="top"
+                                class="btn btn-info btn-xs" target="_self">
+                                <i class="fas fa-file"></i></a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Payments -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/toastr/nuget/content/scripts/toastr.min.js' %}"></script>
+
+<!-- Init js-->
+<script src="{% static 'assets/js/pages/form-pickers.init.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+
+        {% if messages %}
+            {% for message in messages %}
+
+                //Swal.fire({
+                //    position: "top-center",
+                //    icon: "success",
+                //    title: '{{ message|safe }}!',
+                //    showConfirmButton: !1,
+                //});
+
+                toastr.success('{{ message|safe }}', 'Éxito', {positionClass: "toast-bottom-right"})
+               
+            {% endfor %}
+        {% endif %}
+                    
+        $('.alert-success').fadeOut(6000);
+              
+    });
+        
+    function Agregar_Visita(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Editar_Visita(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+
+    function Eliminar_Visita(myURL, myID){
+        Swal.fire({
+            title: 'Seguro que desea eliminar?',
+            text: "este contribuyente!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Aceptar",
+            cancelButtonText: 'Cancelar',
+        }).then(function (e) {
+            if (e.value) {
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+    }
+    
+    function Ver(a){
+        console.log(a);
+    }
+    
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+        });
+    }
+
+    function myFunction(a) {
+        View_Modal('/alta-proceso/'+a.value+'/'+{{demanda}}+'/'+0+'/'+0)
+    }
+    
+</script>
+{% endblock extrajs %}

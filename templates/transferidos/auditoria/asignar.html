@@ -1,0 +1,37 @@
+<div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Asignar</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'transferidos_app:asignar-auditoria' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-group">
+                    {{ form.lista }}
+                    <input type="hidden" id="hfList" name="hfList" value="">
+                    <div class="text-center">
+                        <h5><label id="lbSelected" for="lbSelected" class="text-primary"></label></h5>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label id="lbAsignar">Asignar a:</label>
+                            {{ form.seguimiento }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

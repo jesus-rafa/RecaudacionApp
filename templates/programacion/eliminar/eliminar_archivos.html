@@ -1,0 +1,12 @@
+<div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+        <form method="post">{% csrf_token %}
+            <div class="modal-body">
+                <p>Seguro que deseas eliminar el archivo "{{ object }}"?</p>
+            </div>
+            
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Confirm">
+        </form>
+    </div>
+</div>

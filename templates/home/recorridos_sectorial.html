@@ -1,0 +1,33 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+
+{% block title %} Recorridos {% endblock title %}
+
+{% block head %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+{% endblock head %}
+
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <h4 class="page-title">Recorridos</h4>
+        </div>
+    </div>
+</div>
+
+<iframe title="Recorridos" width="100%" height="800"
+    src="https://app.powerbi.com/view?r=eyJrIjoiMjdmN2UxOTktMjZkZC00ZGEwLWIyMDMtZDE3OTZiMzBmMjVjIiwidCI6IjYyOGMwZTc3LTViNTUtNDRkZi04YmUxLWVjYTNiMzdiOWNkMCIsImMiOjR9&pageName=ReportSection"
+    frameborder="0" allowFullScreen="true"></iframe>
+
+{% endblock content %}
+
+
+{% block extrajs %}
+
+{% endblock extrajs %}

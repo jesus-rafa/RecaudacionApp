@@ -1,0 +1,106 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Propuesta de Transferencia</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_cierre" action="{% url 'programacion_app:estatus-cierre' programa_id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row">                
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            Oficio: <h4><strong id="lbFolio" class="sateg-negritas"></strong></h4>
+                            {{ form.programa_id }}
+                            <!-- <input type="text" class="form-control" id="tbID1"> -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            RFC: <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div class="text-center">
+                                <h4><label id="lbFolio" for="lbFolio" class="text-primary"></label></h4>
+                            </div>
+                            {{ form.estatus }}
+
+                            <label>Motivo:</label>
+                            {{ form.estatus_cierre }}
+                            <label class="text-danger" id="validar_fecha"></label>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.estatus }}
+
+                            <label class="etiqueta-combo">{{ form.estatus_cierre.label }}</label>
+                            {{ form.estatus_cierre }}
+                            <label style="display: none;" class="text-danger" id="lbEstatus">campo requerido*</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating col">
+                            {{ form.comentarios }}
+                            <label id="lbComentarios">{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btGuardar" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+
+        var myEstatusCierre = $(document.getElementById('id_estatus_cierre'))[0].selectize;
+        myEstatusCierre.setValue('');
+
+        $("#btGuardar").click(function () {
+
+            var motivo = $('#id_estatus_cierre').val();
+
+            if(motivo !== ''){
+                $('#lbEstatus').hide();
+                return true;
+
+            }else{
+                $('#lbEstatus').show();
+                $('#lbEstatus').fadeOut(3000);
+                return false;
+            }
+            
+        });
+
+        $("#form_alta_cierre").submit(function (e) {
+            $("#btGuardar").attr("disabled", true);
+            return true;
+        });
+    });
+</script>
+{% endblock extrajs %}

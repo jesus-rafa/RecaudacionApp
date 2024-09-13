@@ -1,0 +1,137 @@
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Autorizacion</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+
+            <div class="row mb-2">
+                <div class="col">
+                    <label>RFC:</label>
+                    <br>
+                    <label><b>{{ detail.rfc }}</b></label>
+                </div>
+                <div class="col">
+                    <label>Programa:</label>
+                    <br>
+                    <label><b>{{ detail.programa }}</b></label>
+                </div>
+                <div class="col">
+                    <label>Presuntiva:</label>
+                    <br>
+                    <label class="text-success">
+                        <b>$ {{ detail.presuntiva|unlocalize|intcomma}}</b>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="row mb-2">
+                <div class="col">
+                    <label>Nombre:</label>
+                    <br>
+                    <label><b>{{ detail.nombre }}</b></label>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <label>Direccion:</label>
+                    <br>
+                    <label><b>{{ detail.direccion }}</b></label>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs nav-bordered">
+                <li class="nav-item">
+                    <a href="#home-08" id="home-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                        class="nav-link active">
+                        Seguimiento
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#profile-08" id="profile-08-tab" data-bs-toggle="tab" aria-expanded="false"
+                        class="nav-link">
+                        Archivos
+                    </a>
+                </li>
+            </ul>
+
+
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="home-08">
+                    <div class="table-responsive mt-15">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr class="text-dark">
+                                    <th>Fecha</th>
+                                    <th>Comentarios</th>
+                                    <th>Estatus</th>
+                                    <th>Autorizacion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detalle in detalles %}
+                                <tr>
+                                    <td>{{ detalle.fecha|date:'d/m/Y' }}</td>
+                                    <td>
+                                        {% if detalle.comentarios != None %}
+                                        {{ detalle.comentarios }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ detalle.estatus }}</td>
+                                    <td>
+                                        {% if detalle.usuario != None %}
+                                        {% get_user_info detalle.usuario %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="profile-08">
+                    <div class="table-responsive mt-15">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Comentarios</th>
+                                    <th>Archivo</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for archivo in archivos %}
+                                <tr>
+                                    <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                    <td>{{ archivo.tipo }}</td>
+                                    <td>{{ archivo.comentarios }}</td>
+                                    <td>
+                                        <div class="avatar-sm">
+                                            <span class="avatar-title bg-light text-secondary rounded">
+                                                <a href="{{ archivo.archivo.url }}" target="_blank">
+                                                    <i class="mdi mdi-file-outline text-secondary font-18"></i>
+                                                </a>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>

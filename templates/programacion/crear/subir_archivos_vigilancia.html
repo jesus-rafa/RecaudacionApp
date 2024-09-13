@@ -1,0 +1,336 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/dropify/css/dropify.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Archivos</h4>
+        </div>
+        <div class="modal-body p-4">
+            <h4 id="lbRFC" class="sateg-negritas text-center"></h4>
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-2">
+                        <div class="card">
+                            <form action="{% url 'programacion_app:subir-archivos-vigilancia' pk %}" method="post"
+                                class="dropzone" id="myAwesomeDropzone" data-plugin="dropzone"
+                                data-previews-container="#file-previews"
+                                data-upload-preview-template="#uploadPreviewTemplate" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                <div class="fallback">
+
+                                </div>
+
+                                <div class="dz-message needsclick">
+                                    <i class="h1 text-muted dripicons-cloud-upload"></i>
+                                    <h4>Arrastra archivos o Da click para cargar.</h4>
+                                </div>
+                            </form>
+
+                            <!-- Preview -->
+                            <div class="dropzone-previews mt-3" id="file-previews"></div>
+                        </div> <!-- end card-->
+                    </div>
+                </div><!-- end col -->
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+
+                    <div class="table-responsive">
+                        <table id="table-archivos" class="table table-sm">
+                            <thead id="table-header">
+                                <td>Tipo</td>
+                                <td>Comentarios</td>
+                                <td>Archivo</td>
+                                <td></td>
+                            </thead>
+                            <tbody id="table-body">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- file preview template -->
+            <div class="d-none" id="uploadPreviewTemplate">
+                <div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="btnCancelar" type="button"
+                class="btn btn-outline-secondary waves-effect gris-oscuro">Cancelar</button>
+            <button id="btnGuardar" type="button"
+                class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+        </div>
+
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+<script src="{% static 'assets/libs/dropify/js/dropify.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+<script>
+    var modalConfirmacion = false;
+
+    $(document).ready(function () {
+        var flag = false; // Si hay algun error se activa;
+
+        var myDropzone = Dropzone.forElement("#myAwesomeDropzone");
+        myDropzone.on("queuecomplete", function (file) {
+            if (flag == false) {
+
+                Recuperar_Archivos();
+
+                toastr.success("", "Archivos Cargados Exitosamente!", {
+                    "positionClass": "toast-top-center",
+                    "closeButton": true
+                });
+
+            } else {
+                flag = false;
+            }
+
+        });
+
+        myDropzone.on("error", function (file, error) {
+            flag = true;
+
+            toastr.error("", error, {
+                "positionClass": "toast-top-center",
+                "closeButton": true
+            });
+
+            this.removeFile(file);
+        });
+
+        $("#btnCancelar").click(function () {
+            $('#mdFiles').modal('hide');
+        });
+
+        $("#btnGuardar").click(function () {
+            debugger;
+            var myData = [];
+
+            $('#table-archivos > tbody > tr').each(function (index, tr) {
+                var myRow = {};
+                $(tr).children().each(function (index, td) {
+                    if (index == 0) myRow.tipo = $(td).find(":selected").text();
+                    if (index == 1) myRow.comentarios = $(td).find('textarea').val();
+                    if (index == 3) myRow.id = $(td).find('input').val();
+                });
+                if (myRow.id !== undefined) myData.push(myRow);
+            });
+
+            if (validaCombos()) {
+
+                $.ajax({
+                    url: "{% url 'programacion_app:guardar-archivos-vigilancia' %}",
+                    type: "POST",
+                    dataType: "JSON",
+                    data: { 'data': JSON.stringify(myData) },
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+
+                        toastr.success("", "Guardado Exitosamente!", {
+                            "positionClass": "toast-top-center",
+                            "closeButton": true
+                        });
+
+                        $('#mdFiles').modal('hide');
+                        location.reload();
+                        $('#profile-08-tab').tab('show');
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            } else {
+                //$('#mdFiles').modal('show');
+                return false;
+            }
+            //console.log(JSON.stringify(myData));
+        });
+
+        Recuperar_Archivos();
+    });
+
+    function Recuperar_Archivos() {
+
+        $("#table-body").empty();
+
+        function selected_item(item1, item2) {
+            return item1 == item2 ? "selected" : "";
+        }
+
+        function get_icono(val) {
+            switch (val) {
+                case 'pdf':
+                    icono = '<i class="mdi mdi-file-pdf font-18 text-danger"></i>';
+                    break;
+                case 'lsx' || 'csv':
+                    icono = '<i class="mdi mdi-file-excel font-18 text-success"></i>';
+                    break;
+                case 'ocx':
+                    icono = '<i class="mdi mdi-file-word font-18 text-primary"></i>';
+                    break;
+                default:
+                    icono = '<i class="mdi mdi-file-outline font-18"></i>';
+                    break;
+            }
+            return icono;
+        }
+
+        function borrar(editar, id) {
+            if (editar == '')
+                return '<input type="hidden"  value="' + id + '">' +
+                    '<div class="col-auto mb-2">' +
+                    '<a onclick="Confirmacion(' + id + ')" class="btn btn-link btn-lg text-muted">' +
+                    '<i class="dripicons-cross"></i>' +
+                    '</a>' +
+                    '</div>';
+            else return '';
+        }
+
+        $.ajax({
+            url: "{% url 'programacion_app:get-files-vigilancia' pk %}",
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                var myArray = $.map(data, function (value, index) {
+
+                    $('#table-archivos > tbody:last').append(
+                        '<tr id="archivo_' + value.id + '">' +
+                        '<td>' +
+                        '<select style="font-size:12px" class="form-control sm" ' + value.editar + '>' +
+                        '<option value="0">SELECCIONE</option>' +
+                        {% for row in tipo %}
+                                '<option value="{{ row.id }}"' + selected_item(value.tipo, "{{ row.comentario }}") + '>{{ row.comentario }}</option>' +
+                    {% endfor %}
+                            '</select>' +
+                '<label style="display:none" class="text-danger">campo requerido*</label>' +
+                '</td>' +
+
+                '<td>' +
+                '<textarea type="text" ' + value.editar + ' class="form-control">' + value.comentarios + '</textarea>' +
+                '</td>' +
+
+                '<td>' +
+                '<div class="col-auto">' +
+                '<div class="avatar-sm">' +
+                '<span class="avatar-title bg-light text-secondary rounded">' +
+                '<a href="' + value.url + '" target="_blank" class="text-muted fw-bold" data-bs-toggle="tooltip" data-bs-placement="top" title="' + value.nombre + '">' +
+                get_icono(value.nombre.substring(value.nombre.length - 3)) +
+                '</a>' +
+                '</span>' +
+                '</div>' +
+                '</div>' +
+                '</td>' +
+
+                '<td>' +
+                borrar(value.editar, value.id) +
+                '</td>' +
+                '</tr>'
+                    );
+
+    });
+
+    var rowCount = $("#table-archivos > tbody > tr").length;
+    if (rowCount == 0) $("#table-header").hide(); else $("#table-header").show();
+            },
+    error: function (error) {
+        console.log(error);
+    }
+        });
+    }
+
+    function humanFileSize(size) {
+        var i = Math.floor(Math.log(size) / Math.log(1024));
+        return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    };
+
+    function Eliminar_Archivo(myID) {
+        var url = "{% url 'programacion_app:eliminar-archivo-vigilancia' 0 %}";
+        $.ajax({
+            url: url.replace('0', myID),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                $('#archivo_' + myID).remove();
+
+                var rowCount = $("#table-archivos > tbody > tr").length;
+                if (rowCount == 0) $("#table-header").hide(); else $("#table-header").show();
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function Confirmacion(myID) {
+        if (modalConfirmacion) {
+            return
+        }
+        modalConfirmacion = true;
+
+        toastr.options = {
+            "closeButton": true,
+            "positionClass": "toast-top-center",
+        }
+        toastr.warning(`<br><button type='button' id='confirmationButtonYes' class='btn btn btn-outline-secondary waves-effect btn-volver'>Confirmar</button>
+        <button type='button' id='confirmationButtonNo' class='btn btn btn-outline-secondary waves-effect btn-volver mx-3'>Cancelar</button>`, `Estas seguro de eliminar este archivo?`,
+            {
+                closeButton: false,
+                allowHtml: true,
+                onShown: function (toast) {
+                    $("#confirmationButtonYes").click(function () {
+                        Eliminar_Archivo(myID);
+                        modalConfirmacion = false;
+                    });
+                    $("#confirmationButtonNo").click(function () {
+                        toastr.clear();
+                        modalConfirmacion = false;
+                    });
+                }
+            });
+    }
+
+    function validaCombos() {
+
+        let flag = true;
+
+        $('#table-archivos > tbody > tr').each(function (index, tr) {
+            $(tr).children().each(function (index, td) {
+
+                if (index == 0 && $(td).find(":selected").text() == 'SELECCIONE') {
+                    $(tr).find('select').css('border-color', 'red');
+                    $(tr).find('label').css('display', 'block');
+                    flag = false;
+                }
+
+                if (index == 0 && $(td).find(":selected").text() != 'SELECCIONE') {
+                    $(tr).find('select').css('border-color', '#ced4da');
+                    $(tr).find('label').css('display', 'none');
+
+                }
+
+            });
+        });
+
+        return flag;
+    }
+</script>
+{% endblock extrajs %}

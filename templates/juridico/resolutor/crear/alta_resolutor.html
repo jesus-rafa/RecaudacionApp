@@ -1,0 +1,479 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Alta resolutor {% endblock title %}
+
+{% block head %}
+<!-- <link href="{% static 'css/RecApp.scss' %}" rel="stylesheet" type="text/css" /> -->
+{% endblock head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a href="{% url 'juridico_app:panel-resolutor' %}" 
+                    class="btn waves-effect btn-volver">
+                    <i class="fa fa-reply"></i> Volver
+                </a>
+            </div>
+            <h4 class="page-title">Resolutor</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div id="progressbarwizard">
+                    <ul class="nav nav-tabs nav-bordered" id="nav-tabs">
+                        <li class="nav-item">
+                            <a href="#account-2" aria-controls="account-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2 active">
+                                <i class="mdi mdi-bank me-1"></i>
+                                <span class="d-none d-sm-inline">Solicitante</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-tab-2" id="tab-res" aria-controls="profile-tab-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2"> <!-- onclick="siguiente()" -->
+                                <i class="mdi mdi-scale-balance me-1"></i>
+                                <span class="d-none d-sm-inline">Resolutor</span>
+                            </a>
+                        </li>
+                        {% comment %} <li class="nav-item">
+                            <a href="#finish-2" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                <i class="mdi mdi-checkbox-marked-circle-outline me-1"></i>
+                                <span class="d-none d-sm-inline">Final</span>
+                            </a>
+                        </li> {% endcomment %}
+                    </ul>
+                
+                    <div class="tab-content pb-3">
+                
+                        <!-- <div id="bar" class="progress mb-3" style="height: 7px;">
+                            <div class="bar progress-bar progress-bar-striped sateg-negro"  ></div>
+                        </div> -->
+                        <!-- TAB SOLICITANTE -->
+                        <div class="tab-pane active" id="account-2">
+                            <form id="form_alta_sol" action="{% url 'juridico_app:alta_solicitante' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div id="app">
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">                                
+                                            {{ form.rfc }}
+                                            <label class="etiqueta-combo col-11">{{form.rfc.label}}</label>
+                                            <i class="fa fa-search lupita" @click="getSolicitante(kword)"></i>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.nombre }}
+                                            <label class="etiqueta-combo">{{form.nombre.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.apeP }}
+                                            <label class="etiqueta-combo">{{form.apeP.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.apeM }}
+                                            <label class="etiqueta-combo">{{form.apeM.label}}</label>
+                                        </div>
+                                    </div>
+        
+                                    <div class="row mb-2">                                                                    
+                                        <div class="form-floating col">                                
+                                            {{ form.calle }}
+                                            <label class="etiqueta-combo">{{form.calle.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.numero }}
+                                            <label class="etiqueta-combo">{{form.numero.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.colonia }}
+                                            <label class="etiqueta-combo">{{form.colonia.label}}</label>
+                                        </div>                                 
+                                        <div class="form-floating col">                                
+                                            {{ form.ciudad }}
+                                            <label class="etiqueta-combo">{{form.ciudad.label}}</label>
+                                        </div>                                 
+                                    </div>
+        
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">                                
+                                            {{ form.cp }}
+                                            <label class="etiqueta-combo">{{form.cp.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">                                
+                                            {{ form.telefono }}
+                                            <label class="etiqueta-combo">{{form.telefono.label}}</label>
+                                        </div>  
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- <button id="btnAdd" type="button" onclick="siguiente()" class="btn btn-outline-secondary waves-effect gris-oscuro"> Siguiente </button> -->
+                                </div>
+                            </form>
+                        </div>
+                        <!-- TAB RESOLUTOR -->
+                        <div class="tab-pane" id="profile-tab-2">
+                            <form id="form_alta_res" action="{% url 'juridico_app:alta_resolutor' %}" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div id="app">
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">
+                                            {{ form_res.carpeta }}
+                                            <label class="etiqueta-combo">{{form_res.carpeta.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.oficio }}
+                                            <label class="etiqueta-combo">{{form_res.oficio.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.fecha_presentacion }}
+                                            <label class="etiqueta-combo">{{form_res.fecha_presentacion.label}}</label>
+                                        </div>
+                                        <!-- <div class="form-floating col">                                
+                                            {{ form_res.fecha_resolucion }}
+                                            <label class="etiqueta-combo">{{form_res.fecha_resolucion.label}}</label>
+                                        </div> -->
+                                        <div class="col">
+                                            <label class="etiqueta-combo">{{form_res.concepto.label}}</label>
+                                            {{ form_res.concepto }}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col d-none">
+                                            <label class="etiqueta-combo">{{form_res.solicitante.label}}</label>
+                                            {{ form_res.solicitante }}
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.ejercicio_ini }}
+                                            <label class="etiqueta-combo">{{form_res.ejercicio_ini.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.ejercicio_fin }}
+                                            <label class="etiqueta-combo">{{form_res.ejercicio_fin.label}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="form-floating col">
+                                            {{ form_res.marca }}
+                                            <label class="etiqueta-combo">{{form_res.marca.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.modelo }}
+                                            <label class="etiqueta-combo">{{form_res.modelo.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.serie }}
+                                            <label class="etiqueta-combo">{{form_res.serie.label}}</label>
+                                        </div>
+                                        <div class="form-floating col">
+                                            {{ form_res.placa }}
+                                            <label class="etiqueta-combo">{{form_res.placa.label}}</label>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <label class="etiqueta-combo">{{form_res.documentacion.label}}</label>
+                                            {{ form_res.documentacion }}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col">
+                                            <label class="etiqueta-combo">{{form_res.titular.label}}</label>
+                                            {{ form_res.titular }}
+                                        </div>
+                                        <div class="col">
+                                            <label class="etiqueta-combo">{{form_res.municipio.label}}</label>
+                                            {{ form_res.municipio }}
+                                        </div>
+                                        <div class="col">
+                                            <label class="etiqueta-combo">{{form_res.abogado.label}}</label>
+                                            {{ form_res.abogado }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <!-- <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="window.location=`{% url 'juridico_app:juridico' %}`"><i class="fa fa-ban"></i> Cancelar </button>
+                                    <button id="btnAdd" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro"><i class="fa fa-plus-circle"></i> Guardar </button> -->
+                                    <button id="btnAdd" type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" onclick="guardar()"><i class="fa fa-plus-circle"></i> Guardar </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div> <!-- tab-content -->
+                </div> <!-- end #progressbarwizard-->                
+            </div>
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+
+<!-- Modal View -->
+<!-- Open  Modal -->
+<div class="modal fade" id="mdOpen"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">    
+</div>
+{% endblock content %}
+
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script>
+    const controles =  [ 
+        {control : '#id_concepto', etiqueta:'Concepto'},
+        {control : '#id_solicitante', etiqueta:'RFC solicitante'},            
+        {control : '#id_documentacion', etiqueta:'Documentacion'},         
+        // {control : '#id_sentido', etiqueta:'Sentido'},         
+        // {control : '#id_formato', etiqueta:'formato'},         
+        {control : '#id_titular', etiqueta:'Titular'},         
+        {control : '#id_municipio', etiqueta:'Municipio'},
+        //{control : '#id_solicitante-selectized', etiqueta:'RFC solicitante'},
+    ];
+    $('#id_ejercicio_ini').mask('0000')
+    $('#id_ejercicio_fin').mask('0000')
+
+    $(document).ready(function() {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        });
+        cargaOpcionesDefault();
+
+        {% if messages %}
+            {% for message in messages %}
+                // toastr.options = {
+                //     "closeButton": true,
+                //     "positionClass": "toast-bottom-right",
+                //     "timeOut": 0,
+                //     "extendedTimeOut": 0,
+                //     "tapToDismiss": false
+                // }
+                toastr.success('{{ message|safe }}')
+                //toastr.success('{{ message|safe }}', 'Éxito')               
+            {% endfor %}
+        {% endif %}
+    });    
+    function cargaOpcionesDefault(){
+        controles.forEach(function(elemento){
+            var campo = $(elemento.control).selectize();
+            var selCampo = campo[0].selectize;
+            selCampo.setValue('');//empty to show a placeholder defined in form.py      
+        });
+    }
+    function asignarSolicitante(data){
+        let campo = ($('#id_solicitante').selectize())[0].selectize;
+        //let selCampo = campo[0].selectize;
+        campo.clearOptions();
+        campo.addOption({value:data.id,text:data.solicitante}); 
+        campo.addItem(data.id); 
+        campo.setValue(data.id);
+        //selCampo.disable(); si es disable no se manda
+    }
+    function guardar(){
+        debugger;
+        event.preventDefault();
+        // if (!document.getElementById('id_rfc').value){
+        //     solicitanteActivo();
+        //     //cambiaTab();
+        //     return;
+        // } 
+        const form = document.getElementById("form_alta_sol");
+        f = new FormData(form)
+
+        fetch("{% url 'juridico_app:alta_solicitante' %}", {
+            method: 'POST',
+            headers: {
+                //'Content-Type': 'application/json',
+                'X-CSRFToken': "{{ csrf_token }}",
+            },
+            body: f
+        })
+        .then(response => response.json())
+        .then(data => {
+            //cambiaTab();
+            solicitanteActivo();
+            document.forms["form_alta_res"].submit();
+        })
+        .catch(error => {
+            //cambiaTab();
+            solicitanteActivo();
+            //console.error(error);
+        });
+    }
+
+    function cambiaTab(){
+        $('.nav-tabs a[href="#profile-tab-2"]').tab('show');
+    }
+    //API REST #INTERFACE QUE USAN 2 COMPUTADORAS PARA INTERCAMBIAR INFORMACION SEGURA
+    function solicitanteActivo(){
+        fetch("{% url 'juridico_app:solicitanteActivo' %}", {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            debugger;
+            asignarSolicitante(data);
+            document.forms["form_alta_res"].submit();
+        })
+
+    }
+    // function twoForms(){
+    //     event.preventDefault();
+    //     debugger;
+    //     document.forms["form_alta_sol"].submit();
+    //     solicitanteActivo();
+    //     document.forms["form_alta_res"].submit();
+    // }
+</script>
+<script>
+    let success = 0;
+    let error = 0;
+    let warning = 0;
+    new Vue({
+      el: '#app',
+      delimiters: ['${','}'],
+      data: {
+        API_URL: window.location.origin,
+        loading: false,
+        kword: null,
+        message: false,
+        info: '',
+        rec: [],
+        nombre: null,
+        apeP: null,
+        apeM: null,
+        direccion: null,
+        numero: null,
+        colonia: null,
+        ciudad: null,
+        cp: null,
+        telefono: null,        
+      },
+      watch: {
+        // kword: function(val) {
+        //     if(val.length >= 6){
+        //         this.getSolicitante(val);
+        //     }
+
+        //     if(val.length == 0){
+        //         this.clear();
+        //     }
+                
+        // }
+      },
+      methods: {
+        getSolicitante(kword) {
+            this.clear();
+            debugger;                
+            axios.get(this.API_URL + "/juridico/getSolicitante/" + kword).then(response => {
+
+                this.rec = response.data;
+
+                if (this.rec.length == 0){
+
+                    if (!warning){
+                        this.getData(kword);
+                    }
+                    
+
+                }else{
+                    if (!success)  {
+                        toastr.success("", "Resultados Encontrados!");
+
+                        success = 0;
+                        error = 0;
+                        warning = 0;
+
+                        this.nombre = this.rec[0].nombre
+                        this.apeP = this.rec[0].apeP
+                        this.apeM = this.rec[0].apeM
+                        this.direccion = this.rec[0].calle
+                        this.numero = this.rec[0].numero
+                        this.colonia = this.rec[0].colonia
+                        this.ciudad = this.rec[0].ciudad
+                        this.cp = this.rec[0].cp
+                        this.telefono = this.rec[0].telefono
+                    }                    
+
+                }
+
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+        getData(kword) {
+            debugger;                
+            axios.get(this.API_URL + "/api/rec/" + kword).then(response => {
+
+                this.rec = response.data;
+
+                if (this.rec.length == 0){
+
+                    if (!warning){
+                        toastr.warning("", "No hay Resultados!", {
+                            "positionClass": "toast-bottom-right",                        
+                            "closeButton": true
+                        });
+                        success = 0;
+                        error = 0;
+                        warning = 1;
+                    }                                        
+
+                }else{
+                    if (!success)  {
+                        toastr.success("", "Resultados Encontrados!", {
+                            "positionClass": "toast-bottom-right",
+                            "closeButton": true
+                        });
+
+                        success = 0;
+                        error = 0;
+                        warning = 0;
+
+                        this.nombre = this.rec[0].nombre;
+                        this.direccion = this.rec[0].direccion;
+                    }                    
+
+                }
+
+            }).catch(error => {
+                console.log(error);
+            });
+        },
+        clear(){
+            this.rec = []
+            this.nombre = null
+            this.apeP = null
+            this.apeM = null
+            this.direccion = null
+            this.numero = null
+            this.colonia = null
+            this.ciudad = null
+            this.cp = null
+            this.telefono = null
+
+            // if (!error)  {
+            //     toastr.error("", "Borrado!", {
+            //     "positionClass": "toast-bottom-right",
+            //     "preventDuplicates": true,
+            //     "closeButton": true
+            //     });
+
+            //     success = 0;
+            //     error = 1;
+            //     warning = 0;
+            // }            
+        }
+      }
+    });
+</script>
+{% endblock extrajs %}

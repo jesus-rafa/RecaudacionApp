@@ -1,0 +1,92 @@
+{% load static %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'programacion_app:editar-contribuyente' object.id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.fecha }}
+                            {{ form.rfc }}
+                            <label>{{ form.rfc.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.nombre }}
+                            <label>{{ form.nombre.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.direccion }}
+                            <label>{{ form.direccion.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.interlocutor }}
+                            <label>{{ form.interlocutor.label }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.programa.label }}</label>
+                            {{ form.programa }}
+                            <input id="hfProgram" type="hidden" value="{{ selected_program }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            {{ form.presuntiva }}
+                            <label>{{ form.presuntiva.label }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro"
+                    data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-masks.init.js' %}"></script>
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        var selected_programa = $('#hfProgram').val();
+        var myPrograma = $(document.getElementById('id_programa'))[0].selectize;
+        myPrograma.setValue(selected_programa);
+
+    });
+</script>
+{% endblock extrajs %}

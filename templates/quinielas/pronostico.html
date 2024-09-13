@@ -1,0 +1,429 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Pronostica partidos {% endblock title %}
+
+
+{% block content %}
+<style>
+    input:read-only{
+       cursor: no-drop 
+    }
+</style>
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-20" 
+                            id="home-20-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link active">
+                            <i class="fa fa-files-o"></i>
+                            Pronósticos
+                        </a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a href="#profile-30" 
+                            id="profile-30-tab" data-bs-toggle="tab" aria-expanded="false" 
+                            class="nav-link"
+                            aria-controls="profile-40" aria-selected="false">
+                            <i class="fa fa-check-square-o"></i>
+                            Pronosticos
+                        </a>
+                    </li> -->
+                </ul>
+                <br>
+                <!-- <div class="form-floating col-4 mx-auto">       
+                    <input id="expediente_id" type="search" class="form-control input-rec" v-model="kword" placeholder="RFC ó Nombre" style="box-shadow: 0 4px 5px -5px gray;" data-toggle="tooltip" data-placement="top" title="captura tu país">
+                    <label for="expediente_id">Buscar</label>
+                </div> -->
+
+                <br>
+                <div class="d-flex flex-row  "> <!--animate__heartBeat-->
+                    <div class="tab-content col-lg-12">
+                        <div class="tab-pane fade active show  " id="home-20">
+                                <div class=" row  ">
+                                    {% for row in fechas %}
+                                    <div class="col-lg-6 ">
+                                        <div class="card card-body card-body-diseño" style="height:95%;">
+                                            <form id="form_pronostico_{{row.fecha_hora|date:'ymd'}}" action="{% url 'quinielas_app:crea-pronostico' %}" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                                                {% csrf_token %}
+                                                <h2 class="card-title centrado card-title-text">{{row.fecha_hora|date:'l,M d'}}</h2><!--{{item.hora|date:'l,M d H:i'}}-->                                            
+                                                {% for item in partidos %}
+                                                    {% if row.fecha_hora|date:'Y/m/d' == item.hora_zona|date:'Y/m/d' %}
+                                                        <br>
+                                                        <h4 class="card-title centrado card-title-text-h4-fecha" >{{item.hora_zona|date:'H:i'}} </h4>
+                                                        <div class="form-group row form-group-alto ">
+                                                            <div class=" input-group mx-auto input-group-tamaño" >
+                                                                <div class="d-flex flex-column flex-image " >
+                                                                    <img src="{{item.logolocal}}" alt="image" class=" flex-image-img rounded-circle m-1 mx-auto" >
+                                                                    <p class="text-center "><strong>{{item.local}}</strong></p>
+                                                                </div>
+                                                                <input type="text"  class="form-control input-rec marcador text-center input-form-diseño"  {% if item.activo %}readonly {% endif %} placeholder="Resultado" style="width: 20%; height:50px; margin-left: 10px; padding: 0;" id="marcador_local_{{item.id}}"  data-toggle="tooltip" data-placement="top" title="captura tu marcador" value="{{ item.pronostico_local }}" name="partido{{item.id}}">
+                                                                <h4 class="card-title centrado card-title-text-h4" >VS</h4>                                                
+                                                                <!-- </div>  <div class=" input-group  mx-auto  input-group-tamaño" >     -->                                    
+                                                                <input type="text" class="form-control marcador input-rec text-center input-form-diseño"  {% if item.activo %}readonly {% endif %} style="width: 20%; height:50px; margin-right: 10px; padding: 0;" id="marcador_visita_{{item.id}}" placeholder="Resultado" data-toggle="tooltip" data-placement="top" title="captura tu marcador" value="{{ item.pronostico_visita }}" name="partido{{item.id}}">
+                                                                <div class="d-flex flex-column"  style="width: 20%;">
+                                                                    <img src="{{item.logovisita}}" alt="image" class="flex-image-img rounded-circle m-1 mx-auto"  > <!--{{item.logovisita}}-->
+                                                                    <p class="text-center " style="text-shadow: 0px 0px 5px 8px gray"><strong>{{item.visita}}</strong> </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <br>
+                                                    {% endif %}
+                                                {%endfor%}
+                                                <div class="centrado mt-3">
+                                                 
+                                                    <!-- <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro">Cancelar</button> hide p       {% if row.fecha_hora|date:'d-m-y' < hoy|date:'d-m-y' %} d-none {%endif %}-->
+                                                    <button class="btn btn-outline-secondary waves-effect  boton-hover  btn-guardar {% if row.fecha_hora|date:'d-m-y' == hoy|date:'d-m-y' %}{% elif row.d_no_disponible == 0 %} d-none {% endif %} " id="btn_add" 
+                                                        onclick="crear('{% url 'quinielas_app:crea-pronostico' %}', $('#form_pronostico_{{row.fecha_hora|date:'ymd'}}')[0])">Guardar</button>
+                                                        <!--onclick="crear('{% url 'quinielas_app:crea-pronostico' %}', $('#form_pronostico_{{item.id}}')[0],{{item.id}})" >Guardar</button>-->
+                                                    <!-- <button class="btn btn-primary" type="submit">Submit form</button>
+                                                    <button class="btn btn-primary" type="submit">Submit form</button> -->
+                                                </div>
+                                            </form>
+                                            <!-- <hr class="border: 2px solid black" style="box-shadow: 0px 5px 6px #000">   -->
+                                        </div>
+                                    </div>
+                                    {%endfor%}
+                                </div>                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- <div id="flotante" style="display:none;">
+    <p> CONTENIDO A OCULTAR/MOSTRAR </p>
+    <input type="text" id="myText" placeholder="hola"> 
+</div> 
+
+<p><a href="javascript:mostrar();">Mostrar</a></p>
+<div id="flotante">
+    <div id="close"><a href="javascript:cerrar();">cerrar</a></div>
+    
+</div> -->
+<!-- style="display:none;" -->
+<!--{{item.hora|date:'l,M d H:i'}}-->  
+ <!--flex-image  <img src="https://p4.wallpaperbetter.com/wallpaper/34/159/662/mexico-flag-wallpaper-preview.jpg" alt="image" class=" flex-image-img rounded-pill m-1 mx-auto " >     {{item.logolocal}}  -->
+ <!-- </div>  <div class=" input-group  mx-auto  input-group-tamaño" >     -->  
+<!--{{item.logovisita}}-->
+<!-- <div class="card card-body card-body-diseño col-lg-6" style="height:95%;">
+    <form id="form_pronostico_{{row.fecha_hora|date:'ymd'}}" action="{% url 'quinielas_app:crea-pronostico' %}" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+        
+        <h2 class="card-title centrado card-title-text">Viernes,Dic 02</h2>                                          
+       
+         <br>
+        <h4 class="card-title centrado card-title-text-h4-fecha" >13:00 </h4>
+        <div class="form-group row form-group-alto ">
+            <div class=" input-group mx-auto input-group-tamaño" >
+
+                <div class="d-flex flex-column "  style="width: 20%;">
+                    <img src="https://p4.wallpaperbetter.com/wallpaper/34/159/662/mexico-flag-wallpaper-preview.jpg" alt="image" class="flex-image-img rounded-pill m-1 mx-auto sobre">
+                    <p class="text-center "><strong>mexico</strong></p>
+                    <img src="https://tvazteca.brightspotcdn.com/0b/54/892a6d63419c8031a4b3f96ce336/alineacion-mexicana-seleccion-de-mexico-qatar-2022-polonia.jpg" alt="" class="carta margen-izq">
+                
+                        
+                             
+                            
+                </div>
+                <input type="text" class="form-control marcador input-rec  text-center input-form-diseño " style="width: 20%; height:50px; margin-left: 10px; padding: 0;" id="marcador_local_{{item.id}}" placeholder="Resultado"  data-toggle="tooltip" data-placement="top" title="captura tu marcador" value="{{pronostico_loca}}" name="partido{{item.id}}">
+                <h4 class="card-title centrado card-title-text-h4" >VS</h4>                                                
+                                                  
+                        <input type="text" class="form-control marcador input-rec text-center input-form-diseño " style="width: 20%; height:50px; margin-right: 10px; padding: 0;" id="marcador_visita_{{item.id}}" placeholder="Resultado" data-toggle="tooltip" data-placement="top" title="captura tu marcador" value="{{pronostico_visita}}" name="partido{{item.id}}">
+                <div class="d-flex flex-column "  style="width: 20%;">
+                        <img src="https://p4.wallpaperbetter.com/wallpaper/34/159/662/mexico-flag-wallpaper-preview.jpg" alt="image" class="flex-image-img rounded-pill m-1 mx-auto sobre"  > 
+                        <p class="text-center " style="text-shadow: 0px 0px 5px 8px gray"><strong>mexico</strong> </p>  
+                        <img src="https://tvazteca.brightspotcdn.com/0b/54/892a6d63419c8031a4b3f96ce336/alineacion-mexicana-seleccion-de-mexico-qatar-2022-polonia.jpg" alt="" class="carta margen-der">
+                </div>
+                
+            </div>
+        </div>
+        <br>
+           
+        <div class="centrado mt-3">
+            
+            <button  class="btn btn-outline-secondary waves-effect  boton-hover  btn-guardar p hide" id="btn_add"
+                onclick="crear('{% url 'quinielas_app:crea-pronostico' %}', $('#form_pronostico_{{row.fecha_hora|date:'ymd'}}')[0])">Guardar</button>
+                          
+        </div>
+    </form>  
+</div> -->
+
+<!-- <p class="classtxt" >imagen</p> -->
+
+<!-- <div >
+    <div  >
+        <img src="https://image.ibb.co/kESi3R/carta_antigua.jpg" alt="" class="sobre">
+        <img src="https://e00-marca.uecdn.es/assets/multimedia/imagenes/2022/09/23/16638996235529.png" alt="" class="carta">
+    </div> -->
+    <!-- <div >
+        <img src="https://e00-marca.uecdn.es/assets/multimedia/imagenes/2022/09/23/16638996235529.png" alt="" class="carta">
+        <iframe width="420" height="315" src="https://www.youtube.com/embed/sOnqjkJTMaA" frameborder="0" allowfullscreen="allowfullscreen" class="carta"></iframe>
+        
+    </div>
+</div> -->
+
+
+
+
+
+
+
+
+ <!-- <div class="tab-content ">
+                    <div class="tab-pane fade active show" id="home-20">
+                        {% for row in fechas %}
+                            {% for item in partidos %}
+                                {% if row.fecha_hora|date:'Y/m/d' == item.hora|date:'Y/m/d' %}
+                                <h4 class="card-title centrado">{{item.local}} vs {{item.vista}}</h4>
+                                {% endif %}
+                            {%endfor%}
+                        {%endfor%}
+                        {% for item in partidos %}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card card-body">
+                                        <form id="form_pronostico_{{item.id}}" action="{% url 'quinielas_app:crea-pronostico' %}" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                                            {% csrf_token %}
+                                            
+                                            <h2 class="card-title centrado">{{item.hora|date:'l,M d H:i'}}</h2>
+                                            <h4 class="card-title centrado">{{item.local}} vs {{item.vista}}</h4>
+                                            <div class="form-group row">
+                                                <div class="col input-group">
+                                                    <img src="{{item.logolocal}}" alt="image" class="img-fluid rounded" width="50">
+                                                    <input type="text" class="form-control marcador" id="marcador_local">
+                                                </div>
+                                                <div class="col input-group">    
+                                                    <input type="text" class="form-control marcador" id="marcador_visita">
+                                                    <img src="{{item.logovisita}}" alt="image" class="img-fluid rounded" width="50">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                            </div>
+                                            <div class="centrado mt-3">
+                                                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro">Cancelar</button>
+                                                <button class="btn btn-outline-secondary waves-effect gris-oscuro" id="btn_add"
+                                                    onclick="crear('{% url 'quinielas_app:crea-pronostico' %}', $('#form_pronostico_{{item.id}}')[0],{{item.id}})" >Guardar</button>
+                                                             
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="tab-pane fade" id="profile-30">
+                        {% for item in pronostico %}
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card card-body">
+                                        <form id="form_pronostico_edita_{{item.id}}" action="{% url 'quinielas_app:crea-pronostico' %}" method="POST" enctype="multipart/form-data" onsubmit="return false;">
+                                            {% csrf_token %}
+                                            <h2 class="card-title centrado">{{item.partido.fecha_hora|date:'l,M d H:i'}}</h2>
+                                            <h4 class="card-title centrado">{{item.partido.local}} vs {{item.partido.visitante}}</h4>
+                                            <div class="form-group row">
+                                                <div class="col input-group">
+                                                    <img src="{{item.partido.local.logo}}" alt="image" class="img-fluid rounded" width="50">
+                                                    <input type="text" class="form-control marcador" id="marcador_local" value="{{item.pronostico_local}}">
+                                                </div>
+                                                <div class="col input-group">    
+                                                    <input type="text" class="form-control marcador" id="marcador_visita" value="{{item.pronostico_visitante}}">
+                                                    <img src="{{item.partido.visitante.logo}}" alt="image" class="img-fluid rounded" width="50">
+                                                </div>
+                                            </div>
+                                            <div class="centrado mt-3">
+                                                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro">Cancelar</button>
+                                                <button class="btn btn-outline-secondary waves-effect gris-oscuro" id="btn_add"
+                                                    onclick="editar('{% url 'quinielas_app:edita-pronostico' %}', $('#form_pronostico_edita_{{item.id}}')[0],{{item.id}})" >Guardar</button>
+                                                            
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div> -->
+                <!-- <button class="btn btn-primary" type="submit">Submit form</button>
+                    <button class="btn btn-primary" type="submit">Submit form</button> -->       
+
+
+
+
+{% endblock content %}
+
+{% block extrajs %}
+
+
+
+<script languague="javascript">
+    function mostrar() {
+        div = document.getElementById('flotante');
+        div.style.display = '';
+        document.getElementById("myText").readOnly = true;
+    }
+
+    function cerrar() {
+        div = document.getElementById('flotante');
+        div.style.display = 'none';
+       
+    }
+</script>
+
+
+<script src="{% static 'assets/libs/jquery-mask-plugin/jquery.mask.min.js' %}"></script>
+
+<script>
+    // $(document).ready(function(){
+
+    //     if ({{hoy|date:'d-m-y'}} == {{hoy|date:'d-m-y'}}) {
+    //     $('.inputId').attr('readonly', true);
+    //     }
+
+    //   //$(".hide").click(function(){
+    //     // $(".p").hide();
+    //     // $('.inputId').attr('readonly', true);
+    //   //});
+    // //   $("#show").click(function(){
+    // //     $("p").show();
+    // //   });
+    // });
+</script>
+
+<script>
+    window.document.onload = function fechaHoy(){
+        document.getElementsByClassName(".myTexto").readOnly = true;
+    }
+</script>
+
+<script>
+    $(function(){
+        $('.marcador').mask('00');
+        
+        $('input[type="text"].marcador').each(function () {
+            if($(this).val() == "")
+            {
+                $(this).val("-");
+            }
+        })
+    });
+
+    $('#btn_add').click( function(e){
+        e.preventDefault();
+    })
+
+    function crear(myURL, form){
+        // debugger;
+        let valid = true;
+        let valid_forecast =  false;
+        let formPartidos = {}
+        form.forEach((element) => {
+            if (element.id.includes('marcador') && !element.value) valid = false;
+            if (element.id.includes('marcador') && element.value && element.value != "-"){
+                valid_forecast = true;
+                // debugger;
+                //objeto.partido7={local:1, visita:2 }
+                values = element.id.split('_');
+                if (formPartidos['Partido' + values[2]] && formPartidos['Partido' + values[2]].hasOwnProperty('local')){
+                    formPartidos['Partido' + values[2]][values[1]] = element.value;
+                }else{
+                    formPartidos['Partido' + values[2]] = {}
+                    formPartidos['Partido' + values[2]]['id'] = values[2]
+                    formPartidos['Partido' + values[2]][values[1]] = element.value
+                }
+            }
+        })
+
+        if (!valid_forecast) return toastr.error('Ningún pronóstico actualizado para guardar')
+        if (!valid) return toastr.error('Agrega todos los valores')
+        /* if (!form.marcador_local.value) return toastr.error('Agrega un valor para local')
+        if (!form.marcador_visita.value) return toastr.error('Agrega un valor para visitante') */
+        // console.log(formPartidos);
+
+        Object.keys(formPartidos).forEach(key => {
+            if (formPartidos[key].local !== undefined && formPartidos[key].visita !== undefined)
+            {
+                let prediccion = predice(formPartidos[key]);
+        
+                let formData = {
+                    csrfmiddlewaretoken: form.csrfmiddlewaretoken.value,
+                    pronostico: prediccion,
+                    local: formPartidos[key].local,
+                    visitante: formPartidos[key].visita,
+                    partido: formPartidos[key].id,
+                }
+        
+                $.ajax({
+                    url: myURL,
+                    type: "POST",
+                    data: formData,
+                    success: function (data) {
+                        // debugger;
+                        // form.parentElement.style.display = 'none'
+                        if (data.result.exito) return toastr.success(data.result.exito);
+                        if (data.result.error) return toastr.error(data.result.error);
+                        //toastr.success(data.result);
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+            {
+                return toastr.error('Revise el valor de sus marcadores activos, faltan por pronósticar.')
+            }
+        });
+    }
+    function editar(myURL, form, id_pronostico){
+        // debugger;
+        if (!form.marcador_local.value) return toastr.error('Agrega un valor para local')
+        if (!form.marcador_visita.value) return toastr.error('Agrega un valor para visitante')
+
+        let prediccion = predice(form);
+
+        let formData = {
+            csrfmiddlewaretoken: form.csrfmiddlewaretoken.value,
+            pronostico: prediccion,
+            id_pronostico: id_pronostico,
+            local: form.marcador_local.value,
+            visitante: form.marcador_visita.value
+        }
+
+        $.ajax({
+            url: myURL,
+            type: "POST",
+            data: formData,
+            success: function (data) {
+                debugger;
+                if (data.result.exito) return toastr.success(data.result.exito);
+                if (data.result.error) return toastr.error(data.result.error);
+                //toastr.success(data.result);
+            },
+            error: function (data) {
+                toastr.error(data.result);
+            }
+        });
+    }
+
+    function predice(objeto){
+        if (objeto.local == objeto.visita){
+            return 3;
+        } else if (objeto.local < objeto.visita) {
+            return 2;
+        } else if (objeto.local > objeto.visita) {
+            return 1
+        }
+    }
+</script>
+{% endblock extrajs %}

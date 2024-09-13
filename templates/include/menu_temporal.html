@@ -1,0 +1,78 @@
+{% for item in menu %}
+    {% if item.hijos.all %}
+        {% if item.nivel == 0 %}
+			<li>
+				<a href="javascript:void(0);" data-toggle="collapse" data-target="#{{ item.id }}">
+					<div class="pull-left">
+						<i class="{{ item.icono }}"></i>
+						<span class="right-nav-text">{{ item.nombre }}</span>
+					</div>
+					<div class="pull-right">
+						<i class="ti-plus"></i>
+					</div>
+					<div class="clearfix"></div>
+				</a>
+				<ul id="{{ item.id }}" class="collapse" data-parent="#sidebarnav">
+
+					{% for child in item.hijos.all %}
+                        {% if child.hijos.all %}
+                            {% if child.nivel == 1 %}
+								<li>
+									<a href="javascript:void(0);" data-toggle="collapse" data-target="#{{ child.id }}">
+										{{ child.nombre }}
+										<div class="pull-right">
+											<i class="ti-plus"></i>
+										</div>
+										<div class="clearfix"></div>
+									</a>
+									<ul id="{{ child.id }}" class="collapse">
+                                        {% for item in child.hijos.all %}
+                                            {% if item.hijos.all %}
+                                                <!-- nivel 2 -->
+
+                                            {% else %}
+                                                <li>
+													<a href="{{ item.url }}">
+														<i class="{{item.icono}}"></i>
+														<span class="right-nav-text">{{item.nombre}}</span>
+												
+													</a>
+												</li> 
+                                            {% endif %}
+                                        {% endfor %}
+                                                                
+                                    </ul>
+                                                        
+                                </li>
+                                                       
+                            {% endif %}
+                        {% else %}
+                             <li>
+								<a href="{{ child.url }}">
+									<i class="{{child.icono}}"></i>
+									<span class="right-nav-text">{{child.nombre}}</span>
+							
+								</a>
+							</li>                      
+                                                    
+                        {% endif %}
+
+                    {% endfor %}
+			
+				</ul>
+			</li> 
+                               
+        {% endif %}
+
+    {% elif not item.hijos.all and item.nivel == 0 %}
+		<li>
+            <a href="{{ item.url }}">
+                <i class="{{item.icono}}"></i>
+                <span class="right-nav-text">{{item.nombre}}</span>
+        
+            </a>
+        </li>
+                          
+    {% endif %}
+{% endfor %}
+          

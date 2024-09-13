@@ -1,0 +1,156 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Impuestos</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body p-4">
+
+                <div class="row" id="datos_generales">     
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            Nombre: <h5><strong id="lbNombre" class="sateg-negritas"></strong></h5>
+                            <input type="hidden" id="hfValidar" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            RFC: <h5><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+                <div class="row col-md-12">
+                    <ul id="consulta_impuesto"></ul>
+                </div>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table id="ver-table-impuestos" class="table table-sm">
+                                <thead id="ver-table-header">
+                                </thead>
+                                <tbody id="ver-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    var lista_impuesto = {{ lista_impuestos|safe }};
+    var myURL = "{% url 'transferidos_app:admin-impuestos-transferidos' 'A' 'B' %}";
+    var myRFC = '{{ rfc_id }}';
+
+    $(document).ready(function () {
+        render_impuesto();
+    });
+
+    function get_table(myURL, myRFC, myTax) {
+
+        function get_color(value) {
+            return value == '1' ? "iluminar-celda":"apagar-celda";
+        }
+
+        $.ajax({
+            url: myURL.replace('A', myRFC).replace('B', myTax),
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+
+                let myData = [];
+                let myHeader = [];
+                let myIDs = [];
+                let myRow = [];
+                let myRow1 = [];
+                let myRow2 = [];
+                let myRow3 = [];
+                let myRow4 = [];
+                let myRow5 = [];
+
+                $.map(data, function (value, index) {
+                    myHeader.push(value.periodo);
+                    myIDs.push(value.id);
+                    myRow.push(value.ejercicio);
+                    myRow1.push(value.ejercicio_1);
+                    myRow2.push(value.ejercicio_2);
+                    myRow3.push(value.ejercicio_3);
+                    myRow4.push(value.ejercicio_4);
+                    myRow5.push(value.ejercicio_5);
+                });
+
+                myData.push(myRow);
+                myData.push(myRow1);
+                myData.push(myRow2);
+                myData.push(myRow3);
+                myData.push(myRow4);
+                myData.push(myRow5);
+
+                myHeader.forEach( function(valor) {
+                    $('#ver-table-impuestos > thead:last').append(
+                        '<th class="periodos">' + valor + '</th>'
+                    );
+                });
+
+                myIDs.forEach( function(valor) {
+                    $('#ver-table-impuestos > tbody:last').append(
+                        '<td class="ids">' + valor + '</td>'
+                    );
+                });
+
+                $('.ids').hide();
+
+                $.map(myData, function (value, index) {
+                    let row = '';
+                    value.forEach( function(valor) {
+                        if (valor === 0 || valor === 1)
+                            row += '<td class="'+ get_color(valor) +'">' + valor + '</td>'; 
+                        else
+                            row += '<th class="column">' + valor + '</th>'; 
+                    });
+
+                    $('#ver-table-impuestos > tbody:last').append(
+                        '<tr>' + row + '</tr>'
+                    );
+                });
+                
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function render_impuesto() {
+        consulta_impuesto.innerHTML = '';
+        lista_impuesto.map((item, index) => {
+
+            let text = item.substring(0, item.indexOf('_'));
+            let id_impuesto= item.substring(item.indexOf('_') + 1, item.length);
+
+            consulta_impuesto.innerHTML += 
+                `<div class="chip" tabindex="-1">
+                    <span onclick="cargar_impuesto('${id_impuesto}');">${text}</span>
+                </div>`;
+        });
+    }
+
+    function cargar_impuesto(myTax){
+        clear_table();
+        get_table(myURL, myRFC, myTax);
+    }
+
+    function clear_table() {
+        $("#ver-table-header").empty();
+        $("#ver-table-body").empty();
+    }
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,53 @@
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Creditos</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+            
+            <div class="row mb-12">
+                <div class="col">
+                    <label>RFC:</label>
+                    <br>
+                    <label><b>{{ detail.nombre }}</b></label>
+                </div>
+                <div class="col">
+                    <label>Nombre:</label>
+                    <br>
+                    <label><b>{{ detail.direccion }}</b></label>
+                </div>
+            </div>
+            <br>
+            <div class="table-responsive mt-15">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr class="text-dark">
+                            <th>Numero Cuenta</th>
+                            <th>Importe</th>
+                            <th>Area</th>
+                            <th>Responsable</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in detalle %}
+                        <tr>
+                            <td>{{ row.numero_cuenta }}</td>
+                            <td>{{ row.importe }}</td>
+                            <td>{{ row.area }}</td>
+                            <td>{{ row.responsable }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>

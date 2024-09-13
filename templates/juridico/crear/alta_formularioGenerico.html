@@ -1,0 +1,344 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'custom/css/RecApp.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">{{proceso}} {{demanda_instance.carpeta}}</h4>
+            {% comment %} <h4>{% for menu in actividad %} {{ menu.actividad }} {{ menu.tipo_tramite }} {% endfor %}</h4> {% endcomment %}
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_create" action="{% url 'juridico_app:alta-proceso' formulario_id demanda padre rubro %}" method="POST">
+            {% csrf_token %}
+            
+            <div class="modal-body p-4">
+                {% for campo in formulario %}
+
+                    <div class="col-md-12">
+                        
+                            <!-- <label>{{ campo.etiqueta }}</label> -->                            
+                        {% if campo.tipo_control == 'text' or campo.tipo_control == 'date' %}
+                        <div class="form-floating mb-2">
+                            {% if campo.tipo_control == 'text' and campo.is_visible %}
+                            <input class="form-control input-rec" 
+                                type="{{ campo.tipo_control }}" 
+                                name="{{ campo.campo }}"
+                                placeholder="."
+                                {% if campo.is_required == True %} required {% endif %}>
+                            <label>{{ campo.etiqueta }}</label>                        
+                                
+                            {% elif campo.tipo_control == 'textarea' %}   
+                            
+                            <!-- <ul id="list_{{ campo.campo }}"></ul> -->
+                            <textarea class="form-control input-area-rec float-label" 
+                                    id="{{campo.tipo_control}}" 
+                                    placeholder=""
+                                    rows = "7"
+                                    maxlength="200"></textarea>
+                            <label>{{ campo.etiqueta }}</label>
+
+                            <!-- <input type="hidden" name="{{ campo.campo }}" value=""> -->
+
+                            {% elif campo.tipo_control == 'date' and campo.is_visible %}
+                            <input type="text" 
+                                id="{{ campo.campo }}" 
+                                class="form-control input-rec date-picker-default" 
+                                name="{{ campo.campo }}"
+                                placeholder="."
+                                readonly="true"
+                                data-date-format='dd/mm/yyyy'                                
+                                {% if campo.is_required == True %} required {% endif %}>                                                        
+                            <label>{{ campo.etiqueta }}</label>
+
+                        </div>
+                        {% endif %}
+
+                        {%  elif campo.tipo_control == 'checkbox' %}
+                        <!-- <b>{{ campo.etiqueta }}</b> -->
+                        <div class="switchery-demo my-3">
+                            <label style="transform: scale(.95) translateX(0.9rem);padding-right: 35px;">{{ campo.etiqueta }}</label>
+                            <input type="checkbox" 
+                                id="{{ campo.campo }}" 
+                                name="{{ campo.campo }}"
+                                class="{{ campo.campo }}"
+                                value="{{ combo.valor }}"
+                                data-plugin="switchery" 
+                                data-color="#1bb99a"  
+                                />
+                        </div>
+                        <!-- Se agrega este input oculto para que en el post envie la info del checkbox, ya que si no se checkea no se envia en el post -->
+                        <input type="hidden" name="{{ campo.campo }}">
+                        
+                        
+                        {% elif campo.tipo_control == 'textarea' and campo.is_visible %}   
+                            <label style="transform: scale(.95) translateX(0.9rem);">{{ campo.etiqueta }}</label>
+                            
+                            <!-- <ul id="list_{{ campo.campo }}"></ul> -->
+                            <textarea class="form-control input-area-rec float-label" 
+                                    id="{{campo.tipo_control}}" 
+                                    placeholder=""
+                                    rows = "5"
+                                    name="{{ campo.campo }}"
+                                    maxlength="200"></textarea>
+                        
+                        <div class="mb-2">                                
+                            {% elif campo.tipo_control == 'select' and campo.is_visible %}
+                                <label class="etiqueta-combo mb-2">{{ campo.etiqueta }}</label>
+                                <select class="form-control selectize-select"
+                                    placeholder = '{{campo.etiqueta}}'                                    
+                                    name="{{ campo.campo }}">
+                                    {% comment %} id="{{ campo.campo }}" {% endcomment %}
+                                    {% comment %} onchange="myFunction(this)"> {% endcomment %}
+                                    <!-- <option value="Seleccionar">Seleccione</option> -->
+                                    {% for combo in opcion %}
+                                        {% comment %} {% if demandaTipo == combo.agrupador %} {% endcomment %}
+                                        {% if campo.consulta|upper == combo.agrupador|upper or 'SELECT_DEFAULT' == combo.agrupador|upper %}
+                                            <option value="{{ combo.id }}">{{ combo.nombre }}</option>
+                                        {% endif %}
+                                        
+                                    {% endfor %}
+                                </select>
+
+                            {% elif campo.tipo_control == 'select_multiple' %}
+
+                            <div class="row">
+                                <div class="col-md-5">
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="switchery-demo">
+                                        <input type="checkbox" 
+                                            id="ckTodos_{{ campo.campo }}"
+                                            value="Todos"
+                                            data-plugin="switchery" 
+                                            data-color="#3db9dc" />
+                                        <b>Todos</b>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <ul>
+                                {% for combo in opcion %}
+                                    {% if campo.consulta|upper == combo.codigo|upper %}
+                                        <div class="switchery-demo mb-1">
+                                            <input type="checkbox" 
+                                                name="{{ campo.campo }}"
+                                                class="{{ campo.campo }}"
+                                                value="{{ combo.valor }}"
+                                                data-plugin="switchery" 
+                                                data-color="#3db9dc" />
+                                            <b>{{ combo.comentario }}</b>
+                                        </div>
+
+                                    {% endif %}
+                                {% endfor %}
+                            </ul> 
+
+                            <input type="hidden" name="{{ campo.campo }}" value="">
+                        </div>
+                        {% endif %}                  
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btGuardar" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+
+
+<!-- Plugins js-->
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.date-picker-default').datepicker({
+            orientation: 'bottom',
+        })
+        //.datepicker("setDate", new Date()); Para asignar el valor fecha del dia 
+        $('.date-picker-default').css("background-color", "white");
+    });
+    $(function () {
+        var multiple = [];
+       
+        {% for campo in TransactForm %}
+            {% if campo.tipo_control == 'select_multiple' %}
+                
+                var element = $('#ckTodos_{{ campo.campo }}');
+
+                element.change(function(){
+                    var checks = document.getElementsByName('{{ campo.campo }}');
+                    var flag = this.checked;
+                    
+                    $.each(checks, function(){
+                        
+
+                        $(this).trigger("click")
+                        this.checked=flag
+                    });
+                
+                });
+
+                
+            {% endif %}
+        {% endfor %}
+        
+        /* $('#basic-datepicker').flatpickr( {
+            dateFormat: 'd/m/Y',
+        }); */
+
+        $('#form_create').submit(function(e) {
+            {% for campo in formulario %}
+                {% if campo.tipo_control == 'chip' %}
+
+                    $("[name='{{ campo.campo }}']").val(items_{{ campo.campo }}.join("|"));
+
+                {% elif campo.tipo_control == 'select_multiple' %}
+                
+                    multiple = [];
+                    $.each($("input[name='{{ campo.campo }}']:checked"), function(){
+                        multiple.push($(this).val());
+                    });
+
+                    $("[name='{{ campo.campo }}']").val(multiple.join(","));
+                
+                {% elif campo.tipo_control == 'checkbox' %}
+                    /* Se agrega valor al input oculto para simular el envio del valor de checkbox */
+                    let valor = $("[name='{{ campo.campo }}']").prop('checked') ? 'on': 'off';
+                    $("[name='{{ campo.campo }}']").val(valor);
+                {% endif %}
+
+            {% endfor %}
+            
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+
+    /* function myFunction(a) {
+        View_Modal('/alta-proceso/'+a.value+'/'+{{demanda}}+'/'+{{padre}}+'/'+{{rubro}}+'/')
+    } */
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+        });
+    }
+
+
+    {% for campo in TransactForm %}
+        {% if campo.tipo_control == 'chip' %}
+
+        var txt_{{ campo.campo }} = document.getElementById('txt_{{ campo.campo }}');
+        var list_{{ campo.campo }} = document.getElementById('list_{{ campo.campo }}');
+        var items_{{ campo.campo }} = [];
+
+        txt_{{ campo.campo }}.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                let val = txt_{{ campo.campo }}.value;
+                if (val !== '') {
+                    if (items_{{ campo.campo }}.indexOf(val) >= 0) {
+                        txt_{{ campo.campo }}.value = '';
+                        alert('Ya existe!');
+                            
+                    } else {
+                        items_{{ campo.campo }}.push(val);
+                        render_{{ campo.campo }}();
+                        txt_{{ campo.campo }}.value = '';
+                        txt_{{ campo.campo }}.focus();
+                    }
+                } else {
+                    alert('Ingresa un dato!');
+                }
+            }
+        });
+
+        function render_{{ campo.campo }}() {
+            list_{{ campo.campo }}.innerHTML = '';
+            items_{{ campo.campo }}.map((item, index) => {
+                list_{{ campo.campo }}.innerHTML += `<div class="chip" tabindex="-1">
+                                        <span>${item}</span>
+                                        <button 
+                                            type="button" 
+                                            title="Borrar" 
+                                            aria-label="Borrar" 
+                                            onclick="$(this).parent().remove();">
+                                            <a href="javascript: remove_{{ campo.campo }}('${item}')">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </button>
+                                    </div>`;
+            });
+        }
+
+        function remove_{{ campo.campo }}(val) {
+            let index = items_{{ campo.campo }}.indexOf(val);
+            items_{{ campo.campo }}.splice(index, 1);
+        }
+
+        {% endif %}
+    {% endfor %}
+
+    {% for campo in formulario %}
+        {% if campo.tipo_control == 'select' and campo.is_visible %}
+            var selectize = $(document.getElementsByName('{{ campo.campo }}'))[0].selectize;            
+            selectize.setValue('170');
+        {% endif%}
+    {% endfor  %}
+
+    //CALCULO DE PROCESOS//
+
+    $('#Fecha_de_notificación').datepicker().change(function() {
+        proceso = {{demanda_instance.juicio_id }};
+        notificacion = this.value.replaceAll('/','-');
+
+        url = "{% url 'juridico_app:computo-proceso' 'proceso_id' 'notificacion'%}";
+        
+        $.ajax({
+            url: url.replace( 'proceso_id', proceso).replace( 'notificacion', notificacion ),
+            type: "GET",
+            success: function (data) {
+                asigna_fechas(data)
+                console.log(data)
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });    
+    });  // Matches exactly 'tcol1'
+
+
+    function asigna_fechas(data){
+        fechas = data.res.replaceAll(')','').replaceAll('(','').split(',');
+        fechas[0] = new Date(fechas[0])
+        fechas[1] = new Date(fechas[1])
+        $("#fecha_vencimiento").datepicker('setDate', fechas[1])
+    }
+</script>
+{% endblock extrajs %}
+
+
+

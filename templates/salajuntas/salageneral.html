@@ -1,0 +1,1940 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Salas en General {% endblock title %}
+
+{% block head %}
+<link type="text/css" href="css/bootstrap.min.css" />
+<link type="text/css" href="css/bootstrap-timepicker.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css">
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- <link href="{% static 'assets/libs/bootstrap-switch/css/bootstrap-switch.css' %}" rel="stylesheet" type="text/css" /> -->
+
+{% endblock head %}
+
+{% block content %}
+<style>
+    {% for sala in catalogos_salas %}
+        .{{ sala.color_name }} {
+            background-color: {{ sala.color }} !important;
+            letter-spacing: 0.5px;
+        }
+    {% endfor %}
+    .fondo-boton:hover{
+        color: #020B0D;
+    }
+    .close:not(:disabled):not(.disabled) {
+        cursor: pointer;
+    }
+    .modal-header .close {
+        padding: 0.5rem 1rem;
+        margin: -1rem -1rem -1rem auto;
+        font-size: 24pt;
+        color: #7e7e7e;
+    }
+    button.close {
+        padding: 0;
+        background-color: transparent;
+        border: 0;
+        -webkit-appearance: none;
+    }
+    .close:hover
+    {
+        font-weight: bold;
+        color: black;
+        background-color: #f8f9fa;
+    }
+    .dim_icon_sala
+    {
+        width: 15px;
+        height: 15px;
+        margin-right: 10px;
+    }
+
+    .d-none {
+        display: none;
+    }
+
+    li {
+        cursor: pointer;
+    }
+
+    th{
+        font-size: 9pt;
+        font-weight: bold;
+    }
+    td{
+        font-size: 9pt;
+        border: none;
+    }
+    .pull-right {
+        float: right;
+    }
+    .nav-modal {
+        display: inline;
+        padding-bottom: 9px;
+    }
+    .bootstrap-switch .bootstrap-switch-handle-off {
+        border-bottom-right-radius: 3px;
+        border-top-right-radius: 3px;
+        font-size: 9pt;
+    }
+    .bootstrap-switch .bootstrap-switch-handle-on {
+        border-bottom-right-radius: 3px;
+        border-top-right-radius: 3px;
+        font-size: 9pt;
+    }
+
+    .bootstrap-switch.bootstrap-switch-focused {
+        border-color: transparent;
+        outline: 0;
+    }
+</style>
+
+    <div class="content">
+        <!-- Start Content-->
+        <div class="container-fluid">
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12 d-flex justify-content-between">
+                    
+                </div>
+            </div>
+
+            
+            <!-- end page title -->
+           
+                    <div class="card mt-3" >
+                       
+                        <div class="card-body">
+                            <div class="row" id="external-events">
+                                <ul class="col-12 nav nav-tabs nav-bordered ">
+                                    <li class="nav-item">
+                                        <a href="{% url 'sala_app:salageneral' %}" id="" data-bs-toggle="tab" aria-expanded="false" class="nav-link active mx-0 px-2" >
+                                            Salas
+                                        </a>
+                                    </li>
+                                    {% for salas_eventos in catalogos_salas  %}
+                                        {% if salas_eventos.is_active %}
+                                        <li class="nav-item">
+                                            <a  id="" data-bs-toggle="tab" aria-expanded="false" class="nav-link d-flex mx-0 px-2" onclick="valorSala('{{salas_eventos.id}}')">
+                                                <span style="margin-right: 10px;" title="{{salas_eventos.detalle_descripcion}}"
+                                                data-plugin="tippy"> {{salas_eventos.descripcion}} </span> 
+                                                <div class="{{ salas_eventos.color_name }}  rounded mt-1 " style=" width: 10px; height: 8px; margin-right: 10px;"></div>
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <button class="btn waves-effect gris-oscuro fondo-boton mx-0 px-2" id="btn-buscar_salas_disponibles"  data-bs-toggle="modal" data-bs-target="#mdl-buscar_salas_disponibles">
+                                        <i class="fa fa-search" style="margin-right: 5px;"></i> Buscar salas
+                                    </button>
+                                    {% if accion_editar_sala == 1 %}
+                                    <button class="btn waves-effect gris-oscuro fondo-boton mx-0 px-2" id="btn-editar_salas_disponibles"  data-bs-toggle="modal" data-bs-target="#mdl-editar_salas_disponibles">
+                                        <i class="fas fa-chalkboard-teacher" style="margin-right: 5px;"></i> Administrar salas
+                                    </button>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <form method="get" action="{% url 'sala_app:salajuntas' %} " id="frm-salas" > 
+                                <input  type="text" id="sala" name="sala" hidden>                                                    
+                            </form>   
+                            <div class="row"> 
+                                <!-- end col-->
+                                <div class="col-lg-12">
+                                    <div id="calendar"   style="margin-top: 5px;"></div>
+                                </div> <!-- end col -->
+                            </div>  <!-- end row -->
+                        </div> <!-- end card body-->
+                    </div> <!-- end card -->
+
+                    <!-- Add New Event MODAL -->
+                    <div class="modal fade" id="event-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Reuniones</h4>
+                                    <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                                        <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                                    </button>
+                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> Cerrar</button> -->
+                                </div>
+                                <div class="modal-body px-4 pb-4 pt-0">
+                                    <form class="needs-validation panel" name="event-form" id="form-event" enctype="multipart/form-data" novalidate>                                    
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id_evento" id="id_evento">
+                                        <input type="hidden" name="capacidad_personas_sala" id="capacidad_personas_sala">
+                                        <div class="row mb-1">
+                                            <div class="col px-4">
+                                                <div class="form-floating">
+                                                    <input name="event-title" id="event-title" type="text" class="float-label form-control input-rec write_evento crear-event" maxlength="255" placeholder="Nombre Evento" required />
+                                                    <div class="invalid-feedback">Proporcione un nombre de evento válido</div>
+                                                    <label class="write_evento" for="event-title">Evento</label>
+                                                </div>
+                                                <label class="read_evento" for="read-evento">Evento<b><p id="read-evento"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4">
+                                                <div class="form-floating">
+                                                    <textarea class="form-control input-area-rec float-label write_evento crear-event" cols="2" rows="2" placeholder="Descripción del evento" name="descripcion_evento" id="descripcion_evento" maxlength="500"></textarea>
+                                                    <label class="form-label write_evento" for="descripcion_evento">Descripción del evento</label>
+                                                </div>
+                                                <label class="read_evento" for="read-desc_evento">Descripción del evento <b><p id="read-desc_evento"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row px-3">
+                                            <div class="col">
+                                                <label class="etiqueta-combo write_evento mrgn3BT" for="categoria">Categoría</label>
+                                                <select id="categoria" name="categoria" class="form-control selectize-select selectized write_evento" placeholder="Categoría del evento" required>
+                                                    <!-- <option value="">Categoría del evento</option> -->
+                                                    {% for categoria in categorias %}    
+                                                        <option value="{{ categoria.id }}">{{categoria.descripcion}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione una categoría de evento válida</div>
+                                                <label class="form-label read_evento" for="categoria">Categoría <b><p id="read-categoria"></p></b></label>
+                                            </div>
+                                            <div class="col">
+                                                <label class="etiqueta-combo write_evento mrgn3BT" for="responsable_reunion">Responsable de la reunión</label>
+                                                <select id="responsable_reunion" name="responsable_reunion" class="form-control selectize-select selectized write_evento" placeholder="Responsable de la reunión" required>
+                                                    <!-- <option value="0">------------------</option> -->
+                                                    {% for usuario in usuarios %}    
+                                                        <option value="{{ usuario.id }}">{{usuario.get_full_name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Proporcione un responsable del evento</div>
+                                                <label class="form-label read_evento" for="read-responsable_reunion">Responsable del evento<b><p id="read-responsable_reunion"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2 read_evento">
+                                            <div class="col px-4">
+                                                <label class="form-label">Cuándo</label>
+                                                <b><p><span id="read-dia_fecha_reunion"></span>&nbsp;&nbsp;<span id="read-fecha_reunion"></span>&nbsp;&nbsp;-&nbsp;&nbsp;<span id="read-horario_inicio"></span>&nbsp;&nbsp;a&nbsp;&nbsp;<span id="read-horario_final"></span></p></b>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row mb-1 write_evento px-3">
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" id="fecha_reunion" class="form-control input-rec write_evento" placeholder="fecha de reunión" name="fecha_reunion" required>
+                                                    <label for="fecha_reunion">Fecha inicio</label>
+                                                    <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <br>
+                                                <select name="hora_inicio" id="hora_inicio" class="form-control selectize-select mx-auto selectized write_evento" placeholder="Hora inicio" required>
+                                                    <!-- <option value="">Hora inicio</option> -->
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <br>
+                                                <select name="hora_final" id="hora_final" class="form-control selectize-select mx-auto selectized write_evento" placeholder="Hora inicio">
+                                                    <!-- <option value="">Hora fin</option> -->
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" id="fecha_reunion_fin" class="form-control input-rec write_evento" name="fecha_reunion_fin" placeholder="Fecha fin" required>
+                                                    <label for="fecha_reunion">Fecha fin</label>
+                                                    <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row mb-1 px-3">
+                                            <div class="col-3">
+                                                <br class="write_evento">
+                                                <div class="form-check">
+                                                    <input class="form-check-input " type="checkbox" id="requiere_coffe_break" name="requiere_coffe_break">
+                                                    <label class="form-check-label" style="margin-left: 5px;" for="requiere_coffe_break">
+                                                        Coffe break&nbsp;&nbsp;<span class="vista-requiere_coffe_break"> para</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-3 vista-requiere_coffe_break">
+                                                <!-- <div class="form-floating d-flex"> -->
+                                                <input name="total_participantes" id="total_participantes" type="number" class="float-label form-control input-rec write_evento d-inline text-center mw-50" value="0" placeholder="No. participantes" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null" /><i class="fas fa-users ml-1 write_evento"></i>
+                                                <div class="invalid-feedback">El total de participantes debe ser mayor a cero</div>
+                                                <label class="write_evento" for="event-title"></label>
+                                                <!-- </div> -->
+                                                <label class="read_evento" for="read-total_participantes"><b><p id="read-total_participantes"></p></b></label>
+                                            </div>
+                                            <div class="col-6">
+                                                <!-- <small id="emailHelp" class="form-text text-muted">Nota: We'll never share your email with anyone else...</small> -->
+                                                <div class="read-sala_descripcion">Sala<b><p id="read-sala_descripcion"></p></b></div>
+                                            </div>
+                                            <div id="vista_sala_cambio_sala" class="col">
+                                                <div class="form-floating mb-2 d-none">
+                                                    <select name="slct_cambio_sala" id="slct_cambio_sala" class="form-control selectize-select mx-auto selectized write_evento">
+                                                        {% for salas in catalogos_salas %}
+                                                            <option value="{{ salas.id }}" style="letter-spacing: 1px;">{{ salas.descripcion }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <label class="form-label write_evento" for="slct_cambio_sala">Sala</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4 vista-requiere_coffe_break">
+                                                <div class="form-floating">
+                                                    <textarea class="form-control input-area-rec float-label write_evento crear-event" cols="2" rows="2" placeholder="Detalle del coffe break" name="detalles_coffe_break" id="detalles_coffe_break" maxlength="500"></textarea>
+                                                    <label class="write_evento" for="detalles_coffe_break">Detalles del coffe break</label>
+                                                </div>
+                                                <label class="read_evento" for="detalles_coffe_break">Detalles del coffe break <b><p id="read-detalles_coffe_break"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col px-4">
+                                                <label class="form-label" style="font-size: 12px;">
+                                                    Participantes&nbsp;&nbsp;/&nbsp;&nbsp;<a id="btn-descargar-listado-asistencia" target="_blank">Descargar lista de asistencia</a>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2 write_evento px-3">
+                                            <div class="col-6">
+                                                <div class="form-floating">
+                                                    <input type="text" class="float-label form-control input-rec" placeholder="Nombre participante" name="participante_nombre" id="participante_nombre" maxlength="500" />
+                                                    <label class="form-label" for="participante_nombre">Nombre</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="float-label form-control input-rec" placeholder="Correo participante" name="participante_correo" id="participante_correo" maxlength="500" />
+                                                    <label class="form-label" for="participante_correo">Correo electrónico</label>
+                                                </div>
+                                            </div>
+                                            <div class="col text-left">
+                                                <br>
+                                                <!-- <button id="btnAgregarParticipante" type="button" class="btn border-bottom waves-effect gris-oscuro write_evento crear-event">
+                                                    <i class="far fa-user-plus me-2 text-muted font-18 vertical-middle"></i> Agregar
+                                                </button> -->
+                                                <button type="button" class="btn waves-effect gris-oscuro w-100 fondo-boton mx-auto" style="font-size: 9pt;" id="btnAgregarParticipante">
+                                                    <i class="fas fa-plus"></i> Agregar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4 table-responsive">
+                                                <table id="tblParticipantes" class="table table-hover m-0 table-centered dt-responsive nowrap w-100 table-sm" width="100%">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="all" style="border: none;">#</th>
+                                                            <th class="all" style="border: none;">NOMBRE</th>
+                                                            <th class="all" style="border: none;">CORREO ELECTRÓNICO</th>
+                                                            <th class="all" style="border: none;">ACCIONES</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12 text-end">
+                                                <!-- <button type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro" id="btn-save-event">
+                                                    <img class="loading-indicator" src="{% static 'images/loader-dark.gif' %}" style="width: 20px; display: none">
+                                                    Guardar Evento
+                                                </button> -->
+                                                <!-- <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" id="btn-delete-event">Eliminar evento</button>
+                                                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" id="btn-edit-event">Editar</button> -->
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div> <!-- end modal-content-->
+                        </div> <!-- end modal dialog-->
+                    </div>
+                    <!-- end modal-->
+
+                    <!-- Modal editar salas disponibles -->
+                    <div class="modal fade" id="mdl-editar_salas_disponibles" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" >
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Editar salas disponibles</h4>
+                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-bs-dismiss="modal"
+                                    title="" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom">
+                                        <div class="d-flex">
+                                            <span aria-hidden="true" style="font-size: 22px; margin-top: 9px;">
+                                                &times;
+                                            </span>
+                                            <span style="font-size: 14px; margin-top: 14px; margin-left: 3px;">
+                                                cerrar
+                                            </span> 
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <ul class="nav nav-tabs nav-bordered ">
+                                                <li class="nav-item  nav-modal">
+                                                    <a id="nav-agregar_sala" data-bs-toggle="tab" aria-expanded="false" class="nav-link nav-admon-salas active d-inline" onclick="nav_agregar_salas()">
+                                                        Agregar
+                                                    </a>
+                                                    <a id="nav-editar_sala" data-bs-toggle="tab" aria-expanded="false" class="nav-link nav-admon-salas d-inline" onclick="nav_editar_salas()">
+                                                        Editar
+                                                    </a>
+                                                    <a id="nav-ordenar_sala" data-bs-toggle="tab" aria-expanded="false"
+                                                        class="nav-link nav-admon-salas d-inline" onclick="nav_ordenar_salas()">
+                                                        Ordenar Salas
+                                                    </a>
+                                                    <!-- <a id="nav-estatus_sala" data-bs-toggle="tab" aria-expanded="false" class="nav-link nav-admon-salas d-inline" onclick="nav_estatus_salas()">
+                                                        Estatus
+                                                    </a> -->
+
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div id="vista_agregar_editar_salas">
+                                        <form class="needs-validation panel" name="form-editar_salas_disponibles" id="form-editar_salas_disponibles" novalidate>                                    
+                                            {% csrf_token %}
+                                            <input type="hidden" name="sala_color_name" id="sala_color_name">
+                                            <div id="vista_select_editar_salas" class="row mb-2 px-3 d-none">
+                                                <div class="col">
+                                                    <div class="form-floating">
+                                                        <select name="sala_id" id="sala_id" class="form-control selectize-select selectized" onchange="buscar_info_sala()">
+                                                            {% for salas in catalogos_salas %}
+                                                                <option value="{{ salas.id }}" style="letter-spacing: 1px;">{{ salas.descripcion }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <label for="sala_id">Sala</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="vista_campos_editar_salas">
+                                                <div class="row mb-2 px-4">
+                                                    <div class="col">
+                                                        <div class="form-floating">
+                                                            <input name="sala_descripcion" id="sala_descripcion" type="text" class="form-control input-rec" placeholder="Nombre" required />
+                                                            <div class="invalid-feedback">Debe ingresar un nombre</div>
+                                                            <label for="sala_descripcion">Nombre</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2 px-4">
+                                                    <div class="col">
+                                                        <div class="form-floating">
+                                                            <textarea name="sala_detalle_descripcion" id="sala_detalle_descripcion" class="form-control input-rec" placeholder="Descripción de la sala" rows="2" cols="2"></textarea>
+                                                            <label for="sala_detalle_descripcion">Descripción de la sala</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2 px-4">
+                                                    <div class="col">
+                                                        <div class="form-floating">
+                                                            <input name="sala_capacidad_sala" id="sala_capacidad_sala" type="number" class="form-control input-rec" placeholder="No. máximo de personas" min="1" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null" required />
+                                                            <div class="invalid-feedback">La capacidad de la sala debe ser mayor a cero</div>
+                                                            <label for="sala_capacidad_sala">No. máximo de personas</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="form-floating">
+                                                            <input name="sala_color" id="sala_color" type="color" class="form-control input-rec" placeholder="Color" />
+                                                            <label for="sala_color">Color</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row px-4 pull-right">
+                                                    <div class="col">
+                                                        <button type="button" id="btn-editar_salas" class="btn waves-effect gris-oscuro fondo-boton">
+                                                            <i class="fa fa-save" style="margin-right: 5px;"></i> Guardar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div id="vista_ordenar_salas" class="d-none">
+                                        <form class="needs-validation panel" name="form-ordenar_salas_disponibles" id="form-ordenar_salas_disponibles">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="d-flex  align-itames-center mx-auto my-1">
+                                                        <div class="col-3 text-center" >
+                                                            <span >#</span>
+                                                        </div>
+                                                        <div class="col-3 " style="margin-left: 15px;">
+                                                            <span>Estatus</span>
+                                                        </div>
+                                                       <div class="col-3 " style="margin-left: 10px;">
+                                                            <span>Nombre</span>
+                                                       </div>
+                                                        
+                                                    </div>
+                                                   
+                                                    {% for sala in salas_catalogos %}
+                                                        <div class="d-flex align-itames-center mx-auto my-1">
+                                                           
+                                                            
+                                                            <div class="w-100 " id="ordenar_campo" style="margin-top: 10px; width: 20% !important;">
+                                                                <input name="order_{{sala.ordenamiento}}"
+                                                                    id="ordenamiento{{sala.ordenamiento}}"
+                                                                    value="{{sala.ordenamiento}}" type="text"
+                                                                    class="border-0 text-center border-rounded"
+                                                                    style="color: #020B0D !important; width:25%; margin-left: 50px;"
+                                                                    placeholder="" required
+                                                                    onchange="validaOrdenar(this)" 
+                                                                    onKeypress="if (event.keyCode < 47 || event.keyCode > 57) event.returnValue = false;"/>
+                                                                <span id="error"></span>
+                                                            </div>
+            
+                                                            <div class="text-center" style="width:25%;">
+                                                                <button  type="button"  id="switchery_sala_{{sala.ordenamiento}}" name="estat_{{sala.ordenamiento}}" class="btn  gris-oscuro fondo-boton" onclick="FbotonOn('{{sala.ordenamiento}}')"  > Activar </button>
+                                                                <input type="hidden" name="estat_{{sala.ordenamiento}}" id="estat_{{sala.ordenamiento}}" value="{{sala.is_active}}">
+                                                            </div>
+            
+                                                            
+                                                            <!-- ### subir a produccion -->
+                                                            <div class=" " style="margin-top: 8px; ">
+                                                               
+                                                                <!-- <input type="checkbox" name="estat_{{sala.ordenamiento}}"
+                                                                    id="switchery_sala_{{sala.ordenamiento}}"
+                                                                    data-plugin="switchery" data-color="#3db9dc"
+                                                                    data-size="small" class="switch" /> -->
+                                                                <span class="px-4 text-center" style="font-size: 12px;" >Sala {{sala.descripcion}}</span>
+                                                            </div>
+                                                             <!-- ### subir a produccion -->
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="row pull-right">
+                                                <div class="col">
+                                                    <button type="button" id="btn-ordenar_salas" class="btn waves-effect gris-oscuro fondo-boton">
+                                                        <i class="fa fa-save" style="margin-right: 5px;"></i> Guardar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+
+
+
+
+
+                                </div>
+                            </div> <!-- end modal-content-->
+                        </div> <!-- end modal dialog-->
+                    </div> <!-- end modal-->
+                    <!-- Modal editar salas de juntas -->
+
+                    <div class="modal fade" id="mdl-buscar_salas_disponibles" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content" >
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Buscar salas disponibles</h4>
+                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-bs-dismiss="modal"
+                                    title="" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom">
+                                        <div class="d-flex"> <span aria-hidden="true" style="font-size: 22px; margin-top: 9px;" >&times;</span> <span style="font-size: 14px; margin-top: 14px; margin-left: 3px;">cerrar</span> 
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="needs-validation panel" name="form-buscar_salas_disponibles" id="form-buscar_salas_disponibles" novalidate>                                    
+                                        {% csrf_token %}
+                                        <div class="row mb-2 px-3">
+                                            <div class="col-3">
+                                                <div class="form-floating">
+                                                    <input name="filter-total_participantes" id="filter-total_participantes" type="number" class="form-control input-rec" placeholder="Participantes" min="1" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null" required />
+                                                    <div class="invalid-feedback">El total de participantes debe ser mayor a cero</div>
+                                                    <label for="filter-total_participantes">Participantes</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="form-floating">
+                                                    <input type="text" id="filter-fecha_reunion" class="form-control input-rec" name="filter-fecha_reunion" placeholder="Fecha reunión" required>
+                                                    <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                    <label for="filter-fecha_reunion">Fecha reunión</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-2 ">
+                                                <br>
+                                                <select name="filter-hora_inicio" id="filter-hora_inicio" class="form-control selectize-select selectized  " placeholder="Hora inicio" style="max-height: calc(400px);" required>
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}" >{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Debe seleccionar una hora</div>
+                                            </div>
+                                            <div class="col-2">
+                                                <br>
+                                                <select name="filter-hora_final" id="filter-hora_final" class="form-control selectize-select selectized" placeholder="Hora final" style="z-index: 999;" required>
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}" >{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Debe seleccionar una hora</div>
+                                            </div>
+                                            <div class="col-2">
+                                                <button  type="button" id="btn-buscar_salas" class="btn waves-effect gris-oscuro fondo-boton d-inline mt-3 d-flex">
+                                                    <i class="fa fa-search" style="margin-right: 5px; margin-top: 3px;"></i> Buscar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="vista_salas_disponibles" class="d-none">
+                                            <div class="row">
+                                                <div class="col px-4"><label class="form-label" style="font-size: 12px;">Salas Disponibles:</label></div>
+                                            </div>
+                                            <div class="row">
+                                                <div id="panel_salas_disponibles" class="col px-4">
+                                                    <button class="btn btn-outline-secondary waves-effect gris-oscuro btn-sm mr-2 mb-2 px-2 "disabled="disabled"><span class="mr-1 " style="color: blue;">&#9679;</span> Sala Ejecutiva 2</button>
+                                                    <button class="btn btn-outline-secondary waves-effect gris-oscuro btn-sm mr-2 mb-2 px-2"><span class="mr-1" style="color: blue;">&#9679;</span> Sala Ejecutiva 3</button>
+                                                    <button class="btn btn-outline-secondary waves-effect gris-oscuro btn-sm mr-2 mb-2 px-2"><span class="mr-1" style="color: blue;">&#9679;</span> Sala Ejecutiva 1</button>
+                                                    <button class="btn btn-outline-secondary waves-effect gris-oscuro mb-2 btn-sm" disabled="disabled"><span class="mr-1" style="color: blue;">&#9679;</span> Sala Ejecutiva 4</button>
+                                                    <!-- msj sin salas disponibles -->
+                                                    <div class="alert alert-warning" role="alert">
+                                                        <i class="mdi mdi-alert-outline me-2"></i> ¡Sin horarios disponibles!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <form id="frm-buscar_evento">{% csrf_token %}</form>
+                                </div>
+                            </div> <!-- end modal-content-->
+                        </div> <!-- end modal dialog-->
+                    </div> <!-- end modal-->
+                <!-- end col-12 -->
+            <!-- end row -->
+        </div> <!-- container -->
+    </div> <!-- content -->
+    <style>
+        .fc-header-toolbar{
+            font-size: 10px !important;
+        }
+
+        .fc-header-toolbar button{
+           
+            background: none !important;
+            color: #0e3627 !important;
+            border: none !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+        }
+
+        .fc-header-toolbar button:hover{
+            background-color: rgb(66, 66, 66) !important;
+            color: white !important;
+        }
+
+        .fc-col-header-cell a{
+            color: black;
+        }
+
+        .fc-daygrid-day-top a{
+            color: rgb(73, 70, 69);
+        }
+
+        .eventos{
+            background: none;
+            border: #44CF9C;
+        }
+        #calendar {
+            max-width: 1100px;
+            margin: 40px auto;
+            
+        }
+
+        .hov:hover{
+            background-color: #EBEBEB;
+        }
+
+        .d-none
+        {
+            display: none;
+        }
+        
+        .fc .fc-button:hover, .fc .fc-list-event-title a, a.fc-event, a.fc-event:hover {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .underline:hover{
+            border-bottom: 1px solid rgb(71, 70, 70);
+        }
+        .pull-left
+        {
+            float: left;
+        }
+    </style>
+{% endblock content %}
+
+
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'assets/libs/fullcalendar/main.min.js' %} "></script>
+
+    <script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js' %}"></script>
+
+    <!-- Calendar init -->
+    <script src="{% static 'assets/libs/fullcalendar/locales-all.min.js' %} "></script>
+    <script src="{% static 'assets/libs/fullcalendar/locales/es.js' %} "></script>
+    <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <!-- <script src="{% static 'assets/libs/fullcalendar/index.global.js' %} "></script> -->
+
+    <!-- Init js-->
+    <script src="{% static 'assets/js/pages/form-pickers.init.js' %}"></script>
+
+    <!-- App js -->
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>   
+    <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/moment@6.0.2/index.global.min.js'></script>
+
+    <!-- Datatable-Jquery -->
+    <script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'custom/js/render-table.js' %}"></script>
+    <!-- blockUI -->
+    <script type="text/javascript" src="{% static 'assets/libs/blockUI/jquery.blockUI.js' %}"></script>
+    <!-- functions general -->
+    <script src="{% static 'custom/js/functions.js' %}"></script>
+    
+    <!-- Plugin switchery -->
+    <script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+    <!-- <script src="{% static 'assets/libs/bootstrap-switch/js/bootstrap-switch.js' %}"></script> -->
+    
+    <script type="text/javascript">
+        // Constantes Plugin SweetAlert2
+        var validaSalas = true;
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-outline-secondary waves-effect gris-oscuro swal2-cancel',
+                cancelButton: 'btn btn-outline-secondary waves-effect gris-oscuro'
+            },
+            buttonsStyling: true
+        });
+
+        function valorSala(sala) {
+            document.getElementById('sala').value=sala;
+            $('#frm-salas').submit();
+        }
+
+        // Variable contenedora de  la instancia del calendario
+        var calendarObj = null;
+
+        var select_hora_final = $("#filter-hora_final").selectize();
+        var selectize_hora_fin = select_hora_final[0].selectize;
+        
+        var select_horal_ini = $("#filter-hora_inicio").selectize();
+        var selectize_hora_ini = select_horal_ini[0].selectize;
+
+        var select_categoria = $("#categoria").selectize();
+        var selectize_categoria = select_categoria[0].selectize;
+
+        var select_salas_disp_edit = $("#sala_id").selectize();
+        var selectize_salas_edit = select_salas_disp_edit[0].selectize;
+
+        var select_reponsable_reunion = $("#responsable_reunion").selectize();
+        var selectize_responsable_reunion = select_reponsable_reunion[0].selectize;
+
+        var select_cambio_sala = $("#slct_cambio_sala").selectize();
+        var selectize_cambio_sala = select_cambio_sala[0].selectize;
+
+        var days_week = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+        var mes_anyos = ["mes","Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        var dataSet = [];
+        
+        $(document).ready(function() {
+		    $('.sp_date').hide();
+            // se oculta la alerta
+            $('.alert-success').fadeOut(6000);
+
+            // Ocultar label modal consulta
+            $(".read_evento").addClass("d-none");
+
+            var accion_buscar_sala = "{{ accion_buscar_sala }}";
+
+            if(accion_buscar_sala == 0)
+                $("#btn-buscar_salas_disponibles").addClass("d-none");
+
+            // Inicialización del calendario
+            !function (l) {
+            'use strict';
+            function e() {
+                this.$body = l('body'),
+                this.$modal = l('#event-modal'),
+                this.$calendar = l('#calendar'),
+                this.$formEvent = l('#form-event'),
+                this.$btnNewEvent = l('#btn-new-event'),
+                this.$btnDeleteEvent = l('#btn-delete-event'),
+                this.$btnSaveEvent = l('#btn-save-event'),
+                this.$modalTitle = l('#modal-title'),
+                // this.$btnEditEvent = l('#btn-edit-event'),
+                // this.$calendarObj = null,
+                this.$selectedEvent = null,
+                this.$newEventData = null
+            }
+            e.prototype.onEventClick = function (e) {
+                // if(accion_eliminar == 1)
+                // {
+                //     $('#btn-delete-event').show();
+                // }
+                this.$formEvent[0].reset(),
+                this.$formEvent.removeClass('was-validated'),
+                this.$newEventData = null,
+                // this.$btnDeleteEvent.show(),
+                this.$modalTitle.text('Edit Event'),
+                this.$modal.show(),
+                // this.$btnSaveEvent.show(),
+                this.$selectedEvent = e.event,
+                l('#event-title').val(this.$selectedEvent.title),
+                // this.$btnEditEvent.hide(),
+                l('#event-category').val(this.$selectedEvent.classNames[0]);
+                // ocultamos el botón de descargar listado
+                $("#btn-descargar-listado-asistencia").hide();
+
+                if(this.$selectedEvent.id > 0)
+                {
+                    // if(accion_cambiar_horario == 1)
+                    // {
+                    //     $('#btn-edit-event').show();
+                    //     $("#btn-delete-event").show();
+                    // }
+                    // this.$btnEditEvent.show();
+                    // ocultamos el botón de guardar
+                    $('#btn-save-event').hide();
+                    var a = document.getElementById('btn-descargar-listado-asistencia');
+                    let evento = this.$selectedEvent.id.toString();
+                    let url = '/descargarListadoAsist-reuniones/' + evento;
+                    a.setAttribute("href", url);
+                    // Ocultan componentes a modo consulta
+                    $(".write_evento").removeClass("d-none");
+                    $(".read_evento").removeClass("d-none");
+
+                    $(".write_evento").addClass("d-none");
+
+                    document.getElementById("requiere_coffe_break").disabled = true;
+
+                    let formulario = document.getElementById("frm-buscar_evento");
+                    let fd = new FormData(formulario);
+                    fd.append("id_evento", this.$selectedEvent.id);
+
+                    $.ajax({
+                        url: "{% url 'sala_app:buscar-reuniones' %}",
+                        type: "POST",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            if (!result.error)
+                            {
+                                document.getElementById("read-evento").innerText = result.data.evento.toUpperCase();
+                                document.getElementById("read-categoria").innerText = result.data.categoria.toUpperCase();
+
+                                let desc_evento = "Sin descripción";
+                                if(result.data.descripcion_evento != "" && result.data.descripcion_evento != null)
+                                {
+                                    desc_evento = result.data.descripcion_evento;
+                                }
+                                
+                                let a_fecha_reunion = result.data.fecha_reunion.split("/");
+                                let mes = get_name_month(a_fecha_reunion[1] - 0);
+                                let res_fecha_reunion = a_fecha_reunion[0] + " de " + mes + " del " + a_fecha_reunion[2];
+                                
+                                document.getElementById("read-dia_fecha_reunion").innerText = get_name_day_by_date(result.data.fecha_reunion_formato);
+                                document.getElementById("read-horario_inicio").innerText = get_formato_hora_larga(result.data.hora_ini_reunion);
+                                document.getElementById("read-horario_final").innerText = get_formato_hora_larga(result.data.hora_fin_reunion);
+
+                                document.getElementById("read-fecha_reunion").innerText = res_fecha_reunion;
+                                document.getElementById("read-desc_evento").innerText = desc_evento;
+
+                                document.getElementById("read-responsable_reunion").innerText = result.data.responsable_reunion.toUpperCase();
+
+                                document.getElementById('read-total_participantes').innerText = result.data.total_participantes;
+                                document.getElementById('read-sala_descripcion').innerText = result.data.sala_descripcion;
+
+                                let detalles_coffe_break = "Sin detalles del coffe break";
+                                if(result.data.detalles_coffe_break != "" && result.data.detalles_coffe_break != null)
+                                {
+                                    detalles_coffe_break = result.data.detalles_coffe_break;
+                                }
+                                document.getElementById('read-detalles_coffe_break').innerText = detalles_coffe_break;
+
+                                $(".vista-requiere_coffe_break").removeClass("d-none");
+
+                                if(result.data.requiere_coffe_break)
+                                {
+                                    $("#requiere_coffe_break").prop("checked", true);
+                                }
+                                else
+                                {
+                                    $("#requiere_coffe_break").prop("checked", false);
+                                    $(".vista-requiere_coffe_break").addClass("d-none");
+                                }
+
+                                let consecutivo = 1;
+                                result.listado_participantes.forEach(function (element) {
+                                    element.consecutivo = consecutivo;
+                                    element.acciones = 1;
+                                    consecutivo += 1;
+                                })
+
+                                dataSet = result.listado_participantes;
+
+                                cargar_datos_participantes();
+
+                                // Validar si el usuario puede ver el botón de descarga lista de participantes
+                                if(result.vista_listado_participantes)
+                                {
+                                    $("#btn-descargar-listado-asistencia").show();
+                                }
+                            }
+                            else
+                                return toastr.error(result.msj);
+                        },
+                        error: function (error) {
+                            toastr.error(error);
+                        }
+                    });
+                }
+            },
+             e.prototype.onSelect = function (e) {
+                
+            },
+            e.prototype.init = function () {
+                this.$modal = new bootstrap.Modal(document.getElementById('event-modal'), {
+                    keyboard: !1
+                });
+                var e = new Date(l.now());
+                new FullCalendar.Draggable(document.getElementById('external-events'), {
+                    itemSelector: '.external-event',
+                    eventData: function (e) {
+                        return {
+                        title: e.innerText,
+                        className: l(e).data('class')
+                        }
+                    }
+                });
+                var t = [
+                {
+                    title: 'Meeting with Mr. Shreyu',
+                    start: new Date(l.now() + 158000000),
+                    end: new Date(l.now() + 338000000),
+                    className: 'bg-warning'
+                },
+                {
+                    title: 'Interview - Backend Engineer',
+                    start: e,
+                    end: e,
+                    className: 'bg-success'
+                },
+                {
+                    title: 'Phone Screen - Frontend Engineer',
+                    start: new Date(l.now() + 168000000),
+                    className: 'bg-info'
+                },
+                {
+                    title: 'Buy Design Assets',
+                    start: new Date(l.now() + 338000000),
+                    end: new Date(l.now() + 405600000),
+                    className: 'bg-primary'
+                }
+                ],
+                //a.$calendar[0]
+                a = this;
+                //var calendarEl = document.getElementById("kt_docs_fullcalendar_basic");
+                calendarObj = new FullCalendar.Calendar(a.$calendar[0], {
+                    locale: "es",
+                    weekends: false,                    
+                    allDaySlot: false,                 
+                    slotDuration: '00:30:00',
+                    slotMinTime: '08:30:00',
+                    slotMaxTime: '22:00:00',
+                    slotLabelFormat: {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        omitZeroMinute: false,
+                        meridiem: 'short',                      
+                        
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false
+                    },
+                    
+                    titleFormat: { 
+                        month: 'long',
+                        year: 'numeric',         
+                        
+                    },
+                    
+                    views: {
+                        timeGridFourDay: {
+                        type: 'timeGrid',
+                        duration: { days: 4 },
+                        buttonText: '4 day',
+                        
+                        }
+                    },
+                    //columnHeaderFormat:'dddd',
+                    // columnHeaderText:'short',
+                    // weekday: 'short',
+                    initialView: 'dayGridMonth',
+                    handleWindowResize: !0,
+                    
+                    height: $(window).height() - 190,
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                                                
+                    },
+                    
+                    initialEvents: t,
+                    editable: false, 
+                    droppable: false,
+                    selectable: !0,
+                    unselectable:!0,
+                    
+                    dateClick: function (e) {
+                        a.onSelect(e)
+                    },
+                    //a.onEventClick(e)
+                    eventClick: function (e) {
+                        a.onEventClick(e);
+                        
+                    }
+                }),
+
+                
+
+                calendarObj.render(),
+                a.$btnNewEvent.on('click', function (e) {
+                    a.onSelect({
+                        date: new Date,
+                        allDay: !0
+                        
+                    })
+                }),
+                a.$formEvent.on('submit', function (e) {
+                e.preventDefault();
+                var t = a.$formEvent[0];
+                // console.log(t);
+                if (t.checkValidity()) {
+                    let formulario = document.getElementById("form-event");
+                    let fd = new FormData(formulario);
+                    fd.append("filter-salas", $("#filter-salas").val());
+
+                    let requiere_coffe_break = 0;
+                    if($("#requiere_coffe_break").prop("checked"))
+                        requiere_coffe_break = 1;
+
+                    fd.append("requiere_coffe_break", requiere_coffe_break);
+
+                    $.ajax({
+                        url: "{% url 'sala_app:crear-reuniones' %}",
+                        type: "POST",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            if (!result.error)
+                            {
+                                calendarObj.addEvent({
+                                    id: result.data.id,
+                                    title: $("#event-title").val(),
+                                    start: new Date($("#fecha_reunion").val() + " " + $("#hora_inicio").val() + ":00"),
+                                    end: new Date($("#fecha_reunion").val() + " " + $("#hora_final").val() + ":00"),
+                                    className: result.data.color_categoria
+                                })
+
+                                calendarObj.render();
+
+                                a.$modal.hide();
+                            
+                                return toastr.success(result.msj);
+                            }
+                            else
+                                return toastr.error(result.msj);
+                        },
+                        error: function (error) {
+                            toastr.error(error);
+                        }
+                    });
+                } else 
+                    e.stopPropagation(),
+                    t.classList.add('was-validated')
+                }),
+                l(a.$btnDeleteEvent.on('click', function (e) {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Seguro que desea eliminar el evento?',
+                        text: "¡Esta acción no podrá revertirse!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, adelante.',
+                        cancelButtonText: 'No, cancelar.',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formulario = document.getElementById("frm-buscar_evento");
+                            let fd = new FormData(formulario);
+                            fd.append("id_evento", a.$selectedEvent.id);
+                            fd.append("filter-salas", $("#filter-salas").val());
+
+                            $.ajax({
+                                url: "{% url 'sala_app:eliminar-reuniones' %}",
+                                type: "POST",
+                                data: fd,
+                                processData: false,
+                                contentType: false,
+                                success: function (result) {
+                                    if (!result.error)
+                                    {
+                                        a.$selectedEvent && (
+                                            a.$selectedEvent.remove(), 
+                                            a.$selectedEvent = null, 
+                                            a.$modal.hide()
+                                        )
+                                        
+                                        return toastr.success("Registro eliminado correctamente");
+                                    }
+                                    else
+                                        return toastr.error(result.msj);
+                                },
+                                error: function (error) {
+                                    toastr.error(error);
+                                }
+                            });
+                        }
+                    })
+                }))
+            },
+            l.CalendarApp = new e,
+            l.CalendarApp.Constructor = e
+            }(window.jQuery),
+            function () {
+                'use strict';
+                window.jQuery.CalendarApp.init()
+            }();
+
+            
+            // Función para eliminar todos los eventos al calendario
+            calendarObj.removeAllEvents();
+            
+            {% if reuniones %}
+                {% for reunion in reuniones %}
+                    // Agregamos la capacidad de personas por sala
+                    $("#capacidad_personas_sala").val("{{ reunion.sala.capacidad_sala }}")
+                    // Agregar evento
+                    calendarObj.addEvent({
+                        id: "{{ reunion.id }}",
+                        title: "{{ reunion.evento }}",
+                        start: new Date("{{ reunion.fecha_hora_inicio_reunion }}"),
+                        end: new Date("{{ reunion.fecha_hora_fin_reunion }}"),
+                        className: "{{ reunion.sala.color_name }}"
+                    })
+                {% endfor %}
+            {% endif %}
+
+            
+
+            selectize_hora_fin.setValue("");
+
+            selectize_hora_ini.setValue("");
+
+            selectize_salas_edit.setValue("");
+
+            selectize_categoria.setValue(0);
+
+            selectize_responsable_reunion.setValue(0);
+
+            selectize_cambio_sala.setValue({{ sala_default }});
+
+            $("#fecha_reunion").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd, MM, yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $("#fecha_reunion_fin").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd, MM, yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $("#filter-fecha_reunion").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd, MM, yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $(".vista-requiere_coffe_break").addClass("d-none");
+
+            //muestra y oculta desde el checkin el intervalo de tiempo 
+            $("#requiere_coffe_break").click(function(){
+                $("#minutos").toggle();
+            });
+        });
+
+        // subir a produccion
+        $(function () {
+            var elemento = "";
+            // Activar los checks de la salas activas
+            {% for sala in salas_catalogos %}
+                elemento = document.getElementById('switchery_sala_{{sala.ordenamiento}}');
+                {% if sala.is_active %}
+                    elemento.innerHTML= 'Activar';
+                {% else %}
+                    elemento.innerHTML= 'Desactivar';
+                {% endif %}
+
+                // elemento.change(function () {
+                //     activar_desactivar_sala('#switchery_sala_{{sala.id}}');
+                // });
+            {% endfor %}
+        });
+        // subir a produccion
+        
+        // $(function () {
+        //     var elemento = "";
+        //     // Activar los checks de la salas activas
+        //     {% for sala in catalogos_salas %}
+        //         elemento = $('#switchery_sala_{{sala.id}}');
+        //         {% if sala.is_active %}
+        //             changeSwitchery(elemento, true);
+        //         {% else %}
+        //             changeSwitchery(elemento, false);
+        //         {% endif %}
+
+        //         elemento.change(function(){
+        //             activar_desactivar_sala('#switchery_sala_{{sala.id}}');
+        //         });
+        //     {% endfor %}
+        // });
+
+        // function activar_desactivar_sala(elemento) {
+        //     // console.log(elemento);
+
+        //     let id_element = $(elemento).attr("id");
+        //     let a_element = id_element.split('_');
+        //     let sala_id = a_element[2];
+
+        //     let state_switch = 1;
+        //     if($(elemento).is(":checked") == false)
+        //         state_switch = 0;
+            
+        //     let formulario = document.getElementById("form-buscar_salas_disponibles");
+        //     let fd = new FormData(formulario);
+
+        //     fd.append("estado", state_switch);
+        //     fd.append("sala_id", sala_id);
+
+        //     $.ajax({
+        //         url: "{% url 'sala_app:activar-desactivar-sala' %}",
+        //         type: "POST",
+        //         data: fd,
+        //         processData: false,
+        //         contentType: false,
+        //         success: function (result) {
+        //             if (!result.error)
+        //             {
+        //                 toastr.success(result.msj);
+
+        //                 setTimeout(() => {
+        //                     window.location.href = "{% url 'sala_app:salageneral' %}";
+        //                 }, 1000);
+        //             }
+        //             else
+        //             {
+        //                 return toastr.error(result.msj);
+        //             }
+        //         },
+        //         error: function (error) {
+        //             toastr.error(error);
+        //         }
+        //     });
+        // }
+
+        function changeSwitchery(element, checked) {
+            if ( ( element.is(':checked') && checked == false ) || ( !element.is(':checked') && checked == true ) ) {
+                element.parent().find('.switchery').trigger('click');
+            }
+        }
+
+        $("#tiempo_coffe_break").on("change", function() {
+            if($('#hora_inicio').val() != "" && $('#hora_final').val() != "")
+            {
+                let a_hora_inicio = $('#hora_inicio').val().split(':');
+                let a_hora_final = $('#hora_final').val().split(':');
+
+                let total_min = (((a_hora_final[0] - 0) * 60) + (a_hora_final[1] - 0)) - (((a_hora_inicio[0] - 0) * 60) + (a_hora_inicio[1] - 0));
+                let tiempo_permitido = total_min / 2;
+                
+                if($("#tiempo_coffe_break").val() > tiempo_permitido)
+                {
+                    $("#tiempo_coffe_break").val("0");
+                    return toastr.error('El tiempo de coffe break exede a lo permito para reunión');
+                }
+            }
+            else
+            {
+                $("#tiempo_coffe_break").val("0");
+                return toastr.error('Debe definir primero un horario para el evento');
+            }
+        })
+
+        $('#event-modal').on('hidden.bs.modal', function (e) {
+            $('#btn-save-event').show();
+            document.getElementById("requiere_coffe_break").disabled = false;
+            $(".write_evento").removeClass("d-none");
+            $(".read_evento").removeClass("d-none");
+
+            $(".read_evento").addClass("d-none");
+
+            // ocultamos el botón de descargar listado
+            $("#btn-descargar-listado-asistencia").hide();
+        })
+
+        $('#mdl-buscar_salas_disponibles').on('hidden.bs.modal', function (e) {
+            // $("#filter-hora_final").val("");
+            // $("#filter-hora_inicio").val("");
+            $("#filter-total_participantes").val("");
+            $("#filter-fecha_reunion").val("");
+
+            selectize_hora_fin.setValue("");
+            selectize_hora_ini.setValue("");
+            
+            $("#vista_salas_disponibles").addClass("d-none");
+            $("#panel_salas_disponibles").html("");
+        });
+
+        function enviar_horario_evento(sala_id) {
+            if($("#filter-total_participantes").val() <= 0)
+                return toastr.error("El número de participantes debe ser mayor a cero");
+
+            if($("#filter-hora_inicio").val() == "")
+                return toastr.error("Debe seleccionar una hora de inicio de la reunión");
+
+            if($("#filter-hora_final").val() == "")
+                return toastr.error("Debe seleccionar una hora de fin de la reunión");
+
+            if($("#filter-fecha_reunion").val() == "")
+                return toastr.error("Debe seleccionar una fecha para la reunión");
+            
+            sessionStorage.setItem("hora_inicio", $("#filter-hora_inicio").val());
+            sessionStorage.setItem("hora_final", $("#filter-hora_final").val());
+            sessionStorage.setItem("sala_reunion", sala_id);
+            sessionStorage.setItem("total_participantes", $("#filter-total_participantes").val());
+            sessionStorage.setItem("fecha_reunion", $("#filter-fecha_reunion").val());
+
+            valorSala(sala_id);
+        }
+
+        $("#filter-hora_final").on("change", function() {
+            if($('#mdl-buscar_salas_disponibles').is(":visible"))
+            {
+                if($("#filter-hora_inicio").val() != 0)
+                {
+                    if($("#filter-hora_final").val() <= $("#filter-hora_inicio").val())
+                    {
+                        return toastr.error('La hora fin de reunión no debe ser mayor o igual a la hora final');
+                    }
+                }
+                else
+                {
+                    $("#filter-hora_final").val("");
+                    toastr.error('Debe establecer primero una hora de inicio');
+                }
+            }
+        });
+
+        $("#btn-buscar_salas").on("click", function() {        
+            var t = $("#form-buscar_salas_disponibles")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-buscar_salas_disponibles");
+                let fd = new FormData(formulario);
+
+                let a_fecha_reunion = $("#filter-fecha_reunion").val().split(",");
+                let mes_fecha_reunion = get_value_month(a_fecha_reunion[1].trim());
+                let fecha_reunion = a_fecha_reunion[2].trim() + "-" + mes_fecha_reunion + "-" + a_fecha_reunion[0].trim();
+
+                if($("#filter-total_participantes").val() <= 0)
+                    return toastr.error("El número de participantes debe ser mayor a cero");
+
+                if($("#filter-hora_inicio").val() == "")
+                    return toastr.error("Debe seleccionar una hora de inicio de la reunión");
+
+                if($("#filter-hora_final").val() == "")
+                    return toastr.error("Debe seleccionar una hora de fin de la reunión");
+
+                fd.append("fecha_reunion", fecha_reunion);
+
+                $.ajax({
+                    url: "{% url 'sala_app:buscar-salas_disponibles' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        $("#vista_salas_disponibles").removeClass("d-none");
+
+                        if (!result.error)
+                        {
+                            salas_ocupadas = []
+                            result.reuniones_activas.forEach(function (reunion) {
+                                salas_ocupadas.push(reunion.sala_id);
+                            })
+
+                            let sin_horarios_disponibles = `<div class="alert alert-warning" role="alert"><i class="mdi mdi-alert-outline me-2"></i> ¡Sin horarios disponibles!</div>`;
+                            let html_salas = "";
+                            let total_participantes = $("#filter-total_participantes").val();
+
+                            result.salas_disponibles.forEach(function (sala) {
+                                // Validamos que este disponible la sala
+                                if(salas_ocupadas.indexOf(sala.id) === -1)
+                                {
+                                    if(total_participantes <= sala.capacidad_sala)
+                                    {
+                                        html_salas += `
+                                            <button type="button" class=" btn  waves-effect gris-oscuro fondo-boton btn-sm mr-2 mb-2 " onclick="enviar_horario_evento('${sala.id}')" title="${sala.detalle_descripcion}" data-plugin="tippy"  tabindex="0"  >
+                                                <div class="d-flex"> 
+                                                    <div class="mr-2 ${sala.color_name} rounded dim_icon_sala " style="width:10px; height: 10px; margin-top:4px;"></div> 
+                                                    <div class="d-inline " style="font-size: 13px;">${sala.descripcion}</div>
+                                                </div>
+                                            </button>
+                                        `;
+                                    }
+                                }
+                            })
+
+                            if(html_salas == "")
+                            {
+                                $("#panel_salas_disponibles").html(sin_horarios_disponibles);
+                                return toastr.error("Sin horarios disponibles, intenten con otro horario.");
+                            }
+                            else
+                            {
+                                $("#panel_salas_disponibles").html(html_salas);
+                                return toastr.success("Se encontraron horarios disponibles");
+                            }
+                        }
+                        else
+                        {
+                            $("#panel_salas_disponibles").html(sin_horarios_disponibles);
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        })
+
+        function cambio_sala(action = "") 
+        {                    
+            var view = calendarObj.view; // calendarObj is the reference to the fullcalendar
+            var obj_month_start = new Date(view.activeStart);
+            var obj_month_end = new Date(view.activeEnd);
+
+            // if($("#filter-salas").val() != "")
+            // {
+                let formulario = document.getElementById("frm-buscar_evento");
+                let fd = new FormData(formulario);
+                fd.append("filter-anyo_ini", obj_month_start.getFullYear());
+                fd.append("filter-anyo_fin", obj_month_end.getFullYear());
+                fd.append("filter-mes_ini", obj_month_start.getMonth() + 1);
+                fd.append("filter-mes_fin", obj_month_end.getMonth() + 1);
+               
+
+                $.ajax({
+                    url: "{% url 'sala_app:buscar-salas' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            // Función para eliminar todos los eventos al calendario
+                            calendarObj.removeAllEvents();
+
+
+
+                            if(result.data)
+                            {
+                                result.data.forEach(element => {
+                                    // Agregar evento
+                                    calendarObj.addEvent({
+                                        id: element.id,
+                                        title: element.evento,
+                                        start: new Date(element.fecha_reunion + " " + element.hora_ini_reunion + ":00"),
+                                        end: new Date(element.fecha_reunion + " " + element.hora_fin_reunion + ":00"),
+                                        className: element.color_sala
+                                    })
+                                });
+                            }
+
+                            calendarObj.render()
+
+                            if(action == "prev")
+                                calendarObj.prev();
+
+                            if(action == "next")
+                                calendarObj.next();
+
+                            return toastr.success(result.msj);
+                        }
+                        else
+                            return toastr.error(result.msj);
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            
+        };
+
+        function get_today()
+        {
+            let today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            return yyyy + '-' + mm + '-' + dd;
+        }
+
+        function get_current_time()
+        {
+            let today = new Date();
+
+            return today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        }
+
+        // Recibe una fecha en str en formato "YYYY-mm-dd"
+        function covertir_fecha_formato_dia_mes_anyo(fecha)
+        {
+            let a_fecha = fecha.split("-");
+            let mes  = get_name_month(a_fecha[1] - 0);
+            return a_fecha[2] + ", " + mes + ", " + a_fecha[0];
+        }
+
+        function get_formato_hora_larga(hora)
+        {
+            let a_hora = hora.split(":");
+            let meridiem = " a.m.";
+            let hora_test = a_hora[0] - 0;
+            if (hora_test > 12)
+            {
+                meridiem = " p.m.";
+                hora_test = hora_test - 12;
+                hora_test = hora_test.toString().padStart(2, "0");
+            }
+            else
+            {
+                hora_test = a_hora[0];
+            }
+
+            return hora_test + ":" + a_hora[1] + meridiem;
+        }
+
+        function get_name_day_by_date(date)
+        {
+            var d = new Date(date);
+            return days_week[d.getDay()];
+        }
+
+        function get_name_month(int_month) {
+            return mes_anyos[int_month];
+        };
+
+        function get_value_month(str_month) {
+            return mes_anyos.indexOf(str_month).toString().padStart(2, '0');
+        };        
+
+        function cargar_datos_participantes()
+        {
+            $('#tblParticipantes').DataTable().destroy();
+
+            var tbl_Participantes = $('#tblParticipantes').DataTable({
+                destroy: true,
+                sDom: "rtip",
+                data: dataSet,
+                columns: [
+                    { data: 'consecutivo'},
+                    { data: 'nombre' },
+                    { data: 'correo' },
+                    { data: 'acciones' }
+                ],
+                pageLength : 10,
+                lengthMenu: [10, 20, 50, 100, 'Todos'],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                columnDefs: [
+                    {
+                        "visible": false,
+                        "orderable": false,
+                        "searchable": false,
+                        "targets": 3,
+                        "render": function(data, type, row) {
+                            let button = "";
+                            if(row.acciones == 1)
+                            {
+                                button += `
+                                    <div class="btn-group dropdown">
+                                        <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                            data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a id="btEditarParticipante" onclick="editar_participante('` + row.nombre + `', '` + row.correo + `')" class="dropdown-item" href="#">
+                                                <i class="fas fa-edit me-2 text-muted font-18 vertical-middle"></i>Editar
+                                            </a>
+                                            <a id="btEliminarParticipante" onclick="eliminar_participantes('` + row.correo + `')" class="dropdown-item" href="#">
+                                                <i class="fas fa-trash me-2 text-muted font-18 vertical-middle"></i>Eliminar
+                                            </a>
+                                        </div>
+                                `;
+                            }
+                            else
+                            {
+                                button = "<i>Sin acciones</i>";
+                            }
+                            return button;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                }
+            });
+
+            
+
+            tbl_Participantes.on("click", "thead tr td", function (event) {
+                let indexColumn = $(this).closest("td").index();
+
+                $("thead > tr  > td").each(function (index, td) {
+                    this.classList.remove("negrita");
+                });
+
+                if ($.inArray(parseInt(indexColumn), myCols) === -1)
+                $(this).closest("td").addClass("negrita");
+            });
+
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+                $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+        }
+        
+        $('#mdl-editar_salas_disponibles').on('hidden.bs.modal', function (e) {
+            limpiar_form_editar_salas();
+            selectize_salas_edit.setValue("");
+
+            nav_agregar_salas();
+
+            $(".nav-admon-salas").removeClass("active");
+            $("#nav-agregar_sala").addClass("active");
+        })
+
+        function limpiar_form_editar_salas() {
+            let formulario = document.getElementById('form-editar_salas_disponibles');
+            formulario.reset();
+
+            // Mostrar todos los contenidos del modal
+            $("#vista_agregar_editar_salas").removeClass("d-none");
+            $("#vista_activar_salas").removeClass("d-none");
+
+            // ocultar la vista para activar o desactivar salas
+            $("#vista_activar_salas").addClass("d-none");
+        }
+
+        function buscar_info_sala() {
+            if($("#sala_id").val() != "")
+            {
+                let formulario = document.getElementById("frm-buscar_evento");
+                let fd = new FormData(formulario);
+                fd.append("sala_id", $("#sala_id").val());
+
+                $.ajax({
+                    url: "{% url 'sala_app:buscar-info-sala' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            $("#vista_campos_editar_salas").removeClass("d-none");
+
+                            document.getElementById("sala_descripcion").value = result.data[0].descripcion;
+                            document.getElementById("sala_detalle_descripcion").value = result.data[0].detalle_descripcion;
+                            document.getElementById("sala_color").value = result.data[0].color;
+                            document.getElementById("sala_color_name").value = result.data[0].color_name;
+                            document.getElementById("sala_capacidad_sala").value = result.data[0].capacidad_sala;
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+            {
+                limpiar_form_editar_salas();
+            }
+        }
+
+        function nav_agregar_salas() {
+            if ($('#vista_campos_editar_salas').hasClass("d-none"))
+                $('#vista_campos_editar_salas').removeClass("d-none");
+            
+            if (!$('#vista_select_editar_salas').hasClass("d-none"))
+                $('#vista_select_editar_salas').addClass("d-none");
+                $("#vista_ordenar_salas").addClass("d-none");
+
+            selectize_salas_edit.setValue("");
+            limpiar_form_editar_salas();
+        }
+
+        function nav_editar_salas() {
+            if (!$('#vista_campos_editar_salas').hasClass("d-none"))
+                $('#vista_campos_editar_salas').addClass("d-none");
+                $("#vista_ordenar_salas").addClass("d-none");
+            
+            if ($('#vista_select_editar_salas').hasClass("d-none"))
+                $('#vista_select_editar_salas').removeClass("d-none");
+            
+            limpiar_form_editar_salas();
+        }
+
+        function nav_ordenar_salas() {
+            $("#vista_agregar_editar_salas").removeClass("d-none");
+            $("#vista_ordenar_salas").removeClass("d-none");
+
+            $("#vista_agregar_editar_salas").addClass("d-none");
+        }
+
+        function nav_estatus_salas() {
+            $("#vista_agregar_editar_salas").removeClass("d-none");
+            $("#vista_activar_salas").removeClass("d-none");
+
+            $("#vista_agregar_editar_salas").addClass("d-none");
+        }
+
+        $("#btn-editar_salas").on("click", function() {
+            var t = $("#form-editar_salas_disponibles")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-editar_salas_disponibles");
+                let fd = new FormData(formulario);
+
+                $.ajax({
+                    url: "{% url 'sala_app:actualizar-info-sala' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {   
+                            toastr.success("Sala actualizada correctamente");
+
+                            setTimeout(() => {
+                                window.location.href = "{% url 'sala_app:salageneral' %}";
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        })
+
+
+        $("#btn-ordenar_salas").on("click", function () {
+            if (!validaSalas) return toastr.error("Revisa los datos");
+            var t = $("#form-ordenar_salas_disponibles")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-ordenar_salas_disponibles");
+                let fd = new FormData(formulario);
+
+                $.ajax({
+                    url: "{% url 'sala_app:ordenar_salas' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error) {
+                            toastr.success("Sala ordenada correctamente");
+
+                            setTimeout(() => {
+                                window.location.href = "{% url 'sala_app:salageneral' %}";
+                            }, 1000);
+                        }
+                        else {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        });
+
+
+        
+
+
+        // funcion de ordenamiento de salas //
+        function validaOrdenar(componente) {
+            // Traemos por referencia el elemento donde conforme se activa el evento onchange
+
+            //obtenemos el id del componente
+            let id = $(componente).attr('id');
+            // Obtenemos su valor del componente
+            let order_value = $(componente).val();
+            
+            // Obtenemos el folio:ordenamiento que se concatena a la constante 'ordenamiento'
+            // Cuando se declara el elemento al cargar la vista, ej: 'ordenamiento1'
+            let id_order = id.slice(12, 13);
+
+            // Obtenemos los folio:ordenamiento que viene de bd de cada sala
+            let salas = [];
+            {% for sala in salas_catalogos %}
+                salas.push({{ sala.ordenamiento }})
+            {% endfor %}
+            
+            // Validamos que el valor del componente sea diferente de vacío para que entre
+            // en la validación
+            if(order_value.trim() != "")
+            {
+                // Validamos con la función include que valor de folio:ordenamiento ingresado
+                // por el usuario este en el rango de los folios:ordenamiento desde bd
+                if (salas.includes(parseInt(order_value))) {
+
+                    // Se realiza un ciclo de hasta 100 posibles salas
+                    for (let index = 1; index < 100; index++) {
+
+                        // Validamos que exista el elemento :: sino existe se termina el ciclo
+                        if (document.getElementById('ordenamiento' + index)) {
+
+                            // Validamos que la posición del ciclo (index) sea diferente a la del actual elemento
+                            if (index != parseInt(id_order)) {
+
+                                // Obtenemos el valor de cada ordenamiento disponible en la vista
+                                let valor = document.getElementById('ordenamiento' + index).value;
+
+                                // Valimos si el valor del ordenamiento disponible es igual al ingresado por el usuario
+                                if (valor == order_value) {
+                                    toastr.error("Número ingresado repetido.");
+                                    
+                                    validaSalas = false;  // Establecemos en falso la variable global para impedir guardar el orden actual
+                                    $(componente).val('');  // Limpiamos el componente con el foco activo
+                                    break;
+                                }else{
+                                    validaSalas = true
+                                }
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    toastr.error("Fuera de rango: No se puede asignar el número ingresado.");
+                    validaSalas = false;
+                    $(componente).val('');
+                }
+            }
+        }
+
+         // subir a produccion
+        function FbotonOn(button) {
+            console.log(button);
+            var active = document.getElementById('switchery_sala_' + button);
+            if (active.innerHTML == 'Desactivar'){
+                active.innerHTML = 'Activar';
+                $('#estat_' + button).val('True');
+            }            
+            else {
+                active.innerHTML = 'Desactivar'; 
+                $('#estat_' + button).val('False');
+            }      
+        }
+    //subir a produccion
+
+    </script>
+{% endblock extrajs %}

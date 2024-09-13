@@ -1,0 +1,126 @@
+{% load static %}
+{% load tags %}
+
+<div class="left-side-menu">
+
+    <div class="h-100" data-simplebar>
+
+        <!-- User box -->
+        <div class="user-box text-center">
+            <img src="{% static 'assets/images/users/user-1.jpg' %}" alt="user-img" title="Mat Helme"
+                class="rounded-circle avatar-md">
+            <div class="dropdown">
+                <a href="javascript: void(0);" class="text-dark dropdown-toggle h5 mt-2 mb-1 d-block"
+                    data-bs-toggle="dropdown">{{reqest.user.username}}</a>
+                <div class="dropdown-menu user-pro-dropdown">
+
+                    <!-- item-->
+                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <i class="fe-user me-1"></i>
+                        <span>My Account</span>
+                    </a>
+
+                    <!-- item-->
+                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <i class="fe-settings me-1"></i>
+                        <span>Settings</span>
+                    </a>
+
+                    <!-- item-->
+                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <i class="fe-lock me-1"></i>
+                        <span>Lock Screen</span>
+                    </a>
+
+                    <!-- item-->
+                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <i class="fe-log-out me-1"></i>
+                        <span>Logout</span>
+                    </a>
+
+                </div>
+            </div>
+            <p class="text-muted">Admin Head</p>
+        </div>
+
+        <div id="sidebar-menu">
+
+            <ul id="side-menu">
+                {% for item in menu %}
+
+                {% if item.padre %}
+
+                {% ifchanged item.padre %}
+                <li>
+                    <a href="#{{ item.padre }}" data-bs-toggle="collapse">
+                        <i class="fe-grid me-1"></i>
+                        <span> {{ item.padre }} </span>
+						<span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="{{ item.padre }}">
+                        <ul class="nav-second-level">
+                            {% for child in menu %}
+                            {% if item.padre == child.padre %}
+
+                            <li><a href="{{ child.url }}"><i class="{{ child.icono }}"></i><span
+                                        class="right-nav-text">&nbsp;&nbsp;&nbsp;{{ child.nombre }}</span></a></li>
+
+                            {% endif %}
+                            {% endfor %}
+
+                        </ul>
+                    </div>
+                </li>
+                {% endifchanged %}
+
+                {% else %}
+
+                {% if item.url == 'TABLEROS' %}
+                <li>
+					<a href="#tableros" data-bs-toggle="collapse">
+                        <i class="ti-palette me-1"></i>
+                        <span> Tableros </span>
+						<span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="tableros">
+										
+						<ul class="nav-second-level">
+							<li><a href="{% url 'home_app:reporte-ingresos' %}">Recursos Fiscales</a></li>
+							<li><a href="{% url 'home_app:REC' %}">REC</a></li>
+						
+							<a href="#sidebarMultilevel2" data-bs-toggle="collapse">
+                                Padron Vehicular <span class="menu-arrow"></span>
+                            </a>
+							<div class="collapse" id="sidebarMultilevel2">
+                                <ul class="nav-second-level">
+                                    <li><a href="{% url 'home_app:padron-vehicular' %}">Padron Vehicular</a></li>
+									<li><a href="{% url 'home_app:reporte-vehicular' %}">Reporte Vehicular</a></li>
+                                                   
+                                </ul>
+                            </div>
+						
+						</ul>
+                       
+                   </div>
+                </li>
+                {% else %}
+                <li>
+					<li><a href="{{ item.url }}"><i class="{{ item.icono }}"></i><span class="right-nav-text">&nbsp;&nbsp;&nbsp;{{ item.nombre }}</span></a></li>
+
+                </li>
+                {% endif %}
+
+                {% endif %}
+
+                {% endfor %}
+            </ul>
+
+        </div>
+
+
+        <div class="clearfix"></div>
+
+    </div>
+    <!-- Sidebar -left -->
+
+</div>

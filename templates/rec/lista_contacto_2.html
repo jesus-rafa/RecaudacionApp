@@ -1,0 +1,93 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+
+{% block title %} Resumen Ejecutivo {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Resumen Ejecutivo</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-10 mb-30">
+
+        <div class="card">
+            <div class="card-body">
+
+                <form method="GET">
+                    <div class="input-group">
+
+                        <span class="input-group-text" id="basic-addon1">Contribuyente</span>
+                        <input type="text" class="form-control input-lg" id="kword" name="kword" placeholder="RFC o Nombre..." aria-describedby="basic-addon1">
+                    
+                        <span class="input-group-text">Top</span>
+                        <select class="fancy-select" id="top" name="top">
+                            <option value="10">10</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                        </select>
+                        
+                        <button type="submit" class="btn btn-primary btn" target="_blank" value="Buscar"> <i
+                            class="fa fa-search"></i> Buscar</button>
+                    </div>
+
+                    
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{{mergue}}
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="table" class="table table-sm table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>RFC</th>
+                                <th>Nombre</th>
+                                <th>Direccion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contacto in contactos %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'rec_app:resumen-ejecutivo' contacto.rfc %}"
+                                        title="Resumen Ejecutivo" tabindex="0" data-plugin="tippy"
+                                        data-tippy-placement="top"  class="btn btn-success waves-effect waves-light btn-sm" target="_self">
+                                        <i class="mdi mdi-chart-bar"></i>
+                                    </a>
+                                </td>
+                                <td>{{ contacto.rfc }}</td>
+                                <td>{{ contacto.nombre }}</td>
+                                <td>{{ contacto.direccion }}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,103 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Oficio</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'oficios_app:editar-oficios' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Folio</label>
+                            {{ form.folio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>A quien va dirigido:</label>
+                            {{ form.nombre }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Puesto:</label>
+                            {{ form.puesto }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Dependencia:</label>
+                            {{ form.dependencia }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Asunto:</label>
+                            {{ form.asunto }}
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>CCO:</label>
+                            <select id="cco" class="form-control select2-multiple" data-toggle="select2"
+                                data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                {% for row in usuarios %}
+                                <option value="{{row.username}}">{{row.get_user}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Enviado por:</label>
+                            {{ form.enviado }}
+                            <input id="hfSend_by" type="hidden" value="{{ selected_enviado }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label>Firma:</label>
+                            {{ form.firma }}
+                            <input id="hfFirm" type="hidden" value="{{ selected_firm }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label>Acuse:</label>
+                            {{ form.pdf }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,937 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Tramites {% endblock titulo %}
+
+{% block head %}
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+{%endblock head %}
+{% block content %}
+<style>
+    #dt-requisitos_tramites tbody tr td {
+        text-align: center !important;
+    }
+
+    .menus{
+        position: relative;
+        display: inline-block;
+    }
+
+    .menus::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        /* background-color: #000; */
+        background: linear-gradient(to left, #070707, #787777);
+        bottom: -2px;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.4s ease-out;
+    }
+
+    .menus:hover::after {
+        transform: scaleX(1);
+    }
+</style>
+<div id="app">
+    <div class="row">
+        <div class="col-xl-12 mt-4 mb-30">
+            <div class=" d-flex justify-content-between">
+                {% if permission == 'TRAMITES ADMINISTRADOR' %}
+                <h4 class="page-title" style="margin-left:10px;"> <i class="fas fa-user"></i> Administrador</h4>
+                {% endif %}
+                {% if permission == 'TRAMITES EDITOR' %}
+                <h4 class="page-title" style="margin-left:10px;"> <i class="fas fa-user"></i> Editor</h4>
+                {% endif %}
+                
+                <!--<i class="fa fa-plus"></i>-->
+                <div class="page-title-right mb-1">
+                    {% if  permission == 'TRAMITES ADMINISTRADOR' %}
+                        <button id="nuevo-tramite" type="button" onclick="Prestacion('{% url 'tramites_app:nueva_prestacion' %}');" class="btn fondo-boton " style="font-size: 18px;" > <span class="menus"> Nuevo prestación </span> </button>                       
+                    {% endif %}
+                </div>
+
+                
+            </div>
+            <div class="card">
+                <div class="card-body py-0">
+                   
+                    <!-- <br> -->
+                    <div class="row">
+                        <div class="col">
+                            <ul class="nav nav-tabs nav-bordered d-none ">
+                                <!-- <li class="nav-item">
+                                    <a href="#usuario" id="usuario-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                                        <i class="fas fa-hand-holding-medical noti-icon"></i> Trámites y Servicios
+                                    </a>
+                                </li> -->
+                                {% if permission == 'TRAMITES EDITOR' or permission == 'TRAMITES ADMINISTRADOR'  %}
+                                <li class="nav-item ">
+                                    <a href="#editor" id="usuario-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active d-none">
+                                        <i class="fas fa-user "></i> Editor
+                                    </a>
+                                </li>
+                                {% endif %}
+                                
+                                {% if permission == 'TRAMITES ADMINISTRADOR'  %}
+                                <li class="nav-item">
+                                    <a href="#admin" id="admin-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                                        <i class="fas fa-user-lock"></i> Administrador 
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <form  id="revision" method="post">{% csrf_token %}</form>
+                    </div>
+
+                    <div class="tab-content ">
+                        <!-- <div class="tab-pane fade active show" id="usuario">
+                            <div class="row">
+                                <div class="form-floating col-md-12">
+                                    <input id="search1" type="text" class="float-label form-control input-rec" placeholder=".">
+                                    <label>Buscar...</label>
+                                </div>
+                            </div>
+                            <input id="hfFolio" type="hidden" value="{{ msg }}">
+                            <div class="table-responsive mt-15">
+                                <table id="datatable" class="table table-sm  p-0 mytables table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Trámitess</th>
+                                            <th>Proceso</th>                                                                               
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in tramites_servicios %}
+                                        <tr>
+                                            <td>
+                                                <button id="desactivar{{item.id}}" tabindex="0" class="btn fondo-boton btn-xs" target="_blank" onclick="$(location).attr('href','{% url 'tramites_app:vista-individual' item.id %}');">
+                                                   {{item.servicio}}
+                                                 </button>
+                                            </td>
+                                            <td>{{item.Tramites}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> -->
+                        {% if permission == 'TRAMITES EDITOR' %}
+                        <div class="tab-pane fade active show " id="editor">
+                            <div class="row">
+                                <div class="form-floating col-md-12">
+                                    <input id="search2" type="text" class="float-label form-control input-rec" placeholder=".">
+                                    <label>Buscar...</label>
+                                </div>
+                            </div>
+                            <input id="hfFolio" type="hidden" value="{{ msg }}">
+                            <div class="table-responsive mt-15">
+                                <table id="datatable1" class="table table-sm  p-0 mytables1 table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Prestación</th>
+                                            <th>Proceso</th>
+                                            <th>Estatus</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in servicios %}
+                                        <tr>
+                                            <td>
+                                               {{item.servicio}}
+                                            </td>
+                                            <td>{{item.Tramites}}</td>
+                                            <td>{{item.Estado}}</td> 
+                                            <td class="text-end">
+
+
+                                                <div class="btn-group dropdown">
+                                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="=false" style="background-color:#0000; border:0px solid;">
+                                                    <i class="mdi mdi-dots-horizontal"></i></a>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+
+                                                        {% if item.estatus %}
+                                                            {% if item.estatus.esta_tus == 'Edición del contenido' %}
+                                                            <button title="Mandar a revisión de contenido" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" target="_blank" onclick="Editar('{{item.id}}','Revisión')"> <i class="fas fa-file-import"></i>
+                                                            </button>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Activo (prestación activa)'  %}
+                                                            <button title="Administrador de pendientes" tabindex="0" data-plugin="tippy" data-tippy-placement="left" id="nuevo-tramite" onclick="$(location).attr('href','{% url 'tramites_app:tramite-en-linea' item.id %}');" class="btn fondo-boton  " target="_blank"><i class="fa fa-list-ol"></i> </button>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Edición del contenido' or item.estatus.esta_tus == 'Revisión' %}
+                                                            <a href="{% url 'tramites_app:vista-individual' item.id %}" title="Vista previa" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" target="_blank"> <i class="far fa-file-word"></i> 
+                                                            </a>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Edición del contenido' %}
+                                                            <button title="Requisitos de prestación" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" target="_blank" onclick="Requerimientos_tramite('{{item.id}}')"> <i class="fas fa-clipboard-list"></i>
+                                                            </button>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Edición del contenido' %}
+                                                            <a href="{% url 'tramites_app:editar-campo' item.id %}"  title="Editar diseño de prestación" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs"    target="_blank"> <i class="fas fa-pen"></i>
+                                                            </a>
+                                                            {% endif %}
+                                               
+
+                                                        {% endif %}
+
+                                                    </div>
+                                                </div>
+
+
+                                                <!-- <div class="btn-group dropdown">
+                                                    
+                                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="=false" style="background-color:#0000; border:0px solid;">
+                                                    <i class="mdi mdi-dots-horizontal"></i></a>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+
+                                                        <a href="{% url 'tramites_app:editar-campo' item.id %}" id="editar{{item.id}}" title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank"  {% if item.estatus.esta_tus == 'EN PROCESO' %} disabled {% endif %}> <i class="fas fa-pen"></i>
+                                                        </a>
+
+                                                        <a href="{% url 'tramites_app:vista-individual' item.id %}" title="Vista previa" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank" > <i class="far fa-file-word"></i>
+                                                        </a>
+
+                                                        <button title="Mandar revisión" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank" onclick="Editar('{{item.id}}','En revisión')"> <i class="fas fa-file-import"></i>
+                                                        </button>
+
+                                                        <button title="Requisitos" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank" onclick="Requerimientos_tramite('{{item.id}}')"> <i class="fas fa-clipboard-list"></i>
+                                                        </button>
+
+                                                    </div>
+                                                </div> -->
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if permission == 'TRAMITES ADMINISTRADOR' %}
+                        <div class="tab-pane fade active show" id="admin">
+                            <div class="row">
+                                <div class="form-floating col-md-12">
+                                    <input id="search3" type="text" class="float-label form-control input-rec" placeholder=".">
+                                    <label>Buscar...</label>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="datatable2" class="table table-sm  p-0 mytables1 table-hover" >
+                                    <thead>
+                                        <tr>
+                                            <th>Prestación</th>
+                                            <th>Proceso</th>
+                                            <th>Estatus</th>
+                                            <th>Total</th>
+                                            <th>Enviados</th>
+                                            <th>Asignados</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in servicios %}
+                                        <tr>
+                                            <td>
+                                                {{item.servicio}}
+                                            </td>                                                
+                                            <td>{{item.tramite}}</td>
+                                                                                       
+                                            <td>{{item.Estado}}</td>
+                                            
+                                            <td>                                         
+                                                {{item.datosTotals}}
+                                                </td>
+                                            <td>{{item.datosEnviados}}</td>
+                                            <td>{{item.datosAcptados}}</td>
+                                        
+                                            <td >
+                                                <div class="btn-group dropdown">
+                                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="=false" style="background-color:#0000; border:0px solid;">
+                                                    <i class="mdi mdi-dots-horizontal"></i></a>
+                                                    <div class="dropdown-menu dropdown-menu-end">
+
+                                                        {% if item.estatus %}
+                                                        
+                                                            {% if item.estatus.esta_tus == 'Nueva prestación' or item.estatus.esta_tus == 'Revisión' %}
+                                                            <button  onclick="Datos('{% url 'tramites_app:editar_nombre' item.id %}');" class="btn fondo-boton "  title="Editar datos generales" tabindex="0" data-plugin="tippy" data-tippy-placement="left"><i class="fas fa-pen-alt"></i></button>                     
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Nueva prestación' %}
+                                                            <button title="Mandar a edición de contenido" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" target="_blank" onclick="Editar('{{item.id}}','Edición del contenido')"> <i class="fas fa-file-signature"></i>
+                                                            </button>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Nueva prestación' %}
+                                                            <!-- <a class="fondo-boton"  title="Eliminar prestación laboral" tabindex="0" data-plugin="tippy" data-tippy-placement="left" href="{% url 'tramites_app:eliminar_nuevo_tramite' item.id %}" ><i class="fas fa-times"  ></i></a> -->
+                                                            <a  onclick="EliminarTramite('{% url 'tramites_app:eliminar_nuevo_tramite' item.id %}')" title="Eliminar prestación laboral" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs"> <i class="fas fa-times"  ></i>
+                                                            </a>
+                                                            
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Activo (prestación activa)'  %}
+                                                            <button title="Asignados" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                                class="btn fondo-boton btn-xs" target="_blank" onclick="mostrar('{% url 'tramites_app:asignados' item.id %}')"> <i class="fas fa-file-signature"></i>
+                                                            </button>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Activo (prestación activa)'  %}
+                                                            <a  onclick="$(location).attr('href','{% url 'tramites_app:tramite-en-linea' item.id %}');" title="Administrador de pendientes" tabindex="0" data-plugin="tippy" data-tippy-placement="left" id="nuevo-tramite"  class="btn fondo-boton  " target="_blank"><i class="fa fa-list-ol"></i> </a>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Edición del contenido' or item.estatus.esta_tus == 'Revisión' or item.estatus.esta_tus == 'Activo (prestación activa)'   %}
+                                                            <a href="{% url 'tramites_app:vista-individual' item.id %}" title="Vista previa" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" 
+                                                            target="_blank"> <i class="far fa-file-word"></i> 
+                                                            </a>
+                                                            {% endif %}
+                                                            
+                                                            {% if item.estatus.esta_tus == 'Revisión' %}
+                                                            <a href="{% url 'tramites_app:editar-campo' item.id %}"  title="Revisar diseño de prestación" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs"    target="_blank"> <i class="fas fa-pen"></i>
+                                                            </a>
+                                                            {% endif %}
+
+                                                            {% if item.estatus.esta_tus == 'Activo (prestación activa)' %}
+                                                            <button title="Actualizar prestación" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                            class="btn fondo-boton btn-xs" target="_blank" onclick="Editar('{{item.id}}','Nueva prestación')"> <i class="fas fa-file-import"></i>
+                                                            </button>
+                                                            {% endif %}                                                     
+
+                                                        {% endif %}
+
+                                                    </div>
+                                                </div>
+                                            </td>  
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div> 
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para agregar los requerimientos que debe tener cada tramite -->
+<div class="modal fade" id="mdl-requisitos_tramites" tabindex="-1" role="dialog" aria-labelledby="mdl-requisitos_tramitesLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Requisitos trámites</h4>
+                <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                </button>
+            </div>
+            <div class="modal-body p-0 px-3">
+                <div id="vista_agregar_requisitos_tramites" class="d-none">
+                    <input type="hidden" name="tramites-id" id="tramites-id" />
+                    <input type="hidden" name="quitar_formato_default" id="quitar_formato_default" />
+                    <form id="frm-requisitos_tramites" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="tramites_Requisitos-id" id="tramites_Requisitos-id" />
+                        <div class="row mb-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" name="tramites_Requisitos-nombre" id="tramites_Requisitos-nombre" class="form-control form-control-sm input-rec" placeholder="Nombre" required />
+                                    <label for="tramites_Requisitos-nombre">Nombre</label>
+                                    <div class="invalid-feedback">Debe agregar un nombre</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <br>
+                                <br>
+                                <div class="form-check">
+                                    <input class="form-check-input " type="checkbox" id="tramites_Requisitos-obligatorio" name="tramites_Requisitos-obligatorio">
+                                    <label class="form-check-label" style="margin-left: 5px;" for="tramites_Requisitos-obligatorio">
+                                        ¿Es obligatorio?
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                <br>
+                                <br>
+                                <div class="form-check">
+                                    <input class="form-check-input " type="checkbox" id="tramites_Requisitos-tiene_formato_default" name="tramites_Requisitos-tiene_formato_default" onclick="activar_agregar_documento_default()">
+                                    <label class="form-check-label" style="margin-left: 5px;" for="tramites_Requisitos-tiene_formato_default">
+                                        ¿Tiene formato?
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div id="check_documento_activo" class="d-none">
+                                    <label for="tramites_Requisitos-ruta_nombre_archivo" class="etiqueta-combo">Adjuntar documento</label>
+                                    <input name="tramites_Requisitos-ruta_nombre_archivo" id="tramites_Requisitos-ruta_nombre_archivo" type="file" class="form-control form-control-sm input-rec" placeholder="Adjuntar documento" accept=".docx, .xlsx, .xls" />
+                                </div>
+                                <div id="vista_documento_activo" class="d-none">
+                                    <br>
+                                    <a id="btnDescargarFormato" target="_blank" class="mr-2" style="cursor:pointer;">Formato: acta_nacimiento.docx</a>
+                                    <button type="button" id="btnQuitarFormato" title="Quitar formato" tabindex="0" data-plugin="tippy" data-tippy-placement="left" class="btn fondo-boton btn-xs" target="_blank" onclick="quitar_formato()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2 px-2 pull-right">
+                            <div class="col">
+                                <button type="button" id="btnCancelarReqTramites" class="btn fondo-boton waves-effect gris-oscuro mr-2"> Cancelar </button>
+                                <button type="button" id="btnGuardarReqTramites" class="btn fondo-boton waves-effect gris-oscuro" onclick="guardar_info_requisito()"> Guardar </button>
+                            </div>
+                        </div>
+                    </form>  
+                </div>
+                <div id="vista_listado_requisitos_tramites">
+                    <div class="row pull-right">
+                        <div class="col">
+                            <br>
+                            <button type="button" id="btn-agregar_requisitos_tramites" class="btn waves-effect gris-oscuro fondo-boton">
+                                <i class="fas fa-file-import me-2 text-muted font-18 vertical-middle"></i>Agregar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <div class="form-floating">
+                                <input id="search-requisitos_tramites" name="requisitos_tramites" type="text" class="form-control input-rec" placeholder="Buscar">
+                                <label for="search-requisitos_tramites">Buscar</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <table id="dt-requisitos_tramites" class="table table-hover m-0 table-centered dt-responsive nowrap w-100 table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="all text-center">No.</th>
+                                        <th class="all text-center">Nombre</th>
+                                        <th class="all text-center">¿Requisito obligario?</th>
+                                        <th class="all text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="prestamos" tabindex="-1" role="dialog" aria-labelledby="prestamosLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false"></div>
+<div class="modal fade" id="datos" tabindex="-1" role="dialogo" aria-labelledby="datosLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false"></div>
+<div class="modal fade" id="asignados" tabindex="-1" role="dialogo" aria-labelledby="asignadosLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false"></div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+
+<!-- Plugins js -->
+<script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+<!-- Init js-->
+<script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+
+<script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+
+<script>
+
+function mostrar(myURL){
+        $('#asignados').load(myURL, function(){
+            $(this).modal('show');
+            var select_abogados = $("#id_asignar_a").selectize();
+            var selectize_abogados = select_abogados[0].selectize;
+            selectize_abogados.setValue('')
+        });
+
+    };
+
+    function Prestacion(myURL){
+        $('#prestamos').load(myURL, function(){
+            $(this).modal('show');
+        });
+
+    };
+
+
+    function Datos(myURL){
+        $('#datos').load(myURL, function(){
+            $(this).modal('show');
+        });
+
+    };
+
+    $(document).ready(function () {
+
+        render_table('#datatable', '#search1', []);
+
+        render_table('#datatable1', '#search2', []);
+
+        render_table('#datatable2', '#search3', []);
+
+    });
+
+    function Requerimientos_tramite(tramite) {
+        $("#tramites-id").val(tramite);
+        cargar_tabla_tramites(tramite);
+        $("#mdl-requisitos_tramites").modal("show");
+    }
+
+    $('#mdl-requisitos_tramites').on('hidden.bs.modal', function (e) {
+        limpiar_form_requisitos_tramites()
+        regresar_listado_requisitos_tramites();
+    });
+
+    $("#btnCancelarReqTramites").on("click", function() {
+        limpiar_form_requisitos_tramites()
+        regresar_listado_requisitos_tramites();
+    })
+
+    $("#btn-agregar_requisitos_tramites").on("click", function() {
+        activar_vista_agregar_requisito();
+    })
+
+    function activar_vista_agregar_requisito() {
+        $("#vista_listado_requisitos_tramites").addClass("d-none");
+
+        if($("#vista_agregar_requisitos_tramites").hasClass("d-none"))
+            $("#vista_agregar_requisitos_tramites").removeClass("d-none");
+        
+        activar_agregar_documento_default();
+    }
+
+    function activar_agregar_documento_default() {
+        // if(!document.getElementById("btnDescargarFormato").href || document.getElementById("btnDescargarFormato").href == "") {
+        $("#check_documento_activo").removeClass("d-none");
+        if(!$("#tramites_Requisitos-tiene_formato_default").prop("checked")) {
+            $("#check_documento_activo").addClass("d-none");
+        }
+        // }
+    }
+
+    function regresar_listado_requisitos_tramites() {
+        $("#vista_listado_requisitos_tramites").removeClass("d-none");
+
+        if(!$("#vista_agregar_requisitos_tramites").hasClass("d-none"))
+            $("#vista_agregar_requisitos_tramites").addClass("d-none");
+        
+        cargar_tabla_tramites($("#tramites-id").val());
+    }
+
+    function limpiar_form_requisitos_tramites() {
+        let formulario = document.getElementById('frm-requisitos_tramites');
+        formulario.reset();
+
+        if(!$("#check_documento_activo").hasClass("d-none"))
+            $("#check_documento_activo").addClass("d-none");
+        
+        $("#tramites_Requisitos-id").val("");
+
+        desactivar_vista_ver_formato();
+    }
+    
+    function Editar(id,estatus) {
+        let formulario = document.getElementById('revision');
+        let fd = new FormData(formulario);
+        fd.append("activar", id);
+        fd.append("estatus", estatus);
+
+        $.ajax({
+            url: "{% url 'tramites_app:activar_vista' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error)
+                {
+                    toastr.success(result.msj);
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+                else
+                {
+                    return toastr.error(result.msj);
+                }
+            },error: function (error) {
+                toastr.error(error);
+            }
+        });
+    };
+
+    function guardar_info_requisito() {
+        var t = $("#frm-requisitos_tramites")[0];
+        if (t.checkValidity()) {
+            let formulario = document.getElementById("frm-requisitos_tramites");
+            let fd = new FormData(formulario);
+            fd.append("id_tramite", $("#tramites-id").val());
+
+            // if($("#tramites_Requisitos-tiene_formato_default").prop("checked"))
+            // {
+            //     return toastr.error("Debe adjuntar un documento");
+            // }
+
+            $.ajax({
+                url: "{% url 'tramites_app:guardar-requisitos-tramites' %}",
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (!result.error)
+                    {   
+                        toastr.success("Requisito guardado correctamente");
+
+                        setTimeout(() => {
+                            limpiar_form_requisitos_tramites()
+                            regresar_listado_requisitos_tramites();
+                        }, 1000);
+                    }
+                    else
+                    {
+                        return toastr.error(result.msj);
+                    }
+                },
+                error: function (error) {
+                    toastr.error(error);
+                }
+            });
+        }
+        else
+            t.classList.add('was-validated');
+    }
+
+    function cargar_tabla_tramites(tramite_id) {
+        var contador = 0;
+
+        $('#dt-requisitos_tramites').DataTable().destroy();
+
+        let table = $('#dt-requisitos_tramites').DataTable({
+            destroy: true,
+            sDom: "rtip",
+            ajax: {
+                url : "{% url 'tramites_app:listado-requisitos-tramites' %}",
+                type : "POST",
+                data : {
+                    "csrfmiddlewaretoken": document.getElementsByName("csrfmiddlewaretoken")[0].value,
+                    "tramite_id": tramite_id
+                },
+            },
+            columns: [
+                { data: 'id' },
+                { data: 'nombre' },
+                { data: 'obligatorio' },
+                { data: 'id' },
+            ],
+            order: [[0, 'DESC']],
+            pageLength : 5,
+            lengthMenu: [5, 25, 50, 100, 'Todos'],
+            language: {
+                decimal: "",
+                emptyTable: "No hay información",
+                info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                infoPostFix: "",
+                thousands: ",",
+                lengthMenu: "Mostrar _MENU_ Entradas",
+                loadingRecords: "Cargando...",
+                processing: "Procesando...",
+                search: "Buscar:",
+                zeroRecords: "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            columnDefs: [
+                {
+                    "targets": 0,
+                    "render": function(data, type, row){
+                        contador += 1;
+                        return contador;
+                    }
+                },
+                {
+                    "targets": 2,
+                    "render": function(data, type, row){
+                        let respuesta = "No";
+                        if(row.obligatorio)
+                        {
+                            respuesta = "Si"
+                        }
+                        return respuesta;
+                    }
+                },
+                {
+                    "orderable": false,
+                    "targets": 3,
+                    "render": function(data, type, row) {
+                        let button = `
+                            <div class="btn-group dropdown">
+                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                <div class="dropdown-menu dropdown-menu-end">`;
+
+                        if (row.tiene_formato_default) {
+                            button += `
+                                <a id="btnVerFormato` + row.id + `" href="{{request.scheme}}://{{request.get_host}}/` + row.ruta_formato.slice(2) + `" target="_blank" class="dropdown-item">
+                                    <i class="fas fa-eye me-2 text-muted font-18 vertical-middle"></i>Ver formato
+                                </a>`;
+                        }
+
+                        button += `
+                                <a id="btnEditarRequisito` + row.id + `" onclick="editar_requisito_tramite('` + row.id + `', '` + row.nombre + `', '` + row.obligatorio + `', '` + row.tiene_formato_default + `', '` + row.ruta_formato + `', '` + row.ruta_nombre_archivo + `')" class="dropdown-item" href="#">
+                                    <i class="fas fa-trash me-2 text-muted font-18 vertical-middle"></i>Editar
+                                </a>
+                                <a id="btnEliminarRequisito` + row.id + `" onclick="eliminar_requisito_tramite('` + row.id + `', '` + row.ruta_formato + `')" class="dropdown-item" href="#">
+                                    <i class="fas fa-trash me-2 text-muted font-18 vertical-middle"></i>Eliminar
+                                </a>
+                            </div>
+                        </div>`;
+
+                        return button;
+                    }
+                }
+            ],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            }
+        });
+
+        $(".dataTables_length select").addClass("form-select form-select-sm"),
+        $(".dataTables_length select").removeClass(
+            "custom-select custom-select-sm"
+        ),
+        $(".dataTables_length label").addClass("form-label");
+
+        $("#search-requisitos_tramites").on("keyup click", function () {
+            table.tables().search($(this).val()).draw();
+        });
+
+        table.on("click", "thead tr td", function (event) {
+        let indexColumn = $(this).closest("td").index();
+
+        $("thead > tr  > td").each(function (index, td) {
+            this.classList.remove("negrita");
+        });
+
+        if ($.inArray(parseInt(indexColumn), myCols) === -1)
+            $(this).closest("td").addClass("negrita");
+        });
+    }
+
+    function desactivar_vista_ver_formato() {
+        if(!$("#vista_documento_activo").hasClass("d-none"))
+            $("#vista_documento_activo").addClass("d-none");
+
+            $("#check_documento_activo").removeClass("d-none");
+    }
+
+    function quitar_formato() {
+        $("#quitar_formato_default").val("1");
+
+        desactivar_vista_ver_formato();
+    }
+
+    function eliminar_requisito_tramite(id_requisito, ruta) {
+
+        if (ruta != "")
+            ruta = ruta.slice(2);
+
+        let formulario = document.getElementById("frm-requisitos_tramites");
+        let fd = new FormData(formulario);
+        fd.append("requisito_id", id_requisito);
+        fd.append("ruta", ruta);
+
+        $.ajax({
+            url: "{% url 'tramites_app:eliminar-requisitos-tramites' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error)
+                {
+                    toastr.success(result.msj);
+
+                    cargar_tabla_tramites($("#tramites-id").val());
+                }
+                else
+                {
+                    return toastr.error(result.msj);
+                }
+            },error: function (error) {
+                toastr.error(error);
+            }
+        });   
+    }
+    
+    function editar_requisito_tramite(id, nombre_tramite, requisito_obligatorio, tiene_formato_default, ruta_archivo, nombre_archivo)
+    {
+        if (ruta_archivo != "")
+            ruta_archivo = ruta_archivo.slice(1);
+
+        $("#tramites_Requisitos-id").val(id);
+        $("#tramites_Requisitos-nombre").val(nombre_tramite);
+
+        $("#tramites_Requisitos-obligatorio").prop("checked", false);
+        if(requisito_obligatorio == "true")
+        {
+            $("#tramites_Requisitos-obligatorio").prop("checked", true)
+        }
+
+        $("#tramites_Requisitos-tiene_formato_default").prop("checked", false);
+        if(tiene_formato_default == "true")
+        {
+            $("#tramites_Requisitos-tiene_formato_default").prop("checked", true)
+        }
+
+        var href_descarga_formato = document.getElementById("btnDescargarFormato");
+        href_descarga_formato.setAttribute("href", "{{request.scheme}}://{{request.get_host}}/" + ruta_archivo);
+
+        $("#btnDescargarFormato").html("Formato:" + nombre_archivo);
+
+        if(ruta_archivo != "")
+        {
+            if($("#vista_documento_activo").hasClass("d-none"))
+            $("#vista_documento_activo").removeClass("d-none");
+        
+            $("#check_documento_activo").addClass("d-none");
+        }
+        else {
+            desactivar_vista_ver_formato();
+            activar_agregar_documento_default();
+        }
+        
+        $("#vista_listado_requisitos_tramites").addClass("d-none");
+
+        if($("#vista_agregar_requisitos_tramites").hasClass("d-none"))
+            $("#vista_agregar_requisitos_tramites").removeClass("d-none");
+    }
+
+    function EliminarTramite(url_tramite){
+
+        Swal.fire({
+            title:"¿Seguro que quieres eliminar la prestación? " ,
+            // input: 'text',
+            //text:"Observaciones" ,
+            icon:"info",showCancelButton:!0,
+            showCancelButton: true,
+            confirmButtonColor:"#3C4854",
+            cancelButtonColor:"#3C4854",
+            confirmButtonText:"Eliminar",
+            preConfirm: () => {
+                            
+                // if (e.value) {
+                // let formulario = document.getElementById('revision');
+                // let fd = new FormData(formulario);
+            
+                // fd.append("activar", id);
+            
+
+                $.ajax({
+                    url: url_tramite,
+                    type: "GET",
+                    // data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            toastr.success(result.msj);
+
+                            setTimeout(() => {
+                                window.location.href = "{% url 'tramites_app:tramites-servicios' %}";
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+                
+            },
+            cancelButtonText: 'Cancelar'
+
+        });
+    }
+</script>
+
+{% endblock extrajs %}
+                    
+

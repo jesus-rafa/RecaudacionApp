@@ -1,0 +1,100 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo oficio</h4>
+            <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+        <form id="form_oficios" action="{% url 'oficios_app:nuevo-oficio' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2 form-floating">
+                            {{ form.nombre }}
+                            <label for="id_nombre">A quien va dirigido:</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.puesto }}
+                            <label for="id_puesto">Puesto:</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.dependencia }}
+                            <label for="id_dependencia">Dependencia:</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.asunto }}
+                            <label for="id_asunto">Asunto:</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label>Copiar a:</label>
+                                <select id="copia_a" class="form-control select2-multiple" data-toggle="select2"
+                                    data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                    {% for row in usuarios %}
+                                    <option value="{{row.id}}">{{row.get_user}}</option>
+                                    {% endfor %}
+                                </select>
+                                <input name="copia_a" type="hidden" value="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2 form-floating">
+                            {{ form.firma }}
+                            <label for="id_firma">Firma:</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn fondo-boton" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btGuardar" class="btn fondo-boton">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        $('#form_oficios').submit(function(e) {
+
+            var lista_usuarios = $("#copia_a").val();
+            $("[name='copia_a']").val(lista_usuarios.join(","));
+
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+</script>

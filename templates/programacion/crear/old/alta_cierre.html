@@ -1,0 +1,79 @@
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6 id="lbTitle">Cierre</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_alta_cierre" action="{% url 'programacion_app:alta-cierre' programa_id %}" method="POST">{% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label id="lbOficio2">Oficio:</label>
+                        {{ form.programa_id }}
+                        <input type="text" class="form-control" id="tbID4">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label id="lbFecha2">Fecha:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="text-center">
+                        <h5><label id="lbSelected4" for="lbSelected4" class="text-primary"></label></h5>
+
+                    </div>
+                    <label  id="lbEstatus">Estatus:</label>
+                    {{ form.estatus }}
+                    
+                </div>
+                <!-- <div class="form-group"> -->
+                    <!-- <label style="display:none;" id="lbArea">Area:</label> -->
+                    <!-- {{ form.comentarios_area }} -->
+                <!-- </div> -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btReject" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+
+    $(function () {
+        
+		$("#form_alta_cierre").submit(function (e) {
+
+            $("#btReject").attr("disabled", true);
+
+            return true;
+
+        });
+		
+		$('.change_estatus').change(function() {
+			$('#id_comentarios_area').toggle();
+			$('#lbArea').toggle();
+		});
+
+        //$('select option:contains("1RECHAZADA")').text('RECHAZADA');
+        //$('select option:contains("2RECHAZADA")').text('RECHAZADA');
+        //$('select option:contains("3RECHAZADA")').text('RECHAZADA');
+
+
+        //$('#id_estatus').val('{ obj.etapa.estatus.id }').change();
+        //$('#id_etapa').val('{ obj.estatus.id }').change();
+
+        //$('#id_estatus').chained('#id_etapa');
+
+        //$('#id_etapa').prop('readonly', 'readonly');
+
+    });
+</script>
+

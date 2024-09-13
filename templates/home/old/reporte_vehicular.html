@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Reporte Vehicular {% endblock title %}
+
+{% block content %}
+<div class="page-title">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4 class="mb-0"> Reporte Vehicular</h4>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb pt-0 pr-0 float-left float-sm-right ">
+                <li class="breadcrumb-item"><a href="#" class="default-color">Reportes</a></li>
+                <li class="breadcrumb-item active">Reporte Vehicular</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<iframe width="100%" height="800" src="https://app.powerbi.com/reportEmbed?reportId=c3e0c844-4149-4ba6-ba80-dca5150b859f&autoAuth=true&ctid=628c0e77-5b55-44df-8be1-eca3b37b9cd0&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWNlbnRyYWwtdXMtcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQvIn0%3D&navContentPaneEnabled=false" frameborder="0" allowFullScreen="true"></iframe>
+
+
+{% endblock content %}
+
+
+{% block extrajs %}
+
+{% endblock extrajs %}

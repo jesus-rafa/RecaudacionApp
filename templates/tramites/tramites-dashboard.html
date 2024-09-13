@@ -1,0 +1,110 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Nuevo Tramite {% endblock titulo %}
+
+{% block content %} 
+
+
+
+<!-- App css -->
+<link href="{% static 'assets/css/config/creative/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+<link href="{% static 'assets/css/config/creative/app.min.css' %}" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+
+
+<style>
+    .fondo-boton{
+        color: #ffff !important;
+    }
+
+    .fondo-boton:hover{
+    color: #020B0D !important;
+    }
+</style>
+
+<!-- <div class="content-page"> -->
+    <div class="content">
+
+        <!-- Start Content-->
+        <div class="container-fluid">
+            
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <div class="page-title-right">
+                            
+                        </div>
+                        <h4 class="page-title">Tramites y servicios generales</h4>
+                    </div>
+                </div>
+            </div>     
+            <!-- end page title --> 
+
+            <!-- Right Sidebar -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <p>Publicaciones</p>
+                                <div class="col-8 mt-2 overflow-scroll">
+
+                                    
+
+                                   <ul class="mb-1">
+                                    {% for tramitar in dashboard  %}
+                                                                       
+                                        {{tramitar.titulo_formato|safe}}
+                                        <button  class="btn waves-effect waves-light text-dark text-end" onclick="$(location).attr('href','{% url 'tramites_app:editar-campo' 11 %}');" >  <i class="mdi mdi-send ms-2"></i> <span>Editar</span></button>
+                                 
+                                    {% endfor %}
+                                   </ul>
+                                    
+                                </div> <!-- end card-->
+                                <div class="col-4 mt-3 text-center ">
+                                    <button id="nuevo-tramite" onclick="$(location).attr('href','{% url 'tramites_app:dashboard' %}');" class="btn fondo-boton text-center bg-secondary" style="font-size: 18px; border-radius: 25% 10%;" target="_blank"><i class="fa fa-plus"></i> Prueba boton</button>
+
+                                </div>
+
+                            </div>
+
+                            
+    
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div> <!-- end Col -->
+
+            </div><!-- End row -->
+            
+        </div> <!-- container -->
+
+    </div> <!-- content -->
+
+<!-- </div> -->
+
+ 
+
+{% endblock content %}
+
+{% block extrajs %}
+
+
+<!-- Quill js -->
+ <!-- <script src="{% static 'assets/libs/quill/quill.min.js' %}"></script> -->
+
+ <!-- App js -->
+ <script src="{% static 'assets/js/app.min.js' %}"></script>
+
+ <script  src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+ <script  src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+ <script  src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+ 
+{% endblock extrajs %}

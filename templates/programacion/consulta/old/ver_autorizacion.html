@@ -1,0 +1,248 @@
+{% load tags %}
+{% load permissions %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Detalle</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+            <div class="modal-body">
+                <label>{{id}}</label>
+                <div class="form-row">
+                    
+                    <div class="form-group col-md-4">
+                        <label><strong>RFC:</strong></label>
+                        <label>{{ detail.rfc }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Programa:</strong></label>
+                        <label>{{ detail.programa }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label><strong>Presuntiva:</strong></label>
+                        <strong><label class="text-success">$ {{ detail.presuntiva|unlocalize|intcomma }}</label></strong>
+                    </div>
+                </div>
+                    <div class="form-group">
+                        <label><strong>Nombre:</strong></label>
+                        <label>{{ detail.nombre }}</label>
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Direccion:</strong></label>
+                        <label>{{ detail.direccion }}</label>
+                    </div>
+
+                <br>
+               
+                <div class="tab round shadow">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active show" id="home-08-tab" data-toggle="tab" href="#home-08"
+                                role="tab" aria-controls="home-08" aria-selected="true"> <i class="fa fa-list-ul"></i>
+                                Seguimiento </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profile-08-tab" data-toggle="tab" href="#profile-08" role="tab"
+                                aria-controls="profile-08" aria-selected="false"><i class="fa fa-file"></i> Archivos
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="home-08" role="tabpanel" aria-labelledby="home-08-tab">
+                            <div class="table-responsive mt-15">
+                                <table class="table center-aligned-table mb-0">
+                                    <thead>
+                                        <tr class="text-dark">
+                                            <th>Fecha</th>
+                                            <th>Comentarios</th>
+                                            <th>Estatus</th>
+                                            <th>Autorizacion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for detalle in detalles %}
+                                        <tr>
+                                            <td>{{ detalle.fecha|date:'d/m/Y' }}</td>
+                                            <td>
+												{% if detalle.comentarios != None %}
+													{{ detalle.comentarios }}
+												{% endif %}
+											</td>
+                                            <td>{{ detalle.estatus }}</td>
+                                            <td>
+                                                {% if detalle.usuario != None %}
+                                                    {% get_user_info detalle.usuario %}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="profile-08" role="tabpanel" aria-labelledby="profile-08-tab">
+                            <div class="table-responsive mt-15">
+                                <table class="table center-aligned-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Tipo</th>
+                                            <th>Comentarios</th>
+                                            <th>Archivo</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+									
+										{% has_perms request.user 'change_archivos' as change_archivos %}
+										{% has_perms request.user 'delete_archivos' as delete_archivos %}
+										
+                                        {% for archivo in archivos %}
+                                        <tr>
+                                            <td>{{ archivo.fecha|date:'d/m/Y' }}</td>
+                                            <td>{{ archivo.tipo }}</td>
+                                            <td>{{ archivo.comentarios }}</td>
+                                            <td>
+                                                <a href="{{ archivo.archivo.url }}" class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i></a>
+                                            </td>
+                                            <td>
+												{% if change_archivos is True %}
+                                                <button id="btUpdate_File" onclick="Update_Files('{% url 'programacion_app:editar-archivo' archivo.id %}', '{{archivo.id}}', '')" 
+                                                    data-toggle="tooltip" data-placement="top" title="Editar" 
+                                                    class="btn btn-warning btn-sm" target="_blank">
+                                                    <i class="fa fa-pencil"></i>
+                                                </button>
+												{% endif %}
+												{% if delete_archivos is True %}
+												{% csrf_token %}
+                                                <button id="btDelete_File" onclick="Delete_File('{% url 'programacion_app:eliminar-archivo' archivo.id %}', '{{archivo.id}}')" 
+                                                    data-toggle="tooltip" data-placement="top" title="Eliminar" 
+                                                    class="btn btn-danger btn-sm" target="_blank">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+												{% endif %}
+                                            </td>
+                                        </tr>   
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+               
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="mdUpdate_Files" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+
+<div class="modal fade" id="mdDelete_Files" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $('.alert-success').fadeOut(6000);
+
+    });
+
+    function Update_Files(myURL, myID, myFolio) {
+        $('#mdUpdate_Files').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbOficio3').prop('readonly', 'readonly');
+            $('#tbOficio3').val(myID);
+
+            var value = $('#hfType').val();
+            $("#id_tipo option[value='" + value + "']").attr('selected','selected');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+	
+		
+	  function Delete_File(myURL, myID){
+
+        swal({
+            title: 'Seguro que desea eliminar?',
+            text: "este Archivo!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonClass: 'btn btn-danger',
+            cancelButtonClass: 'btn btn-secondary',
+            buttonsStyling: false,
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+
+                $.ajax({
+                    data: {
+                        csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val()
+                    },
+                    url: myURL,
+                    type: "POST",
+                    success: function (response) {
+
+                        console.log(response);
+                        location.reload();  
+                    },
+                    error: function (error) {
+
+                        console.log(error);
+                    }
+            });
+
+                swal(
+                'Eliminado!',
+                'Exitosamente.',
+                'success'
+                )
+            } else if (
+                // Read more about handling dismissals
+                result.dismiss === swal.DismissReason.cancel
+            ) {
+                swal(
+                'Cancelado',
+                '',
+                'error'
+                )
+            }
+        })
+
+       
+
+    }
+
+</script>
+{% endblock extrajs %}

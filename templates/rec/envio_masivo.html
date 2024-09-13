@@ -1,0 +1,275 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Correos Invitacion {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Correos Invitacion</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-10 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon1">Area</span>
+                        <select name="area" id="area" class="form-control" data-toggle="select2" data-width="100%">
+                            <option value="TODAS">TODAS</option>
+                            <option value="PROGRAMACION">PROGRAMACION</option>
+                            <option value="PADRONES">PADRONES</option>
+                            <option value="PROMOCION">PROMOCION</option>
+                        </select>
+
+                        <span class="input-group-text" id="basic-addon1">Año</span>
+                        <select name="year" id="year" class="form-control" data-toggle="select2" data-width="100%">
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                        </select>
+
+                        <span class="input-group-text" id="basic-addon1">Periodo</span>
+                        <select name="month" id="month" class="form-control" data-toggle="select2" data-width="100%">
+                            <option value="TODOS">TODOS</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+
+                        <button type="submit" class="btn btn-primary btn" target="_blank" value="Buscar"> 
+                            <i class="fa fa-search"></i>
+                            Buscar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="summary" class="table mb-0 table-sm table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Periodo</th>
+                                <th>Programa</th>
+                                <th>Area</th>
+                                <th>No. Contrib</th>
+                                <th>Presuntiva</th>
+                                <th>Recaudado</th>
+                                <th>Concluidos</th>
+                                <th>Por Concluir</th>
+                                <th>Con Pago</th>
+                                <th>Efectividad</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for carta in cartas %}
+                            <tr>
+                                <td>{{ carta.ejercicio_|floatformat }}</td>
+                                <td>{{ carta.periodo_|floatformat }}</td>
+                                <td>{{ carta.programa }}</td>
+                                <td>{{ carta.area }}</td>
+                                <td class="col1">{{ carta.numero_contribuyentes }}</td>
+                                <td class="col2 format">
+                                    ${{ carta.presuntiva }}
+                                </td>
+                                <td class="col3 format">
+                                    ${{ carta.recaudado }}
+                                </td>
+                                <td class="col4">{{ carta.concluidos }}</td>
+                                <td class="col5">{{ carta.por_concluir }}</td>
+                                <td class="col6">{{ carta.con_pago }}</td>
+                                <td>{{ carta.efectividad }}%</td>
+                                <td>
+                                    <div class="text-center">
+                                        {% with programa_=carta.programa ejercicio_=carta.ejercicio_|floatformat  periodo_=carta.periodo_|floatformat area_=carta.area %}
+                                        <a href="/excel-masivo/{% replace_url programa_ %}/{{ ejercicio_ }}/{{ periodo_ }}/{{ area_ }}/" title="Descargar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                            class="btn btn-success btn-sm" target="_self">
+                                            <i class="far fa-file-excel"></i>
+                                        </a>
+                                        {% endwith %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>Total</th>
+                                <th class="total sum_no_contribuyentes"></th>
+                                <th class="total sum_presuntiva"></th>
+                                <th class="total sum_recaudado"></th>
+                                <th class="total sum_concluidos"></th>
+                                <th class="total sum_por_concluir"></th>
+                                <th class="total sum_con_pago"></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datatables/buttons.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+        let searchParams = new URLSearchParams(window.location.search);
+        let year = searchParams.get('year');
+        let month = searchParams.get('month');
+        let area = searchParams.get('area');
+
+        let fecha_actual = new Date();
+        let year_value, month_value, area_value;
+
+        if(year !== null)
+            year_value = String(year); 
+        else
+            year_value = String(fecha_actual.getFullYear());
+        $("#year option[value='" + year_value + "']").attr('selected', 'selected');
+
+        if(month !== null)
+            month_value = String(month); 
+        else
+            month_value = 'TODOS';
+        $("#month option[value='" + month_value + "']").attr('selected', 'selected');
+
+        if(area !== null)
+            area_value = String(area); 
+        else
+            area_value = 'TODAS';
+        $("#area option[value='" + area_value + "']").attr('selected', 'selected');
+
+        
+        var table1 = $("#summary").DataTable({
+            pageLength : 300,
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "csv", text: "CSV", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+        Get_Advance();
+
+    });
+
+    function Get_Advance() {
+
+        var RECAUDADO = 0;
+        var progress = 0;
+        var collected = 0;
+        var estimated = 0;
+        var fill_progress_recargos = 0;
+        var fill_progress_accesorios = 0;
+        var fill_progress_impuestos = 0;
+        var total_recargos = 0;
+        var total_accesorios = 0;
+        var total_impuestos = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $('#summary').find(selector).each(function (index, element) {
+                var num = $(element).text().replace('$', '').replace(/,/g, '')
+                sum += parseFloat(num);
+            });
+
+            return sum;
+        };
+
+
+        $('#summary').find('.total').each(function (index, element) {
+
+            if (index === 1 | index === 2){
+                var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$' + total);
+
+            }else{
+                var total = getSum(index + 1).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text(total);
+            }
+            
+        });
+
+        $('#summary').find('.format').each(function (index, element) {
+            var number = $(element).text()
+            $(this).text(number.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+        });
+        
+    }
+
+</script>
+{% endblock extrajs %}

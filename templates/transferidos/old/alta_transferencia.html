@@ -1,0 +1,35 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Crear Transferencia</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'transferidos_app:alta-transferencia' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-group">
+                    {{ form.lista }}
+                    <div class="text-center">
+                        <h4><label id="lbTransfer" for="lbTransfer" class="text-primary"></label></h4>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Dependencia:</label>
+                    {{ form.dependencia }}
+                </div>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btNewTransfer" type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>

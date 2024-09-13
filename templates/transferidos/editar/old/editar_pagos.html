@@ -1,0 +1,71 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Editar Pago</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'transferidos_app:editar-pago-3' object.id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>ID:</label>
+                        {{ form.programa_id }}
+                        <input type="text" class="form-control" id="tbOficio2">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Tipo:</label>
+                        {{ form.tipo }}
+                        <input id="hfType" type="hidden" value="{{ selected_tipo }}">
+                        <label>Presuntiva:</label>
+                        {{ form.presuntiva }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Ejercicio:</label>
+                        {{ form.ejercicio }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Periodo:</label>
+                        {{ form.periodo }}
+                    </div>
+                </div>
+                <div class="form-row">
+				 <div class="form-group col-md-4">
+                        <label>Impuesto:</label>
+                        {{ form.impuesto }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Actualizaciones:</label>
+                        {{ form.accesorios }}
+                        
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Recargos:</label>
+                        {{ form.recargos }}
+                    </div>
+                   
+                </div>
+                
+                <div class="form-group">
+                    <label>Comentarios:</label>
+                    {{ form.comentarios }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+            </div>
+
+        </form>
+    </div>
+</div>

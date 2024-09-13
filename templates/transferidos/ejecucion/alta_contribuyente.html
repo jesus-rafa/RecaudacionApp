@@ -1,0 +1,213 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_contribuyente" action="{% url 'transferidos_app:alta-ejecucion' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                {{ form.fecha }}
+
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="form-floating mb-2">
+                            {{ form.rfc }}
+                            <label>{{ form.rfc.label }}</label>
+                        </div>
+                    </div>
+                        <div class="col-md-2">
+                            <button id="btSearch" type="submit" class="btn btn-volver search" target="_blank"
+                                value="Ver"> <i class="fa fa-search"></i> Ver</button>
+                        </div>
+                </div>
+
+                <div class="row">
+
+                    <div style="display: none;" class="alert text-center col-md-12">
+                        <i class="fa fa-exclamation-circle text-danger"></i>
+                        <label class="text-danger">RFC ACTIVO</label>
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.nombre }}
+                            <label>{{ form.nombre.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating mb-2">
+                            {{ form.direccion }}
+                            <label>{{ form.direccion.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label class="etiqueta-combo">{{ form.programa.label }}</label>
+                            {{ form.programa }}
+                            <label class="text-danger" id="validar_fecha0"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label class="etiqueta-combo">{{ form.metodo_envio.label }}</label>
+                            {{ form.metodo_envio }}
+                            <label class="text-danger" id="validar_fecha"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.ejercicio.label }}</label>
+                            {{ form.ejercicio }}
+                            <label class="text-danger" id="validar_fecha2"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            <label class="etiqueta-combo">{{ form.periodo.label }}</label>
+                            {{ form.periodo }}
+                            <label class="text-danger" id="validar_fecha3"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating mb-2">
+                            {{ form.presuntiva }}
+                            <label>{{ form.presuntiva.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            {{ form.comentarios }}
+                            <label>{{ form.comentarios.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-volver" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btNewFile" class="btn btn-outline-secondary btn-volver">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $("#btSearch").click(function () {
+
+            var RFC = $("#id_rfc").val();
+            var myURL_direccion = "{% url 'transferidos_app:get-contribuyente-2' 'RFC' %}"; // direccion del contribuyente
+            var myURL_nombre = "{% url 'rec_app:get-contribuyente-name' 'RFC' %}";  // nombre del contribuyente
+
+            $.ajax({
+                url: myURL_nombre.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+
+                    try {
+                        $("#id_nombre").val(data[0].razon_social);
+                        $("#id_direccion").val(data[0].Direccion.toUpperCase() );
+
+            
+                        
+                    }
+                    catch (err) {
+                        $("#id_nombre").val('SIN DATOS*');
+                        $("#id_direccion").val('SIN DATOS*');
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+
+            $.ajax({
+                url: myURL_direccion.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+
+                    if (data[1].message === true) {
+                        $(".alert").show();
+                    } else {
+                        $(".alert").hide();
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+
+
+        });
+
+        $("#btNewFile").click(function () {
+            var programa = $('#id_programa').val();
+            var metodo_envio = $('#id_metodo_envio').val();
+            var ejercicio = $('#id_ejercicio').val();
+            var periodo = $('#id_periodo').val();
+            
+            if(!!programa){
+                $('#validar_fecha0').html('');
+
+                if(metodo_envio !== '209'){
+                    $('#validar_fecha').html('');
+
+                    if(ejercicio !== '0'){
+                        $('#validar_fecha2').html('');
+                        
+                        if(periodo !== '0'){
+                            $('#validar_fecha3').html('');
+                            return true;
+
+                        }else{
+                            $('#validar_fecha3').html('campo requerido');
+                            return false;
+                        }
+                        
+                    }else{
+                        $('#validar_fecha2').html('campo requerido');
+                        return false;
+                    }
+                    
+                }else{
+                    $('#validar_fecha').html('campo requerido');
+                    return false;
+                }
+            }else{
+                $('#validar_fecha0').html('campo requerido');
+                return false;
+            }
+            
+        });
+
+    });
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,93 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'promocion_app:editar-visita' object.id idDesarrollo %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-2">
+                            {{ form.id_desarrollo }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>RFC:</label>
+            
+                            <div class="input-group mb-3">
+                                {{ form.rfc }}
+                                <div class="input-group-append">
+                                    <button id="btConsulta" type="submit" class="btn btn-primary btn" target="_blank" value="Ver"> <i
+                                            class="fa fa-search"></i> Ver
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Nombre:</label>
+                            {{ form.nombre }}
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        $("#btConsulta").click(function (e) {
+            e.preventDefault();
+
+            var RFC = $("#id_rfc").val();
+            var myURL = "{% url 'programacion_app:get-contribuyente' 'RFC' %}";
+
+            $.ajax({
+                url: myURL.replace('RFC', RFC),
+                type: "GET",
+                dataType: "JSON",
+                success: function (data) {
+                    
+                    try {
+                        $("#id_nombre").val(data[0].fields.nombre);
+                    }
+                    catch (err) {
+                        $("#id_nombre").val('sin datos*');
+                    }
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+
+        });
+
+    });
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,53 @@
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Resumen: </h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0 px-4 py-2">
+            <div class="row mb-2">
+                <div class="col ">
+                    <p class="font-11 m-0">Contribuyente:</p>
+                    <label><b>{{ sintesis.get_contribuyente }}</b></label>
+                </div>
+                <div class="col">
+                    <p class="font-11 m-0">Número de cuenta:</p>
+                    <label><b>{{ sintesis.numero_cuenta }}</b></label>
+                </div>
+            </div>
+            <hr class="m-0 p-0 my-1 color_white">
+            <div class="row mb-2">
+                <div class="col">
+                    <p class="font-11 m-0">Estatus:</p>
+                    <label ><b >Abierto</b> </label>
+                </div>
+                <div class="col">
+                    <p class="font-11 m-0">Adeudo:</p>
+                    <label><b> $ {{ sintesis.adeudo }}</b></label>
+                </div>
+            </div>
+            <hr class="m-0 p-0 my-1 color_white">
+            <div class="row mb-2">
+                <div class="col">
+                    <p class="font-11 m-0">Fecha del último envío:</p>
+                    <label><b>08/12/2022</b></label>
+                </div>
+                <div class="col">
+                    <p class="font-11 m-0">Fecha del último pago:</p>
+                    <label><b>{{ sintesis.fecha_ultimo_pago|date:'d/m/Y' }}</b></label>
+                </div>
+            </div>
+            <hr class="m-0 p-0 my-1 color_white">
+            <div class="row mb-2">
+                <div class="col">
+                    <p class="font-11 m-0">Fecha de alta:</p>
+                    <label><b>{{ sintesis.fecha_alta|date:'d/m/Y' }}</b></label>
+                </div>
+                <div class="col"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extrajs %}{% endblock extrajs %}

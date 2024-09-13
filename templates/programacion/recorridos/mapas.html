@@ -1,0 +1,116 @@
+{% extends 'base_new.html' %}
+{% load static %}
+
+{% block title %} Mapa Contribuyentes {% endblock title %}
+
+{% block head %}
+
+<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" /> -->
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+    }
+
+    a {
+        cursor: pointer;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Mapa Contribuyentes</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div data-role="page" id="map_result">
+        <div data-role="content" style="padding:0;">
+            <div id="map"></div>
+            <!-- <br> -->
+            <hr>
+            <div id="list">
+                <ul class="list-group">
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>VEBR670209I88: JOSE ROGELIO VENEGAS
+                            BANDA</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>VEMG4002186S8: GLORIA VEGA MATA</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>MOGJ600128P52: J. JESUS MORALES GALVAN</a>
+                    </li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>AARB871128U10: MARIA BRENDA	ALVARADO ROBLES</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>VIBE3501086X5: EUFROCINA VITAL BARRON</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>CATM540626V25: MARIO GERARDO CAMARENA TORRES</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>EIML591215Q75: LUIS ARTURO ESPINOSA DE LOS MONTEROS	MOLINA</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>AOMA8605013U4: ALEJANDRO ULISES	ARGOTE MENDOZA</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>VAMV690828H34: VERONICA	VARGAS MARTINEZ</a></li>
+                    <li class="list-group-item"><i class="mdi mdi-account me-1"></i> <a>MERM690408JW0: MARTINA MENDOZA RAMIREZ</a></li>
+
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://maps.google.com/maps/api/js"></script>
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+
+<script>
+    // Locations: [title, lat, long, number]
+var locations = [
+    ['VEBR670209I88', 20.6708795, -101.3443367, 1],
+    ['VEMG4002186S8', 20.6785005, -101.3826695, 2],
+    ['MOGJ600128P52', 20.6630869, -101.3580901, 3],
+    ['AARB871128U10', 20.6632504, -101.3485827, 4],
+    ['VIBE3501086X5', 20.6678231, -101.3679869, 5],
+    ['CATM540626V25', 20.6900163, -101.3542218, 6],
+    ['EIML591215Q75', 20.6979827, -101.3487487, 7],
+    ['AOMA8605013U4', 20.6916667, -101.3571785, 8],
+    ['VAMV690828H34', 20.6596808, -101.344314, 9],
+    ['MERM690408JW0', 20.6677471, -101.36538, 10]
+];
+var gmarkers = [];
+// Map Settings
+var map = new google.maps.Map(document.getElementById("map"), {
+  zoom: 13,
+  center: new google.maps.LatLng(20.6708795, -101.3443367),
+  mapTypeId: google.maps.MapTypeId.ROADMAP
+});
+
+var infowindow = new google.maps.InfoWindow;
+
+var marker, i;
+for (i = 0; i < locations.length; i++) {
+  marker = new google.maps.Marker({
+    position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+    map: map,
+    label: String(locations[i][3])
+  });
+  gmarkers.push(marker);
+  google.maps.event.addListener(marker, 'click', (function(marker, i) {
+    return function() {
+      infowindow.setContent(locations[i][0]);
+      infowindow.open(map, marker);
+    }
+  })(marker, i));
+}
+$('#list li').each(function(i, e) {
+  $(e).click(function(i) {
+    return function(e) {
+      google.maps.event.trigger(gmarkers[i], 'click');
+    }
+  }(i));
+});
+</script>
+{% endblock extrajs %}
+
+
+

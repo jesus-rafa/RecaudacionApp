@@ -1,0 +1,989 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% block title %} Correspondencia {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+
+<style>
+/* .dataTables_wrapper table thead{
+    display:none;
+} */
+/* .hide_col{
+    display:none;
+} */
+.top{
+    float: right;
+}
+
+.subject{
+    font-weight: bold;
+}
+
+.fondo-boton:hover{
+    color: #020B0D !important;
+    }
+
+.menus{
+    position: relative;
+    display: inline-block;
+}
+
+.menus::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    /* background-color: #000; */
+    background: linear-gradient(to left, #070707, #787777);
+    bottom: -2px;
+    left: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s ease-out;
+}
+
+.menus:hover::after {
+    transform: scaleX(1);
+}
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                {% if permission == 'CORRESPONDENCIA ESPECIFICO' %}
+                <a href="{% url 'oficios_app:panel' 0 0 %}" class="btn fondo-boton" id="mostrar" >
+                     <span class="menus">General</span>                
+                </a>   
+                <!--<i style="padding-right: 10px;" class="far fa-eye"></i>-->
+                <a href="{% url 'oficios_app:panel' 0 1 %}" class="btn fondo-boton " id="mostrar" >
+                     <span class="menus">Individual</span>                   
+                </a>
+                {% endif %}
+                <!--<i class="fa fa-plus"></i>-->
+                <button onclick="Recibir_Oficio('{% url 'oficios_app:recibir-oficio'  %}')"
+                    class="btn fondo-boton" target="_blank"> <span class="menus"> Recibir oficio</span>  
+                </button>
+                &nbsp;
+
+                <!--<i class="fa fa-plus"></i>-->
+                <button onclick="Nuevo_Oficio('{% url 'oficios_app:nuevo-oficio'  %}')"
+                    class="btn fondo-boton" target="_blank"> <span class="menus"> Nuevo
+                        oficio </span> 
+                </button>
+            </div>
+            <h4 class="page-title">Correspondencia</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#recibidos" id="recibidos-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            <i class="mdi mdi-email-open-outline"></i> Recibidos 
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#oficios" id="oficios-tab" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+                            <i class="fe-send"></i> Enviados 
+                        </a>
+                    </li>
+                </ul>
+                <br>
+               
+                <div class="tab-content">
+                    <div class="tab-pane fade" id="oficios">
+                        
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="pt-1 pb-1">
+                                        <div class="input-group">
+                                            <input id="buscar_oficios" type="text" class="form-control input-rec" placeholder="Buscar...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="col header-title pt-2 pb-0 ml-5">No Leídos</h5>
+
+                            <input id="hfFolio" type="hidden" value="{{ msg }}">
+                            <div class="table-responsive mt-15">
+                            <table id="datatable1" class="table table-sm  p-0 mytables2 table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Dirigido a</th>
+                                        <th>Puesto</th>
+                                        <th>Dependencia</th>
+                                        <th>Asunto</th>
+                                        <th>Fecha</th>
+                                        <th>Firma</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for oficio in oficios %}
+                                    <tr>
+                                        <td><span class="sp_folio">{{ oficio.id }}</span> {{ oficio.folio }}</td>
+                                        <td>{{ oficio.nombre }}</td>
+                                        <td>{{ oficio.puesto }}</td>
+                                        <td>{{ oficio.dependencia }}</td>
+                                        <td>{{ oficio.asunto }}</td>
+                                        <td>
+                                            <span class="sp_date">{{ oficio.fecha|date:'Y/m/d' }}</span> 
+                                            {{ oficio.fecha|date:'d/m/Y' }}
+                                        </td>
+                                        <td>{{ oficio.firma }}</td>
+                                        <td>
+                                            {% if oficio.estatus != 'RECHAZADO' %}
+                                            <span class="badge text-dark">{{ oficio.estatus }}</span>
+                                            {% else %}
+                                            <span class="badge text-dark">{{ oficio.estatus }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <!--btn-warning btn-white btn-danger btn-info-->
+                                                    <button onclick="Editar_Oficio('{% url 'oficios_app:modificar-oficio' oficio.id %}')"
+                                                    title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn fondo-boton btn-xs" target="_blank">
+                                                    <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    <button onclick="Subir_Archivos('{% url 'oficios_app:subir-archivos' 2 oficio.id %}')"
+                                                        title="Subir Anexos" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+                                                    {% if oficio.usuario == request.user.username %}
+                                                    
+                                                    <button onclick="Cancelar_Oficio('{% url 'oficios_app:cerrar-oficio' oficio.id %}')"
+                                                        title="Cancelar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    <button onclick="Ver_Recibido('{% url 'oficios_app:ver-oficios' oficio.id %}')"
+                                                        title="Ver Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fa fa-envelope-open"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                            
+                            <h5 class="header-title">Todo lo demás</h5>
+                            <div class="table-responsive mt-15">
+                            <table id="datatable3" class="table table-sm table-striped  p-0 mytables2 table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Dirigido a</th>
+                                        <th>Puesto</th>
+                                        <th>Dependencia</th>
+                                        <th>Asunto</th>
+                                        <th>Fecha</th>
+                                        <th>Firma</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for oficio in oficios_concluidos %}
+                                    <tr>
+                                        <td><span class="sp_folio">{{ oficio.id }}</span> {{ oficio.folio }}</td>
+                                        <td>{{ oficio.nombre }}</td>
+                                        <td>{{ oficio.puesto }}</td>
+                                        <td>{{ oficio.dependencia }}</td>
+                                        <td>{{ oficio.asunto }}</td>
+                                        <td>
+                                            <span class="sp_date">{{ oficio.fecha|date:'Y/m/d' }}</span> 
+                                            {{ oficio.fecha|date:'d/m/Y' }}
+                                        </td>
+                                        <td>{{ oficio.firma }}</td>
+                                        <td>
+                                            {% if oficio.estatus == 'CANCELADO' %}
+                                            <span class="badge fondo-boton text-dark">{{ oficio.estatus }}</span>
+                                            {% else %}
+                                            <span class="badge fondo-boton text-dark">{{ oficio.estatus }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    {% if oficio.comentarios %}
+                                                    <div id="{{ oficio.folio|slice:":5" }}_{{ oficio.id }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                                                            <div class="modal-content">
+                                                                <div class="modal-body p-4">
+                                                                    <div class="text-center">
+                                                                        <i class="dripicons-information h1 text-info"></i>
+                                                                        <h4 class="mt-2">Comentarios</h4>
+                                                                        <p class="mt-3">{{ oficio.comentarios }}</p>
+                                                                        <button type="button" class="btn fondo-boton my-2" data-bs-dismiss="modal">Cerrar</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            
+                                                    <button type="button" 
+                                                        class="btn fondo-boton btn-xs" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#{{ oficio.folio|slice:":5" }}_{{ oficio.id }}">
+                                                        <i class="far fa-comment-alt"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    <button onclick="Ver_Recibido('{% url 'oficios_app:ver-oficios' oficio.id %}')"
+                                                        title="Ver Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fa fa-envelope-open"></i>
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+
+                    <div class="tab-pane fade" id="recibidos">
+                        
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="pt-1 pb-1">
+                                        <div class="input-group">
+                                            <input id="buscar_recibidos" type="text" class="form-control input-rec " placeholder="Buscar...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h5 class="col header-title pt-2 pb-0 ml-5">No Leídos</h5>
+                            <div class="table-responsive">
+                            <table id="datatable" class="table table-sm p-0 mytables table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Remitente</th>
+                                        <th class="hide_col">Puesto</th>
+                                        <th class="hide_col">Dependencia</th>
+                                        <th>Asunto</th>
+                                        <th>Fecha Recibido</th>
+                                        <th>Estatus</th>
+                                        <th>Turnado a</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for oficio in recibidos %}
+                                    <tr>
+                                        <td><span class="sp_folio">{{ oficio.id }}</span> {{ oficio.folio }}</td>
+                                        <td>{{ oficio.remitente }}</td>
+                                        <td class="hide_col">{{ oficio.puesto }}</td>
+                                        <td class="hide_col">{{ oficio.dependencia }}</td>
+                                        <td>{{ oficio.asunto }}</td>
+                                        <td><span class="sp_date">{{ oficio.fecha|date:'Y/m/d' }}</span> {{oficio.fecha|date:'d/m/Y' }}</td>
+                                        <td>
+                                        {% with None as dias %}
+
+                                            {% if oficio.fecha_vencimiento and oficio.estatus != 'CONCLUIDO' %}
+                                                {% dias_vigilancia oficio.fecha_vencimiento hoy as dias %}
+                                            {% endif %}
+
+                                            {% if oficio.pdf %}
+                                                {% if oficio.tipo == '3' %}
+                                                <span class="badge fondo-boton text-dark position-relative">COPIADO{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}</span>
+
+                                                {% elif oficio.tipo == '4' %}
+                                                <span class="badge fondo-boton text-dark position-relative">TURNADO{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}</span>
+
+                                                {% else %}
+                                                    {% if oficio.estatus != 'RECHAZADO' %}
+                                                        {% get_estatus oficio.id request.user.username as turnado %}
+
+                                                        {% if turnado == 1 %}
+                                                        <span class="badge fondo-boton text-dark position-relative">TURNADO{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}</span>
+
+                                                        {% else %}
+                                                        <span class="badge fondo-boton text-dark position-relative">NUEVO{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}</span>
+                                                        
+                                                        {% endif %}
+                                                    {% else %}
+                                                    <span class="badge fondo-boton text-dark position-relative">{{oficio.estatus}}{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}</span>
+
+                                                    {% endif %}
+                                                {% endif %}
+                                                
+                                            {% else %}
+                                            <span class="badge bg-light text-dark position-relative">
+                                                SIN OFICIO{% if dias or dias == 0 %} {{dias|dias_html}} {% endif %}
+                                            </span>
+                                            {% endif %}
+
+                                        {% endwith %}
+                                        </td>
+                                        <td>                                         
+                                            {% for cco in oficio.recibidos_cco.all|slice:":1" %}
+
+                                                {% if cco.user.avatar %}
+
+                                                <img width="20%" height="20%" src="{{ cco.user.avatar }}" alt="contact-img"
+                                                    title="{{ cco.user.get_full_name }}" data-plugin="tippy" data-tippy-placement="right" class="avatar rounded-circle avatar-sm me-1" />
+        
+                                                {% else %}
+                                                <img width="20%" height="20%" src="{% static 'assets/images/user_group.png' %}"
+                                                    alt="contact-img" title="{{ cco.user.get_full_name }}" data-plugin="tippy" data-tippy-placement="right"
+                                                    class="avatar rounded-circle avatar-sm me-1" />
+        
+                                                {% endif %}
+
+                                            {%endfor%}                                     
+                                             
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    {% if oficio.tipo == '0' %} <!-- GENERO OFICIO -->
+                                                    <button onclick="Editar_Oficio_Recibido('{% url 'oficios_app:editar-oficio-recibido' oficio.id %}')"
+                                                        title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn  fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    <button onclick="Subir_Archivos('{% url 'oficios_app:subir-archivos' 1 oficio.id %}')"
+                                                        title="Subir Anexos" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+                                                    <button onclick="Cerrar_Oficio_Recibido('{% url 'oficios_app:cerrar-oficio-recibido' oficio.id %}')"
+                                                        title="Contestar Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    {% endif %}
+                                                    {% if oficio.tipo == '1' %} <!-- A QUIEN VA DIRIGIDO EL OFICIO btn-pink btn-danger btn-success btn-warning-->
+                                                    <button onclick="Turnar('{% url 'oficios_app:turnar-oficio' oficio.id %}')"
+                                                        title="Turnar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-reply"></i>
+                                                    </button>
+                                                    <button onclick="Rechazar_Recibido('{% url 'oficios_app:cerrar-recibido' oficio.id %}')"
+                                                        title="Rechazar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <button onclick="Cerrar_Oficio_Recibido('{% url 'oficios_app:cerrar-oficio-recibido' oficio.id %}')"
+                                                        title="Contestar Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    {% if oficio.tipo == '2' %} <!-- CREADO POR Y PARA SON IGUALES -->
+                                                    <button onclick="Editar_Oficio_Recibido('{% url 'oficios_app:editar-oficio-recibido' oficio.id %}')"
+                                                        title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    <button onclick="Turnar('{% url 'oficios_app:turnar-oficio' oficio.id %}')"
+                                                        title="Turnar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-reply"></i>
+                                                    </button>
+                                                    <button onclick="Cerrar_Oficio_Recibido('{% url 'oficios_app:cerrar-oficio-recibido' oficio.id %}')"
+                                                        title="Contestar Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    {% if oficio.tipo == '4' %} <!-- A QUIEN SE TURNO EL OFICIO -->
+                                                    <button onclick="Turnar('{% url 'oficios_app:turnar-oficio' oficio.id %}')"
+                                                        title="Turnar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-reply"></i>
+                                                    </button>
+
+                                                    <button onclick="Contestar_Oficio_Recibido('{% url 'oficios_app:contestar-oficio-recibido' oficio.id %}')"
+                                                        title="Contestar Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    {% endif %}
+
+                                                    {% if oficio.tipo == None %} <!-- GENERO OFICIO -->
+                                                    <button onclick="Editar_Oficio_Recibido('{% url 'oficios_app:editar-oficio-recibido' oficio.id %}')"
+                                                        title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-pen"></i>
+                                                    </button>
+                                                    <button onclick="Subir_Archivos('{% url 'oficios_app:subir-archivos' 1 oficio.id %}')"
+                                                        title="Subir Anexos" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-white btn-xs" target="_blank">
+                                                        <i class="mdi mdi-file-document-multiple-outline"></i>
+                                                    </button>
+
+                                                    <!-- ACCESO A TODO -->
+                                                    <button onclick="Rechazar_Recibido('{% url 'oficios_app:cerrar-recibido' oficio.id %}')"
+                                                        title="Rechazar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <button onclick="Turnar('{% url 'oficios_app:turnar-oficio' oficio.id %}')"
+                                                        title="Turnar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-reply"></i>
+                                                    </button>
+                                                    <button onclick="Cerrar_Oficio_Recibido('{% url 'oficios_app:cerrar-oficio-recibido' oficio.id %}')"
+                                                        title="Contestar Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <!-- ACCESO A TODO -->
+
+                                                    {% endif %}
+
+                                                    <!--btn-primary-->
+                                                    <button onclick="Ver_Recibido('{% url 'oficios_app:ver-oficios-recibidos' oficio.id %}')"
+                                                        title="Ver Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                        class="btn fondo-boton btn-xs" target="_blank">
+                                                        <i class="fa fa-envelope-open"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                           
+                                        </td>
+                                       
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                            <h5 class="header-title">Todo lo demás</h5>
+
+                            <div class="table-responsive">
+                                <table id="datatable4" class="table table-sm table-striped  p-0 mytables table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Folio</th>
+                                            <th>Remitente</th>
+                                            <th>Puesto</th>
+                                            <th>Dependencia</th>
+                                            <th>Asunto</th>
+                                            <th>Fecha Recibido</th>
+                                            <th>Fecha Respuesta</th>
+                                            <th>Estatus</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for oficio in recibidos_concluidos %}
+                                        <tr>
+                                            <td><span class="sp_folio">{{ oficio.id }}</span> {{ oficio.folio }}</td>
+                                            <td>{{ oficio.remitente }}</td>
+                                            <td>{{ oficio.puesto }}</td>
+                                            <td>{{ oficio.dependencia }}</td>
+                                            <td>{{ oficio.asunto }}</td>
+                                            <td><span class="sp_date">{{ oficio.fecha|date:'Y/m/d' }}</span> {{oficio.fecha|date:'d/m/Y' }}</td>
+                                            <td><span class="sp_date">{{ oficio.fecha_respuesta|date:'Y/m/d' }}</span> 
+                                                {{ oficio.fecha_respuesta|date:'d/m/Y' }}</td>
+                                            
+                                            <td>
+                                                {% with None as dias %}
+                                                {% if oficio.fecha_vencimiento and oficio.estatus == 'CONCLUIDO' %}
+                                                    {% dias_vigilancia oficio.fecha_vencimiento oficio.fecha_respuesta as dias %}
+                                                {% endif %}
+
+                                                <span class="badge fondo-boton text-dark position-relative">{{ oficio.estatus }}{% if dias %} {{dias|dias_html}} {% endif %}</span>
+                                                {% endwith %}
+                                            </td>
+                                            <td>
+                                                <button onclick="Ver_Recibido('{% url 'oficios_app:ver-oficios-recibidos' oficio.id %}')"
+                                                    title="Ver Oficio" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn fondo-boton btn-xs" target="_blank">
+                                                    <i class="fa fa-envelope-open"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"  data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+<!-- Plugins js -->
+<script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+<!-- Init js-->
+<script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+
+<script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+<!-- <script src="{% static 'assets/js/pages/foo-tables.init.js' %}"></script> -->
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+		$('.sp_folio').hide();
+
+        var tables_recibidos = $('.mytables').DataTable({
+            dom: '<"top"i>rt<"bottom"p><"clear">',
+            language: {
+                "decimal": "",
+                "emptyTable": "¡Muy bien! Has leído todos tus oficios.",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 5, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        
+        $('#buscar_recibidos').on( 'keyup click', function () {
+            tables_recibidos.tables().search($(this).val()).draw();
+        });
+
+        var tables_oficios = $('.mytables2').DataTable({
+            "dom": '<"top"i>rt<"bottom">p<"clear">',
+            language: {
+                "decimal": "",
+                "emptyTable": "¡Muy bien! Has leído todos tus oficios.",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 a 0 de 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 6, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+        
+        $('#buscar_oficios').on( 'keyup click', function () {
+            tables_oficios.tables().search($(this).val()).draw();
+        });
+
+
+        {% if messages %}
+            {% for message in messages %}
+
+                var msg = '{{message|safe}}';
+                var myTitle = 'Guardado Exitosamente!';
+
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: myTitle,
+                    showConfirmButton: !1,
+                    timer: 1500,
+                });
+
+                {% if message|safe == 'oficio' %}
+                    $('#oficios-tab').tab('show');
+
+                {% else %}
+                    $('#recibidos-tab').tab('show');
+                {% endif %}
+               
+            {% endfor %}
+        {% else %}
+
+            $('#recibidos-tab').tab('show');
+ 
+        {% endif %}
+		
+		if ($('#hfFolio').val() != ""){
+            Show_Folio($('#hfFolio').val());
+
+            $('#hfFolio').val('');
+
+            $('#oficios-tab').tab('show');
+
+            var URL_1 = '{% url 'oficios_app:panel' 1 0 %}';
+            var URL_0 = '{% url 'oficios_app:panel' 0 0 %}';
+
+            history.pushState(URL_1, null, URL_0);
+        }
+
+    });
+
+	function Show_Folio(myFolio) {
+        Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: 'Se genero Folio:',
+            text: myFolio,
+        });
+    }
+
+    function Permisos(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_usuario').attr('readonly', 'readonly');
+
+            $(this).modal('show');
+        });
+    }
+	
+    function Editar_Oficio(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_folio').show();
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+			
+            var value = $('#hfFirm').val();
+            $("#id_firma option[value='" + value + "']").attr('selected','selected');
+            
+            $('#id_folio').val($('#hffolio').val());
+            $('#id_fecha').val($('#hffecha').val());
+            $('#id_nombre').val($('#hfnombre').val());
+            $('#id_puesto').val($('#hfpuesto').val());
+            $('#id_asunto').val($('#hfasunto').val());
+            $('#id_dependencia').val($('#hfdependencia').val());
+			
+            $('#copia_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $(this).modal('show');
+        });
+    }
+
+    function Cancelar_Oficio(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbTitle').text('Cancelar Oficio');
+
+            $('#id_estatus').val('CANCELADO');
+            $('#id_estatus').hide();
+
+            $(this).modal('show');
+        });
+    }
+
+    function Rechazar_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#lbTitle').text('Rechazar Oficio');
+
+            $('#id_estatus').val('RECHAZADO');
+            $('#id_estatus').hide();
+
+            $(this).modal('show');
+        });
+    }
+
+    function Cerrar_Oficio_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_estatus').val('CONCLUIDO');
+            $('#id_estatus').hide();
+            //$('#id_pdf_respuesta').attr('required', true);
+
+            $(this).modal('show');
+        });
+    }
+
+    function Contestar_Oficio_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_estatus').val('CONCLUIDO');
+            $('#id_estatus').hide();
+
+            $(this).modal('show');
+        });
+    }
+
+    function Turnar(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({                 
+                format: 'dd/mm/yyyy'
+            });
+
+            $('.date-picker-default').css("background-color", "white");
+
+            $('#id_fecha_vencimiento').val($('#hffecha_vencimiento').val());
+            
+            //console.log($('#id_fecha_vencimiento').val());
+            if($('#id_fecha_vencimiento').val() !== '')
+                $('#id_fecha_vencimiento').attr('disabled', 'disabled');
+
+            $('#id_comentarios').val($('#hfcomentarios').val());
+
+            $('#turnar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $('#copiar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $(this).modal('show');
+        });
+    }
+    
+
+    function Recibir_Oficio(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({                 
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $('#copiar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $('#turnar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $(this).modal('show');
+        });
+    }
+
+    function Subir_Archivos(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Editar_Oficio_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({                 
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            var value_area = $('#hfArea').val();
+            $("#id_area option[value='" + value_area + "']").attr('selected','selected');
+            var value_to = $('#hfPara').val();
+            $("#id_para option[value='" + value_to + "']").attr('selected','selected');
+
+            $('#id_folio').val($('#hffolio').val());
+            $('#id_fecha').val($('#hffecha').val());
+            $('#id_remitente').val($('#hfremitente').val());
+            $('#id_puesto').val($('#hfpuesto').val());
+            $('#id_asunto').val($('#hfasunto').val());
+            $('#id_dependencia').val($('#hfdependencia').val());
+            $('#id_comentarios').val($('#hfcomentarios').val());
+            $('#id_cc_externas').val($('#hfcc_externas').val());
+
+            $('#copiar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $('#turnar_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $(this).modal('show');
+        });
+    }
+
+
+    function Editar_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy',
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            var value_firm = $('#hfFirm').val();
+            $("#id_firma option[value='" + value_firm + "']").attr('selected','selected');
+            var value_area = $('#hfArea').val();
+            $("#id_area option[value='" + value_area + "']").attr('selected','selected');
+            var value_to = $('#hfPara').val();
+            $("#id_para option[value='" + value_to + "']").attr('selected','selected');
+
+            $(this).modal('show');  
+        });
+    }
+
+    function Ver_Recibido(myURL) {
+        $('#mdView').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+
+
+    function Visto(myURL) {
+
+        $.ajax({
+            url: myURL,
+            type: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                //console.log(data)
+            },
+            error: function (error) {
+                //console.log(error);
+            }
+        });
+                    
+    }
+
+
+    function Nuevo_Oficio(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_fecha').show();
+            $('#id_para').show();
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $('#copia_a').select2({
+                dropdownParent: $('#mdView')
+            });
+
+            $(this).modal('show');
+        });
+    }
+
+    function Update_Modal3(myURL) {//permisos
+        $('#mdUpdate').load(myURL, function () {
+
+            $('#id_usuario').attr('readonly', 'readonly');
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "white");
+
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable, myMessage){
+
+        $(myTable).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": myMessage,
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+
+    }
+
+</script>
+{% endblock extrajs %}

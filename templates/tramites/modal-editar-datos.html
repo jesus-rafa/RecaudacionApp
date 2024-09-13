@@ -1,0 +1,192 @@
+{% load static %}
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+
+<style>
+    .enlace{
+        transition: background-image 0.5s;
+    }
+
+    .enlace:hover{        
+        background-image: url('https://lh3.googleusercontent.com/pw/AMWts8ATSHd2hi9iq1HMFwuS7Rwj1n-bTEa4MeXBymHh07UUJtpDEDXIlXvgnYgiUL1NwIu2MH16XEty6ea9o9wOGqH_VY4B0ro2cu_ia_vnteegk9-CXFNBG41F6Vcxj_63bP3inU2aiL3O3bl0ydr_8WU=w500-h100-s-no?authuser=0');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: bottom -12px left 0px;
+       
+    }
+
+    .enlace-guardar{
+        transition: background-image 0.5s;
+    }
+
+    .enlace-guardar:hover{        
+        background-image: url('https://lh3.googleusercontent.com/pw/AMWts8ATSHd2hi9iq1HMFwuS7Rwj1n-bTEa4MeXBymHh07UUJtpDEDXIlXvgnYgiUL1NwIu2MH16XEty6ea9o9wOGqH_VY4B0ro2cu_ia_vnteegk9-CXFNBG41F6Vcxj_63bP3inU2aiL3O3bl0ydr_8WU=w500-h100-s-no?authuser=0');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: bottom -2px left 0px;
+       
+    }
+</style>
+
+
+<div class="modal-dialog modal-dialog-centered " role="dialog">
+    <div class="modal-content rounded-3" >
+        <!-- style="background-image: url('https://lh3.googleusercontent.com/pw/AMWts8AGPMzPH7YEIb3CV6DDknf0El-R0x_AFAH5olF2IR0dhFBpOjyxdObzD8-LOzHSvejFa6XMSnivTyZVL_HBNi7KbImnRToxjuZbXr35r-L03yKcA1tUGz_mgSVbHNIlMwKhnMXRZqi3OkqD1ghw6u0=w500-h400-s-no?authuser=0'); background-size: contain; background-repeat: no-repeat; background-position: bottom 0px left -30px;"-->
+        <div class="modal-header" >
+            <!-- <div class="d-flex ">
+                <hr style="height: 10px; width: 50%; background-color: black; border-radius: 80px 20px;">
+            </div> -->
+            <div  style="margin-left: 20px; ">
+                <h4 class="modal-title " > Registrar prestación</h4>
+            </div>
+           
+            <!-- <h4 class="modal-title">Comentarios:</h4> -->
+            
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+
+        <form  id="form_alta_pagos" name="form_alta_pagos" action="{% url 'tramites_app:editar-campo' pk  %}" method="POST" >
+            {% csrf_token %}
+                    
+                <div class="row mb-2 px-4">
+                    <div class="col">
+                        <div class="">                                                
+                            <label >{{form.tipo.label}}</label>  
+                            {{form.tipo}}                                        
+                        </div>
+                    </div>
+    
+                    <div class="col">
+                        <div class="">
+                            <label >{{form.servicio.label}}</label>
+                            {{form.servicio}}
+                        </div>
+                    </div>                                        
+                </div>  
+                
+                <fieldSet>
+                    <legend><h6 style="margin-left: 35px;">Tipo de contrato</h6></legend>
+                    <div class="row mb-2 px-4">  
+    
+                        <div class="col ">
+                            <div class="row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.confianza.label}}</label>
+                                    {{form.confianza}}                                                   
+                                </div>                                                                                         
+                            </div>
+                        </div>                                        
+                        
+                        <div class="col ">
+                            <div class=" row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.plaza.label}}</label>
+                                    {{form.plaza}}                                                   
+                                </div>                                                                                         
+                            </div>
+                        </div>
+    
+                        <div class="col ">
+                            <div class="row pt-3 ">
+                                <div class="col">
+                                    <label >{{form.honorarios.label}}</label>                                            
+                                    {{form.honorarios}}
+                                </div>
+
+                                <!-- <div class="col">
+                                    <div class="row pt-3 ">
+                                        <label >{{form.tramite.label}}</label>
+                                        {{form.tramite}}                                                                                                             
+                                    </div>
+                                </div> -->
+
+                            </div>
+                        </div>
+    
+                    </div>
+                </fieldSet>
+                    <div class="row pt-3 px-4">
+
+                        <div class="col ">
+                            <div class="">
+                                <label >{{form.tramite.label}}</label>
+                                {{form.tramite}}                                                                                                             
+                            </div>
+                        </div>
+    
+                        <div class="col ">
+                            <div class="">
+                                                                                                                                         
+                            </div>
+                        </div>
+
+                    </div>
+            
+                    
+            
+            <div class="d-none">
+                <div class="row mb-2 mt-3 px-4">
+                    <div class="col">
+                        <div class="">
+                            {{form.estatus}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-2 mt-3 px-4">
+                    <div class="col">
+                        <div class="">
+                            {{form.titulo_formato}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+                     
+            <div class="modal-footer" >
+                <div class="row mb-2 mt-1 px-4 ">
+                    <div class="col text-end">
+                      
+                        <!--<i class="mdi mdi-send ms-2"></i>-->
+                        <button class="btn fondo-boton waves-effect waves-light " type="submit"  ><i class="mdi mdi-send ms-2"></i>  Guardar</button>
+                        
+                    </div>
+                </div>
+
+            </div>
+            
+           
+        </form>
+
+        
+
+
+        
+       
+       
+    </div>
+</div>
+
+
+<script>
+
+    
+    var select_tipo = $("#id_tipo").selectize();
+    var selectize_tipo = select_tipo[0].selectize;
+    // selectize_tipo.setValue(0);
+
+    var select_tramite = $("#id_tramite").selectize();
+    var selectize_tramite = select_tramite[0].selectize;
+    // selectize_tramite.setValue(0);
+
+    
+
+    
+            
+ 
+
+    
+
+</script>

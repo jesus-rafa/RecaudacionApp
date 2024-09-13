@@ -1,0 +1,57 @@
+<style>
+    .menus{
+        position: relative;
+        display: inline-block;
+    }
+
+    .menus::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        /* background-color: #000; */
+        background: linear-gradient(to left, #070707, #787777);
+        bottom: -2px;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 0.4s ease-out;
+    }
+
+    .menus:hover::after {
+        transform: scaleX(1);
+    }
+</style>
+
+{% for item in data %}
+    {% if item.hijos %}
+        {% if item.nivel == 0 %}<li class="nav-item dropdown">{% else %}<div class="dropdown">{% endif %}
+            <a class="{% if item.nivel == 0 %}nav-link{% else %}dropdown-item{% endif %} dropdown-toggle arrow-none"
+                href="#" id="{{ item.nombre }}" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                {%if item.nombre == 'Qatar' %}
+                <img src="../static/images/logoqatar.png" style="width: 25px;">
+                {% else %}
+                {% comment %}
+                <i class="{{ item.icono }} {% if not item.nivel == 0 %}me-1{% endif %}"></i>
+                {% endcomment %}
+                
+                {% endif %}
+                <span class="menus">{{ item.nombre }}</span> <div class="arrow-down"></div>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="{{ item.padre }}">
+                {% include 'include/horizontal.html' with data=item.hijos %}
+            </div>
+        {% if item.nivel == 0 %}</li>{% else %}</div>{% endif %}
+    {% else %}
+        {% if item.nivel == 0 %}<li>{% endif %}
+            <a class="{% if item.nivel == 0 %}nav-link dropdown-toggle arrow-none{% else %}dropdown-item{% endif %}" href="{{ item.url }}" role="button">
+                {% comment %}
+                <i class="{{ item.icono }} {% if not item.nivel == 0 %}me-1{% endif %}"></i>
+                {% endcomment %}
+                
+                <span class="menus">{{ item.nombre }}</span>
+            </a>
+        {% if item.nivel == 0 %}</li>{% endif %}
+    {% endif %}
+{% endfor %}

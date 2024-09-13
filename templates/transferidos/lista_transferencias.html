@@ -1,0 +1,431 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Reporte de Transferencias {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Transferencias</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                    <ul class="nav nav-tabs nav-bordered">
+                        <li class="nav-item">
+                            <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link active">
+                                Propuestas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-30" id="profile-30-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                Transferencias
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-20" id="profile-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                Aceptadas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-40" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                Rechazadas
+                            </a>
+                        </li>
+                    </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-20">
+
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search1" type="text" class="float-label form-control input-rec" placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                                <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable1">
+                                <thead>
+                                    <tr>
+                                        <th class="all"></th>
+                                        <th class="all">Oficio</th>
+                                        <th class="all">RFC</th>
+                                        <th class="all">Nombre</th>
+                                        <th class="all">Programa</th>
+                                        <!-- <th class="all">Presuntiva</th> -->
+                                        <th class="all">Autorización</th>
+                                        <th class="all">Dias</th>
+                                        <th class="all">Estatus</th>
+                                        <th class="all hidden-sm">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in propuestas %}
+                                    <tr>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="top" title="AMBOS">
+                                            {% if programa.transferir_ejecucion %}
+                                            A
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'programacion_app:admin-programacion' programa.id %}" style="color: black;" class="btn btn-link"
+                                                target="_self">{{ programa.folio|slice:"-9:" }}</a>
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:30 }}</td>
+                                        <td>
+                                            {{ programa.programa }}
+                                        </td>
+                                        <!-- <td>${{ programa.presuntiva|unlocalize|intcomma }}</td> -->
+
+                                        <td><span class="sp_date">{{ programa.fecha_autorizacion|date:'Y/m/d' }}</span>
+                                            {{ programa.fecha_autorizacion|date:'d/m/Y' }}
+                                        </td>
+                                        <td>
+                                            {% dias_seguimiento programa.fecha_autorizacion %}
+                                        </td>
+                                        <td {% if programa.transferir_ejecucion %}data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.transferir_ejecucion }}"{% endif %}>
+                                            {% if programa.estatus_cierre == 'NO LOCALIZADO' %}
+                                            {{ programa.estatus_cierre }}
+                                            {% else %}
+                                            NO AUTOCORRECCION
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i
+                                                        class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')" class="dropdown-item" href="#">
+                                                        <i class="fas fa-eye me-2 text-muted font-18 vertical-middle"></i>Detalle</a>
+                                                    <a onclick="Rechazar_Modal('{% url 'programacion_app:alta-detalle' programa.id %}','{{ programa.id }}','{{ programa.folio|slice:"-9:" }}','{{ programa.rfc }}')" class="dropdown-item" href="#">
+                                                        <i class="fa fa-reply me-2 text-muted font-18 vertical-middle"></i>Rechazar</a>
+                                                    <a onclick="Transfer_Modal('{% url 'transferidos_app:alta-transferencia' %}','{{ programa.id }}','{{ programa.folio|slice:"-9:" }}','{{ programa.rfc }}',{% if programa.transferir_ejecucion %}1{% else %}0{% endif %})" class="dropdown-item" href="#">
+                                                        <i class="fa fa-share me-2 text-muted font-18 vertical-middle"></i>Generar Transferencia</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-30">
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search2" type="text" class="float-label form-control input-rec" placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable2">
+                                <thead>
+                                    <tr>
+                                        <th class="all">Area</th>
+                                        <th class="all">Oficio</th>
+                                        <th class="all">RFC</th>
+                                        <th class="all">Nombre</th>
+                                        <th class="all">Programa</th>
+                                        <th class="all">Presuntiva</th>
+                                        <th class="all">Fecha Creación</th>
+                                        <th class="all">Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in transferencias %}
+                                    <tr>
+                                        <td>
+                                            {% if programa.area == 'AUDITORIA' %}A{% else %}E{% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'programacion_app:admin-programacion' programa.id %}"
+                                            style="color: black;" class="btn btn-link" target="_self">{{ programa.folio|slice:"-9:" }}</a>
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:30 }}</td>
+                                        <td>
+                                            {{ programa.programa }}
+                                        </td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}
+                                        </td>
+                                        <td>
+                                            PENDIENTE
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-20">
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search3" type="text" class="float-label form-control input-rec" placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable3">
+                                <thead>
+                                    <tr>
+                                        <th class="all">Area</th>
+                                        <th class="all">Oficio</th>
+                                        <th class="all">RFC</th>
+                                        <th class="all">Nombre</th>
+                                        <th class="all">Programa</th>
+                                        <th class="all">Presuntiva</th>
+                                        <th class="all">Fecha Aceptacion</th>
+                                        <th class="all">Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in aceptadas %}
+                                    <tr>
+                                        <td>
+                                            {% if programa.area == 'AUDITORIA' %}A{% else %}E{% endif %}
+                                        </td>
+                                        <td>
+                                            {{ programa.folio|slice:"-9:" }}
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:30 }}</td>
+                                        <td>
+                                            {{ programa.programa }}
+                                        </td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}
+                                        </td>
+                                        <td>
+                                            {{ programa.estatus }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-40">
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search4" type="text" class="float-label form-control input-rec" placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable4">
+                                <thead>
+                                    <tr>
+                                        <th class="all">Area</th>
+                                        <th class="all">Oficio</th>
+                                        <th class="all">RFC</th>
+                                        <th class="all">Nombre</th>
+                                        <th class="all">Programa</th>
+                                        <th class="all">Presuntiva</th>
+                                        <th class="all">Fecha Creación</th>
+                                        <th class="all">Estatus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in rechazadas %}
+                                    <tr>
+                                        <td>
+                                            {% if programa.area == 'AUDITORIA' %}A{% else %}E{% endif %}
+                                        </td>
+                                        <td>
+                                            {{ programa.folio|slice:"-9:" }}
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:30 }}</td>
+                                        <td>
+                                            {{ programa.programa }}
+                                        </td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}
+                                        </td>
+                                        <td {% for row in programa.detalle_programa.all %}
+                                                {% if row.estatus == 'RECHAZADO' %} 
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" 
+                                                    title="{{ row.comentarios }}"
+                                                {% endif %} 
+                                            {% endfor %}>
+                                            {{ programa.estatus }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'custom/js/simple-table.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+        } 
+        
+		$('.sp_date').hide();
+        $('.alert-success').fadeOut(6000);
+
+        let objSort = {
+            order: [[6, "desc"]],
+            columnas: [null,null,null,null,null,null,null,null,null]
+        };
+
+        // Propuestas
+        simple_table('#datatable1', '#search1', [8], objSort);
+        // Transferencias
+        render_table('#datatable2', '#search2', []);
+        // Aceptadas
+        render_table('#datatable3', '#search3', []);
+        // Rechazadas
+        render_table('#datatable4', '#search4', []);
+
+        {% if messages %}
+            {% for message in messages %}
+                toastr.success('{{ message|safe }}')
+            {% endfor %}
+        {% endif %}
+    });
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+        });
+    }
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Detail_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_programa_id').val(myID);
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+            
+            $(this).modal('show');
+
+        });
+    }
+
+    function Publish_Modal(myURL, myFolio) {
+        $('#mdPublish').load(myURL, function () {
+            
+			$("#lbSelected").html(myFolio);
+            $('#id_folio').val(myFolio);
+                   
+            $(this).modal('show');
+        });
+    }
+
+    function Rechazar_Modal(myURL, myID, myFolio, myRFC) {
+        $('#mdView').load(myURL, function () {
+		
+			$('#id_estatus option[value="73"]').remove();
+			$('#id_estatus option[value="74"]').remove();
+
+            $("#lbOficio").html(myFolio);
+            $("#lbRFC").html(myRFC);
+            $('#id_fecha').hide();
+            $('#select_etapa').hide();
+            $('#lbFecha').hide();
+            $('#lbEtapa').hide();
+            
+            $("#lbTitle").html("Rechazar");
+            $('#id_comentarios').attr('required', true);
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#white");
+            $(this).modal('show');
+        });
+    }
+
+    function Transfer_Modal(myURL, myList, myFolio, myRFC, myOption) {
+        $('#mdView').load(myURL, function () {
+
+            var myDependencia = $(document.getElementById('id_dependencia'))[0].selectize;
+            if(myOption == 0) myDependencia.removeOption(246);
+            else {
+                myDependencia.removeOption(78);
+                myDependencia.setValue(246);
+            }
+
+            $("#id_lista").val(myList);
+            $("#lbOficio").html(myFolio);
+            $("#lbRFC").html(myRFC);
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,38 @@
+<div class="modal-dialog modal-dialog-centered" tabindex="-1" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Datos de Juicio</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_mouse" action="{% url 'juridico_app:alta-mouse' %}" method="POST"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col">
+                        <label>Nombre:</label>
+                        {{ form.Nombre }}
+                    </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnAdd" type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    $(function () {
+        $("#form_alta_mouse").submit(function (e) {
+
+            $("#btnAdd").attr("disabled", true);
+            return true;
+
+        });
+    });
+</script>
+{% endblock extrajs %}

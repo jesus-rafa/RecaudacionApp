@@ -1,0 +1,296 @@
+{% load static %}
+
+{% block head %}
+<link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+
+<style>
+button{
+  cursor:pointer;
+}
+.chip-group{
+  display:flex;
+  flex-wrap:wrap;
+}
+.chip.chip-checkbox > .chip-add-icon::after {
+  content:"add"
+}
+.chip.chip-checkbox.active > .chip-add-icon::after {
+  content:"done"
+}
+.chip > * {
+  margin-right:2px;
+  margin-left:2px;
+  color: #757373;
+}
+.chip input {
+  display: none;
+}
+.chip.chip-checkbox,
+.chip.chip-toggle,
+.chip.clickable{
+  cursor: pointer;
+}
+.chip.active {
+  background-color: #d3d2d2;
+  border-color:#c3c2c2;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.12)
+}
+.chip:hover, .chip:focus {
+  background-color: #e3e2e2;
+}
+.chip:active:focus{
+  background-color: #d3d2d2;  
+}
+.chip button{
+  border:none;
+  margin-top:0;
+  margin-bottom:0;
+  padding:0;
+  background:none;
+  display:inline-flex;
+}
+.chip {
+  transition: all 0.3s ease-in-out;
+  background-color: #fff;
+  border-radius: 30px;
+  border: 1px solid #d3d2d2;
+  display: inline-flex;
+  align-items:center;
+  padding: 4px 6px 4px 6px;
+  margin-right:6px;
+  margin-bottom:6px;
+}
+.chip i.material-icons {
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
+{% endblock head %}
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>{% for menu in actividad %} {{ menu.actividad }} {{ menu.tipo_tramite }} {% endfor %}</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_editar_visita_detalle" action="{% url 'promocion_app:editar-visita-detalle' folio idActividad %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                {% for campo in TransactForm %}
+                <div class="col-md-12">
+                    <div class="mb-2">
+                    <label>{{ campo.etiqueta }}</label>
+            
+                    {% for dato in FormEdit %}
+                        {% if dato.dato == campo.campo %}
+                            {% if campo.tipo_control == 'text' %}
+            
+                            <input class="form-control" 
+                                type="{{ campo.tipo_control }}" 
+                                name="{{ campo.campo }}" 
+                                {% if campo.is_required == True %} required {% endif %} 
+                                value="{{ dato.valor }}">
+
+                            {% elif campo.tipo_control == 'textarea' %}
+                            <ul id="list_{{ campo.campo }}"></ul>
+                            <input class="form-control" 
+                                type="text" 
+                                id="txt_{{ campo.campo }}" 
+                                placeholder="Enter ...">
+
+                            <input type="hidden" name="{{ campo.campo }}" value="">
+
+                            {% elif campo.tipo_control == 'select' %}
+                            <select class="form-control" name="{{ campo.campo }}">
+
+                                {% for combo in opcion %}
+                                    
+                                    {% if campo.consulta|upper == combo.codigo|upper %}
+                                        <option value="{{ combo.valor }}" {% if combo.valor == dato.valor %}selected{% endif %}>{{ combo.comentario }}</option>
+                                    {% endif %}
+                                    
+                                {% endfor %}
+                    
+                            </select>
+
+                            {% elif campo.tipo_control == 'select_multiple' %}
+                                <div class="row">
+                                    <div class="col-md-5">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="switchery-demo">
+                                            <input type="checkbox" 
+                                                id="ckTodos_{{ campo.campo }}"
+                                                value="Todos"
+                                                data-plugin="switchery" 
+                                                data-color="#3db9dc" />
+                                            <b>Todos</b>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <ul>
+                                    {% for combo in opcion %}
+                                        {% if campo.consulta|upper == combo.codigo|upper %}
+
+                                            <div class="switchery-demo mb-1">
+                                                <input type="checkbox" 
+                                                    name="{{ campo.campo }}"
+                                                    {% if combo.valor in dato.valor %}checked{% endif %} 
+                                                    value="{{ combo.valor }}"
+                                                    data-plugin="switchery" 
+                                                    data-color="#3db9dc" />
+                                                <b>{{ combo.comentario }}</b>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul> 
+
+                                <input type="hidden" name="{{ campo.campo }}" value="">
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btEditar" type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(function () {
+        var multiple = [];
+
+        {% for campo in TransactForm %}
+            {% if campo.tipo_control == 'select_multiple' %}
+                var element = $('#ckTodos_{{ campo.campo }}');
+
+                element.change(function(){
+                    var checks = document.getElementsByName('{{ campo.campo }}');
+                    var flag = this.checked;
+                    
+                    $.each(checks, function(){
+                        $(this).trigger("click")
+                        this.checked=flag
+                    });
+
+                });
+            {% endif %}
+        {% endfor %}
+
+        $('#form_editar_visita_detalle').submit(function(e) {
+
+            {% for campo in TransactForm %}
+                {% if campo.tipo_control == 'textarea' %}
+
+                    $("[name='{{ campo.campo }}']").val(items_{{ campo.campo }}.join("|"));
+
+                {% elif campo.tipo_control == 'select_multiple' %}
+                
+                    multiple = [];
+                    $.each($("input[name='{{ campo.campo }}']:checked"), function(){
+                        multiple.push($(this).val());
+                    });
+
+                    $("[name='{{ campo.campo }}']").val(multiple.join(","));
+                
+                {% endif %}
+            {% endfor %}
+            
+            $("#btEditar").attr("disabled", true);
+
+            return true;
+        });
+
+    });
+
+    {% for campo in TransactForm %}
+        {% if campo.tipo_control == 'textarea' %}
+
+        var txt_{{ campo.campo }} = document.getElementById('txt_{{ campo.campo }}');
+        var list_{{ campo.campo }} = document.getElementById('list_{{ campo.campo }}');
+        var items_{{ campo.campo }} = [];
+
+        txt_{{ campo.campo }}.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                let val = txt_{{ campo.campo }}.value;
+                if (val !== '') {
+                    if (items_{{ campo.campo }}.indexOf(val) >= 0) {
+                        txt_{{ campo.campo }}.value = '';
+                        alert('Ya existe!');
+                            
+                    } else {
+                        items_{{ campo.campo }}.push(val);
+                        render_{{ campo.campo }}();
+                        txt_{{ campo.campo }}.value = '';
+                        txt_{{ campo.campo }}.focus();
+                    }
+                } else {
+                    alert('Ingresa un dato!');
+                }
+            }
+        });
+
+        function render_{{ campo.campo }}() {
+            list_{{ campo.campo }}.innerHTML = '';
+            items_{{ campo.campo }}.map((item, index) => {
+                list_{{ campo.campo }}.innerHTML += `<div class="chip" tabindex="-1">
+                                        <span>${item}</span>
+                                        <button 
+                                            type="button" 
+                                            title="Borrar" 
+                                            aria-label="Borrar" 
+                                            onclick="$(this).parent().remove();">
+                                            <a href="javascript: remove_{{ campo.campo }}('${item}')">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        </button>
+                                    </div>`;
+            });
+        }
+
+        function remove_{{ campo.campo }}(val) {
+            let index = items_{{ campo.campo }}.indexOf(val);
+            items_{{ campo.campo }}.splice(index, 1);
+        }
+
+        {% for dato in FormEdit %}
+            {% if dato.dato == campo.campo %}
+
+                {% if campo.tipo_control == 'textarea' %}
+
+                    items_{{ campo.campo }} = '{{ dato.valor }}'.split("|");
+                    render_{{ campo.campo }}();
+
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+
+        {% endif %}
+    {% endfor %}
+
+</script>

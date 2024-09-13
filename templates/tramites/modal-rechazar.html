@@ -1,0 +1,132 @@
+{% load static %}
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered " role="dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Comentarios:</h4>
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+
+        
+        
+        <form id="nueva-alta" action="" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            
+            <div class="col px-4">
+                <div class="form-floating">
+                    <input name="comentario" id="comentario" type="text" class="float-label form-control input-rec write_evento crear-event" maxlength="255" placeholder="comentario" required />
+                    <div class="invalid-feedback">Proporcione un nombre de evento válido</div>
+                    <label class="write_evento" for="comentario">Escribe tus observaciones:</label>
+                </div>                  
+                   
+            </div>
+
+            <!-- <div class="row mb-2  px-4">
+                <div class="col ">
+                    <div class="row pt-3 ">
+                        <label >Escribe tus observaciones:</label>
+                        {{form.comentarios}}                                                                                                             
+                    </div>
+                </div>       
+
+            </div> -->
+             
+
+           
+            <div class="row mt-2">
+                <div class="col-md-12 mb-2 text-end">
+                    <!--onclick="Editar('{{item.id}}','Revisar observaciones')"-->
+                        
+                    {% for item in verObservaciones %}
+                        <button type="button" class="btn fondo-boton waves-effect " id="guardar-usuario" onclick="GuardarRechazo('{{item.id}}','Edición del contenido')">
+                            <i class="mdi mdi-send ms-2"></i>Guardar
+                        </button>
+                    {% endfor %}
+           
+                </div>
+            </div>
+           
+        </form>
+        <form  id="revision" method="post">{% csrf_token %}          
+        </form>
+    </div>
+</div>
+
+<script>
+
+    function GuardarRechazo(id,estatus) {
+        let formulario = document.getElementById('nueva-alta');
+        let fd = new FormData(formulario);
+        fd.append("detalle", id);
+        fd.append("estatus", estatus);
+        ///fd.append("comentario", detalle);
+        // fd.append("comentarios", document.getElementById('id_comentarios').value  );
+
+        $.ajax({
+            url: "{% url 'tramites_app:comentarios_detalle' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error)
+                {
+                    toastr.success(result.msj);
+
+                    setTimeout(() => {
+                        window.location.href = "{% url 'tramites_app:tramites-servicios' %}";
+                    }, 1000);
+                }
+                else
+                {
+                    return toastr.error(result.msj);
+                }
+            },error: function (error) {
+                toastr.error(error);
+            }
+        });
+    };
+
+        
+
+
+
+    function Editar(id,estatus) {
+        let formulario = document.getElementById('nueva-alta');
+        let fd = new FormData(formulario);
+        fd.append("activar", id);
+        fd.append("estatus", estatus);
+        // fd.append("comentarios", document.getElementById('id_comentarios').value  );
+
+        $.ajax({
+            url: "{% url 'tramites_app:comentarios_detalle' %}",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (!result.error)
+                {
+                    toastr.success(result.msj);
+
+                    setTimeout(() => {
+                        window.location.href = "{% url 'tramites_app:tramites-servicios' %}";
+                    }, 1000);
+                }
+                else
+                {
+                    return toastr.error(result.msj);
+                }
+            },error: function (error) {
+                toastr.error(error);
+            }
+        });
+    };
+
+    
+
+</script>

@@ -1,0 +1,39 @@
+<!-- Modal para agregar abogado -->
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title ">Asignar a:</h4>
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal"
+                style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+        <div class="modal-body p-0">
+            <form id="form-archivo" method="POST"  action="{% url 'tramites_app:asignados' pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row px-2 mb-2">
+                
+                    <div class="p-2 ">
+                        {{form.asignar_a.label}}
+                        {{form.asignar_a}}
+                        
+                    </div>
+                       
+                    
+                </div>
+                <!-- <div class="row mb-2 px-2 pull-right">
+                    <div class="col"> -->
+                        <!-- <button type="submit" id="guardar" 
+                            class="btn fondo-boton">Guardar</button> -->
+
+                <button id="guardar" type="submit" class="btn fondo-boton waves-effect gris-oscuro float-end"> Guardar </button>
+                    <!-- </div>
+                </div> -->
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar abogado -->

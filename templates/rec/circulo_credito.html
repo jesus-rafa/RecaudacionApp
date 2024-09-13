@@ -1,0 +1,416 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Círculo Crédito {% endblock title %}
+
+{% block content %}
+<style>
+    #miTablaPersonalizada th {
+        width: 130px;
+        overflow: auto;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+    .font-11 {
+        font-size: 11pt;
+    }
+    .color_white {
+        color: white !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a href="http://172.31.113.187:81/media/batch/ejecucion/Plantilla.csv" title="Descargar Plantilla"
+                    tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                    class="btn btn-outline-secondary btn-volver" target="_self">
+                    <i class="fas fa-download"></i> Plantilla Carga Masiva
+                </a>
+
+                <button id="btNew" onclick="Cargar_Archivo('{% url 'rec_app:batch-credito' %}')"
+                    class="btn btn-outline-secondary btn-volver" target="_blank">
+                    <i class="fe-user-plus"></i> Cargar Archivo
+                </button>
+
+            </div>
+            <h4 class="page-title">Círculo Crédito</h4>
+        </div>
+    </div>
+</div>
+<div id="app" class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <ul class="nav nav-tabs nav-bordered">
+                    <li class="nav-item">
+                        <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link active">
+                            Activas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-20" id="profile-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            Por Identificar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-40" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false"
+                            class="nav-link">
+                            Cerradas
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content p-0">
+                    <div class="tab-pane fade active show" id="home-20">
+
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="busqueda_circulo" name="busqueda_circulo" type="text" class="float-label form-control input-rec" placeholder="Buscar" v-model="kword">
+                                <label for="busqueda_circulo">Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100"
+                                id="myTable1">
+                                <thead>
+                                    <tr id="miTablaPersonalizada">
+                                        <th class="all text-center ">RFC</th>
+                                        <th class="all text-center">Número de Cuenta</th>
+                                        <th class="all text-center">Contribuyente</th>
+                                        <th class="all text-center">Adeudo</th>
+                                        <th class="all text-center">Importe Baja</th>
+                                        <th class="all text-center">Ultima Reporte</th>
+                                        <th class="all text-center">Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in rec" :key="item.rfc">
+                                        <td class="all text-center">${ item.rfc }</td>
+                                        <td class="all text-center">${ item.numero_cuenta }</td>
+                                        <td class="all text-center">
+                                            <div v-if="item.nombre">${ item.nombre }&nbsp;${ item.apellido_paterno }&nbsp;${ item.apellido_materno }</div>
+                                            <div v-else>${ item.razon_social }</div>
+                                        </td>
+                                        <td class="all text-center">$&nbsp;${ item.adeudo }</td>
+                                        <td class="all text-center">$&nbsp;${ item.importe_baja }</td>
+                                        <td class="all text-center">${ item.ejercicio }</td>
+                                        <td class="all text-center">
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);"
+                                                    class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                                    style="background-color: #00000000; border: 0px solid;"><i
+                                                        class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a v-on:click="ver_modal(item.id)" class="dropdown-item">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Detalle
+                                                    </a>
+                                                    <a v-on:click="ver_modal_sintesis(item.id)" class="dropdown-item">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Resumen
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile-20">
+
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search2" type="text" class="float-label form-control input-rec"
+                                    placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100"
+                                id="myTable2">
+                                <thead>
+                                    <tr id="miTablaPersonalizada">
+                                        <th class="all text-center ">RFC</th>
+                                        <th class="all text-center">Número de Cuenta</th>
+                                        <th class="all text-center">Contribuyente</th>
+                                        <th class="all text-center">Adeudo</th>
+                                        <th class="all text-center">Importe Baja</th>
+                                        <th class="all text-center">Ultima Reporte</th>
+                                        <th class="all text-center">Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for items in por_identificar %}
+                                    <tr>
+                                        <td>{{items.rfc}} </td>
+                                        <td>{{items.numero_cuenta}}</td>
+                                        <td>{{items.PersonaFisica}}</td>
+                                        <td>$ {{items.adeudo|intcomma}}</td>
+                                        <td>$ {{items.importe_baja|intcomma}}</td>
+                                        <td>{{items.ejercicio}}</td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);"
+                                                    class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                                    style="background-color: #00000000; border: 0px solid;"><i
+                                                        class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'rec_app:ver-modal' items.id  %}')"
+                                                        class="dropdown-item" href="#">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Detalle</a>
+
+                                                    <a onclick="View_Modal_Sinte('{% url 'rec_app:modal-sintesis' items.id  %}')"
+                                                        class="dropdown-item" href="#">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Resumen/a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="profile-40">
+                        <div class="row">
+                            <div class="form-floating col-md-12">
+                                <input id="search3" type="text" class="float-label form-control input-rec"
+                                    placeholder=".">
+                                <label>Buscar</label>
+                            </div>
+                        </div>
+                        <div class="table-responsive pt-3">
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="myTable3">
+                                <thead>
+                                    <tr id="miTablaPersonalizada">
+                                        <th class="all text-center">RFC</th>
+                                        <th class="all text-center">Número de Cuenta</th>
+                                        <th class="all text-center">Contribuyente</th>
+                                        <th class="all text-center">Adeudo</th>
+                                        <th class="all text-center">Importe Baja</th>
+                                        <th class="all text-center">Ultima Reporte</th>
+                                        <th class="all text-center">Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for items in cerradas %}
+                                    <tr>
+                                        <td>{{items.rfc}} </td>
+                                        <td>{{items.numero_cuenta}}</td>
+                                        <td>{{items.PersonaFisica}}</td>
+                                        <td>$ {{items.adeudo|intcomma}}</td>
+                                        <td>$ {{items.importe_baja|intcomma}}</td>
+                                        <td>{{items.ejercicio}}</td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);"
+                                                    class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                                    style="background-color: #00000000; border: 0px solid;"><i
+                                                        class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a onclick="View_Modal('{% url 'rec_app:ver-modal' items.id  %}')"
+                                                        class="dropdown-item" href="#">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Detalle</a>
+
+                                                    <a onclick="View_Modal_Sinte('{% url 'rec_app:modal-sintesis' items.id  %}')"
+                                                        class="dropdown-item" href="#">
+                                                        <i class="fas fa-solid fa-plus me-2 text-muted font-18 vertical-middle"></i>Resumen</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+
+<div class="modal fade" id="View-Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" 
+    aria-hidden="true">
+</div>
+
+<div class="modal fade" id="abrir-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<!-- Intancia de Vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<!-- Intancia de Vue -->
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script>
+    var success = 0;
+    var error = 0;
+    var warning = 0;
+    new Vue({
+        el: '#app',
+        delimiters: ['${','}'],
+        data: {
+            API_URL: window.location.origin,
+            loading: false,
+            kword: null,
+            message: false,
+            info: '',
+            rec: []
+        },
+        watch: {
+            kword: function(val) {
+                if(val.length >= 6){
+                    this.getData(val);
+                }
+                if(val.length == 0){
+                    this.clear();
+                }
+            }
+        },
+        methods: {
+            getData(kword) {            
+                axios.get(this.API_URL + "/api/circulo-credito/" + kword).then(response => {
+
+                    this.rec = response.data;
+
+                    if (this.rec.length == 0){
+
+                        if (!warning){
+                            toastr.warning("", "No hay Resultados!", {
+                                "positionClass": "toast-bottom-right",                        
+                                "closeButton": true
+                            });
+                            success = 0;
+                            error = 0;
+                            warning = 1;
+                        }
+                    }else{
+                        if (!success)  {
+                            toastr.success("", "Resultados Encontrados!", {
+                                "positionClass": "toast-bottom-right",
+                                "closeButton": true
+                            });
+                            success = 1;
+                            error = 0;
+                            warning = 0;
+                        }
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });
+            },
+            clear(){
+                this.rec = []
+
+                if (!error)  {
+                    toastr.error("", "Borrado!", {
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": true,
+                    "closeButton": true
+                    });
+
+                    success = 0;
+                    error = 1;
+                    warning = 0;
+                }            
+            },
+            ver_modal: function (id_circulo_credito) {
+                let url = "{{request.scheme}}://{{request.get_host}}/ver-modal/" + id_circulo_credito;
+
+                $('#mdView').load(url, function () {
+                    $(this).modal('show');
+                });
+            },
+            ver_modal_sintesis: function (id_circulo_credito) {
+                let url = "{{request.scheme}}://{{request.get_host}}/modal-sintesis/" + id_circulo_credito;
+
+                $('#View-Modal').load(url, function () {
+                    $(this).modal('show');
+                });
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        var myURL = "{% url 'rec_app:excel-credito' 'ARCHIVO' %}";
+
+        {% if messages %}
+            {% for message in messages %}
+
+                var msg = `{{ message|safe }}`;
+
+            {% if message.tags == 'error' %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: msg,
+                    showConfirmButton: !1
+                });
+
+            {% elif message.tags == 'info' %}
+                // Si no hay errores no se envia el arhivo de respuesta
+                window.location = myURL.replace('ARCHIVO', msg);
+
+            {%  else %}
+
+                Swal.fire({
+                    position: "top-center",
+                    icon: "success",
+                    title: msg,
+                    showConfirmButton: !1
+                });
+
+            {% endif %}
+
+            {% endfor %}
+        {% endif %}
+
+        // Activos
+        render_table('#myTable2', '#search2', [6]);
+
+        render_table('#myTable3', '#search3', [6]);
+ 
+    });
+
+    function Cargar_Archivo(myURL) {
+        $('#abrir-modal').load(myURL, function () {
+            $(this).modal('show');
+        });
+    }
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,50 @@
+{% load tags %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Detalle</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr class="text-dark">
+                            <th>Fecha</th>
+                            <th>Comentarios</th>
+                            <th>Estatus</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for row in detalle %}
+                        <tr>
+                            <td>{{ row.fecha|date:'d/m/Y' }}</td>
+                            <td>{% if row.comentarios != None %}{{ row.comentarios }} {% endif %}</td>
+                            <td>{{ row.estatus }}</td>
+                            <td>
+                                <div class="avatar-sm" title="{% get_user_info row.usuario %}" tabindex="0"
+                                    data-plugin="tippy" data-tippy-placement="right">
+                                    <span class="avatar-title bg-soft-warning text-secondary font-10 rounded-circle">
+                                        {% get_initials row.usuario %}
+                                    </span>
+                                </div>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>

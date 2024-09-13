@@ -1,0 +1,23 @@
+{% for item in data %}
+    {% if item.hijos %}
+    <li>
+        <a href="#{{ item.nombre.split|join:"_" }}" data-bs-toggle="collapse">
+            <i class="{{ item.icono }}"></i>
+            <span> {{ item.nombre }} </span>
+            <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="{{ item.nombre.split|join:"_" }}">
+            <ul class="nav-second-level">
+                {% include 'include/vertical.html' with data=item.hijos %}
+            </ul>
+        </div>
+    </li>
+    {% else %}
+    <li>
+        <a href="{{ item.url }}">
+            <i class="{{ item.icono }}"></i>
+            <span> {{ item.nombre }} </span>
+        </a>
+    </li>
+    {% endif %}
+{% endfor %}

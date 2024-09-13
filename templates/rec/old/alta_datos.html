@@ -1,0 +1,93 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Alta Datos</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_alta_datos" action="{% url 'rec_app:alta-rec' id_rfc programa_id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                
+                <div class="form-row">
+                    <!-- <div id="dvID" class="form-group col-md-4">
+                        <label id="lbID">ID:</label>
+                        {{ form.programa_id }}
+                        <input type="text" class="form-control" id="tbID">
+                    </div> -->
+                    <div id="dvRFC" class="form-group col-md-6">
+                        <label>RFC:</label>
+                        {{ form.rfc }}
+                        <input type="text" class="form-control" id="tbRFC">
+                    </div>
+                    <div id="dvFecha" class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        {{ form.fecha_alta }}
+						 <!-- <label>Actualizado en el REC:</label> -->
+                        <!-- {{ form.actualizado }} -->
+                    </div>
+                </div>
+                
+                    <div class="form-group">
+                        <label>Contacto:</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="form-group">
+                        <label>Puesto:</label>
+                        {{ form.puesto }}
+                    </div>
+                
+                <div class="form-group">
+                    <label>Direccion:</label>
+                    {{ form.direccion }}
+                </div>
+                <div class="form-group">
+                    <label>Correo:</label>
+                    {{ form.correo }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Telefono:</label>
+                        {{ form.telefono }}
+                    </div>
+					 <div class="form-group col-md-4">
+                        <label>Ext:</label>
+                        {{ form.ext }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Coordenada:</label>
+                        {{ form.coordenadas }}
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label>Imagen:</label>
+                    {{ form.imagen }}
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="btNewDatos" type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+
+        $("#form_alta_datos").submit(function (e) {
+
+            $("#btNewDatos").attr("disabled", true);
+
+            return true;
+
+        });
+
+    });
+</script>

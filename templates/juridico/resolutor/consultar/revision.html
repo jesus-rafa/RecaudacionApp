@@ -1,0 +1,283 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Juridico {% endblock title %}
+
+{% block head %}
+<style>
+    .toast {
+        opacity: 1 !important;
+    }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right"> 
+                {% if completo %}            
+                <button onclick="firma(`{% url 'juridico_app:resolutorFirma' detalle %}`)"
+                    class="btn btn-outline-secondary waves-effect" target="_blank">
+                    <i class="fas fa-paper-plane"></i> &nbspFirma
+                </button>
+                {% endif %}
+                
+                {% comment %}
+                location.href=`{% url 'juridico_app:resolutorReporte'%}`
+                {% endcomment %}
+                <button onclick="location.href=`{% url 'juridico_app:panel-resolutor' %}`"
+                    class="btn btn-outline-secondary waves-effect" target="_blank">
+                    <i class="fa fa-reply"></i> Volver
+                </button>
+            </div>
+            <h4 class="page-title">Carpeta/Expediente: {{detalle.carpeta}}</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+            <div class="row mb-3">
+                <div class="col">
+                    Solicitante : <label><b>{{ detalle.solicitante.rfc }}</b></label>
+                </div>
+                <div class="col">
+                    Carpeta / Expediente : <label><b>{{ detalle.carpeta }}</b></label>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    Oficio : <label><b>{{ detalle.oficio }}</b></label>
+                </div>
+                <div class="col">
+                    Abogado :
+                    <label><b>{{detalle.abogado}}</b></label>
+                </div>
+            </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <table id="tableRequisitos" class="table table-hover m-0 table-centered dt-responsive nowrap w-100 centrado">
+                    <thead>
+                        <tr>
+                            <th>Requisito</th>
+                            <th>Entregado / Revisado</th>
+                            <th>Obligatorio</th>
+                            <th>Archivo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in archivos %}
+                        <tr>
+                            <td>{{item.requisito}}</td>
+                            {% if item.archivo %}
+                            <td>
+                                <div class="icon-item">
+                                    <i data-feather="check" class="icon-dual-success"></i>
+                                    /
+                                    {% if item.estatus == creacion %}
+                                        <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                                    {% elif item.estatus == aceptado %}
+                                        <i data-feather="check" class="icon-dual-success"></i>
+                                    {% else %}
+                                        <i data-feather="x" class="icon-dual-danger"></i>                           
+                                    {% endif %}
+                                </div>                                    
+                            </td>
+                            {% else %}
+                            <td>
+                                <div class="icon-item">
+                                    <i data-feather="x" class="icon-dual-danger"></i>
+                                    /
+                                    {% if item.estatus == creacion %}
+                                        <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                                    {% elif item.estatus == aceptado %}
+                                        <i data-feather="check" class="icon-dual-success"></i>
+                                    {% else %}
+                                        <i data-feather="x" class="icon-dual-danger"></i>                           
+                                    {% endif %}
+                                </div>
+                            </td>
+                            {% endif %}
+                            <td>{{item.requisito.obligatorio}}</td>
+                            {% if item.archivo %}                            
+                            <td>
+                                <a href="/media/{{ item.archivo }}" title="{{ item.archivo|cut:'juridico/resolutor/' }}" class="btn btn-outline-secondary waves-effect mr-2" target="_blank" download><i class="ti-file"></i></a></td>
+                            </td>
+                            {% else %}
+                            <td>
+                                <div class="icon-item">
+                                    <i data-feather="alert-triangle" class="icon-dual-warning"></i>
+                                </div>
+                            </td>
+                            {%endif%}   
+                            <td>
+                                <div class="btn-group dropdown">
+                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm" data-bs-toggle="dropdown" aria-expanded="false"
+                                        style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                        {% if perfil_usuario == "RESOLUTORES DIRECTOR" %}
+                                        {% endif %}
+                                        {% if perfil_usuario == "RESOLUTORES ADMINISTRADOR" %}
+                                        {% endif %}
+                                        {% if perfil_usuario == "RESOLUTORES" %}
+                                        {% endif %}
+                                        <a type="button" onclick="revision(`{% url 'juridico_app:resolutorAceptar' item %}`)" class="dropdown-item"> <!-- onclick="abrirModal(`{% url 'juridico_app:resolutorAceptar' item %}`)"  onclick="recargaModal(`{% url 'juridico_app:resolutorAceptar' item %}`)"-->
+                                            <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Aceptar</a>
+                                        <a type="button" onclick="abrirModal({{item}})" class="dropdown-item"> <!--  onclick="abrirModal(`{% url 'juridico_app:resolutorRechazar' item %}`)" revision(`{% url 'juridico_app:resolutorRechazar' item %}`)-->
+                                            <i class="far fa-tasks me-2 text-muted font-18 vertical-middle"></i>Rechazar</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>                
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" tabindex="-1" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Rechaza requisito</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRechazo" method="POST">
+                    {% csrf_token %}            
+                    <div class="row justify-content-center">
+                        <div class="col">
+                            <div class="row opciones">
+                                <input type="hidden" id="resolutor" name="resolutor">
+                                <input type="hidden" id="archivo" name="archivo" value="0">
+                                <input type="hidden" id="usuario" name="usuario">
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-12">
+                                    <div class="form-floating col">
+                                        <textarea id="textarea" name="comentarios" class="form-control input-area-rec float-label" maxlength="200" rows="3" placeholder="Comentarios"></textarea>
+                                        <label for="textarea">Motivo del rechazo</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2 px-2 pull-right">
+                                <div class="col">
+                                    <button type="button" class="btn fondo-boton" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="button" onclick="revision(`{% url 'juridico_app:resolutorRechazar' 0 %}`)" class="btn fondo-boton">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+
+
+
+<script>
+    var archivo = 0;
+    // $(function() {
+    //     {% if messages %}
+    //     {% for message in messages %}
+    //     toastr.success('{{ message|safe }}')
+    //     {% endfor %}
+    //     {% endif %} 
+    // });
+
+    function abrirModal(idArchivo) {
+        $('#archivo').val(idArchivo)
+        $('#mdView').modal('show');
+    }
+    
+    function revision(url){
+        debugger;
+        let fd = new FormData();
+        //fd.append("pk", $("#archivo").val());
+        fd.append("comentarios", $("#textarea").val());
+        url = url.replace('0',$("#archivo").val())
+        confirm().then((val) =>{
+            fetch(url,{
+                method: 'POST',
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                body: fd, // data can be `string` or {object}!
+                })
+                .then(response =>  response.json())
+                .then(
+                    data => {
+                        console.log(data)
+                        toastr.success(data.result)
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } 
+                );            
+        }).catch((val) => {
+            console.log('😁😁😁😁😁😁😁😁')
+        })
+    }
+
+    function firma(url){
+        let fd = new FormData();
+        confirm().then((val) =>{
+            fetch(url,{
+                method: 'POST',
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                body: fd, // data can be `string` or {object}!
+                })
+                .then(response =>  response.json())
+                .then(
+                    data => {
+                        console.log(data)
+                        toastr.success(data.result)
+                        setTimeout(() => {
+                            location.href = `{% url 'juridico_app:panel-resolutor' %}`;
+                        }, 1000);
+                    } 
+                );            
+        }).catch((val) => {
+        })
+    }    
+
+    function confirm(){
+        return new Promise((resolve, reject) => {
+            Swal.fire({
+                    title: "¿Estas seguro?",
+                    icon: "warning", showCancelButton: !0,
+                    showCancelButton: true,
+                    confirmButtonColor: "#28bb4b",
+                    cancelButtonColor: "#f34e4e",
+                    confirmButtonText: "Aceptar",
+                    cancelButtonText: 'Cancelar'
+                }).then(function (e) {
+                    if (e.value) {
+                        resolve(true);
+                    } else{
+                        reject(false);
+                    }
+                })
+        });
+    }
+
+    
+</script>
+{% endblock extrajs %}

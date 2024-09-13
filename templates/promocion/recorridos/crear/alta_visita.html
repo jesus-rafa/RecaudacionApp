@@ -1,0 +1,152 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Nuevo Contribuyente</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_visita" action="{% url 'promocion_app:alta-visita' idDesarrollo %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-2">
+                            {{ form.id_desarrollo }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-2">
+                            {{ form.fecha }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>RFC:</label>
+                
+                            <div class="input-group mb-3">
+                                {{ form.rfc }}
+                
+                                <div class="input-group-append">
+                                    <button id="btConsulta" type="submit" class="btn btn-primary btn" target="_blank" value="Ver"> <i
+                                            class="fa fa-search"></i> Ver
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <label style="display: none;" id="alert" class="text-danger">*Se requieren 13 caracteres</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Nombre:</label>
+                            {{ form.nombre }}
+                        </div>
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btValidate" class="btn btn-primary">Guardar</button>
+                <button style="display: none;" type="submit" id="btVisita" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+    var flag = false;
+
+    $(document).ready(function () {
+
+        $("#btConsulta").click(function (e) {
+            flag = true;
+            e.preventDefault();
+
+            var RFC = $("#id_rfc").val();
+
+            if(RFC.length == 13){
+                $('#alert').hide();
+                var myURL = "{% url 'programacion_app:get-contribuyente' 'RFC' %}";
+
+                $.ajax({
+                    url: myURL.replace('RFC', RFC.trim()),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (data) {
+                        
+                        try {
+                            $("#id_nombre").val(data[0].fields.nombre);
+                        }
+                        catch (err) {
+                            $("#id_nombre").val('sin datos*');
+                        }
+
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+                
+                var myValidation = "{% url 'promocion_app:validar-rfc' idDesarrollo 'RFC' %}";
+
+                $.ajax({
+                    url: myValidation.replace('RFC', RFC),
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (response) {
+                        try {
+                            if (response.data === true) {
+
+                                Swal.fire({
+                                    position: "top-center",
+                                    icon: "success",
+                                    title: 'Ya existe este rfc en este evento',
+                                    text: RFC,
+                                    showConfirmButton: !1,
+                                });
+
+                                $('#mdView').modal('hide');
+
+                                return false;
+                            }else{
+                                //return true;
+                            }
+                        }
+                        catch (err) {
+                            //return true;
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
+            }else{
+                $('#alert').show();
+            }
+
+        });
+
+        $("#btValidate").click(function (e) {
+            e.preventDefault();
+
+            if (flag == false){
+                $("#btConsulta").click();
+            }else{
+                $("#btVisita").click();
+            }
+        });
+    });
+</script>
+{% endblock extrajs %}

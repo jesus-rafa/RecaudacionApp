@@ -1,0 +1,88 @@
+{% load humanize %}
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Detalle</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'padrones_app:ver-programacion-2' object.id %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <label>{{id}}</label>
+                <div class="form-row">
+                    
+                    <div class="form-group col-md-6">
+                        <label><strong>RFC:</strong></label>
+                        <label>{{ detail.rfc }}</label>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label><strong>Programa:</strong></label>
+                        <label>{{ detail.programa }}</label>
+                    </div>
+                </div>
+               
+                <div class="form-group">
+                    <label><strong>Nombre:</strong></label>
+                    <label>{{ detail.nombre }}</label>
+                </div>
+                <div class="form-group">
+                    <label><strong>Direccion:</strong></label>
+                    <label>{{ detail.direccion }}</label>
+                </div>
+                <div class="form-group">
+                    <label><strong>Presuntiva:</strong></label>
+                    <label>${{ detail.presuntiva|floatformat:2|intcomma }}</label>
+                </div>
+                <!-- <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Fecha:</label>
+                        <label>{{ detail.fecha|date:'d/m/Y'  }}</label>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Etapa:</label>
+                        <label  class="badge badge-success">{{ detail.estatus }}</label>
+                    </div>
+                </div>-->
+             
+                <!-- <div class="form-group">
+                    <label>Archivo:</label>
+                    {{ detail.excel }}
+                </div> -->
+
+                <div class="table-responsive mt-15">
+                    <table class="table center-aligned-table mb-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <!-- <th>ID</th> -->
+                                <th>Fecha</th>
+                                <th>Comentarios</th>
+                                <th>Etapa</th>
+                                <!-- <th>Recuperado</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in detalles %}
+                            <tr>
+                                <!-- <td>{{ detalle.programa_id }}</td> -->
+                                <td>{{ detalle.fecha|date:'d/m/Y' }}</td>
+                                <td>{{ detalle.comentarios }}</td>
+                                <td>{{ detalle.estatus }}</td>
+                                <!-- <td>${{ detalle.recuperado|floatformat:2|intcomma }}</label></td> -->
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <!-- <button type="submit" class="btn btn-primary">Crear</button> -->
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,135 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Editar Oficio</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_oficios" action="{% url 'oficios_app:modificar-oficio' id_oficio %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Folio:</label>
+                            {{ form.folio }}
+                            <input id="hffolio" type="hidden" value="{{ folio }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                            <input id="hffecha" type="hidden" value="{{ fecha|date:'d/m/Y' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>A quien va dirigido::</label>
+                            {{ form.nombre }}
+                            <input id="hfnombre" type="hidden" value="{{ nombre }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-2">
+                            <label>Puesto:</label>
+                            {{ form.puesto }}
+                            <input id="hfpuesto" type="hidden" value="{{ puesto }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Dependencia:</label>
+                            {{ form.dependencia }}
+                            <input id="hfdependencia" type="hidden" value="{{ dependencia }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Asunto:</label>
+                            {{ form.asunto }}
+                            <input id="hfasunto" type="hidden" value="{{ asunto }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label>Copiar a:</label>
+                                <select id="copia_a" class="form-control select2-multiple" data-toggle="select2"
+                                    data-width="100%" multiple="multiple" data-placeholder="Copiar a">
+                                    {% for row in usuarios %}
+                                    <option 
+                                        value="{{ row.id }}" 
+                                        {% for copia in copia_a %}
+                                            {% if row.id == copia.user.id %}
+                                            selected
+                                            {% endif %}
+                                        {% endfor %}
+                                        >
+                                        {{row.get_user}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input name="copia_a" type="hidden" value="">
+                                <input id="hfcopia_a" type="hidden" value="{{ copia_a }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <label>Firma:</label>
+                            {{ form.firma }}
+                            <input id="hfFirm" type="hidden" value="{{ selected_firm }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <div class="text-center">
+                                Archivo Actualmente:
+                                <a href={{ pdf }}>{{ pdf }}</a>
+                            </div>
+                            <br>
+                           
+                            <label>Acuse:</label>
+                            {{ form.pdf }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $(function () {
+
+
+        $('#form_oficios').submit(function(e) {
+
+            var lista_usuarios = $("#copia_a").val();
+            $("[name='copia_a']").val(lista_usuarios.join(","));
+
+
+            $("#btGuardar").attr("disabled", true);
+
+            return true;
+        });
+		
+    });
+</script>

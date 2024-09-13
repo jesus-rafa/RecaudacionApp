@@ -1,0 +1,802 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Solicitudes de trámites {% endblock titulo %}
+
+{% block head %}
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/mohithg-switchery/switchery.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/multiselect/css/multi-select.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/selectize/css/selectize.bootstrap3.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/dropzone/min/dropzone.min.css' %}" rel="stylesheet" type="text/css" />
+{%endblock head %}
+
+{% block content %}
+    <style>
+        .swal2-modal .swal2-confirm {
+            background-color: transparent !important;
+            font-size: .875rem !important;
+        }
+        .swal2-modal .swal2-confirm:hover {
+            background-color: #353535 !important;
+            font-size: .875rem !important;
+        }
+        .font-red {
+            color: red !important;
+        }
+        .mrgnR5 {
+            margin-right: 5px;
+        }
+        .tooltip {
+            z-index: 100000000; 
+        }
+    </style>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right my-1">
+                    <button type="button" id="btn-regresar_tramite" class="btn waves-effect gris-oscuro fondo-boton" onclick="window.location.href = `{% url 'tramites_app:usuarios' %}`">
+                        <span class="menus">Regresar</span>
+                    </button>
+                </div>
+                <!-- <h4 class="page-title">Solicitudes</h4> -->
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form id="frm-solicitudes" method="post"> {% csrf_token %} </form>
+            <div class="row">
+                <div class="col">
+                    <ul class="nav nav-tabs nav-bordered ">
+                        <li class="nav-item">
+                            <a href="#solicitudes" id="solicitudes-tab" data-bs-toggle="tab" aria-current="page" class="nav-link active">
+                                Solicitudes
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade active show" id="solicitudes">
+                    <div class="row mb-2">
+                        <div class="form-floating col">
+                            <input id="search-solicitudes_tramite" name="solicitudes_tramite" type="text" class="float-label form-control input-rec" placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <table id="dt-solicitudes_tramite" class="table table-sm table-hover p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha de solicitud</th>
+                                        <th>Tipo</th>
+                                        <th>Estatus</th>
+                                        <th>Seguimiento</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tramite in tramites_activos %}
+                                    <tr>
+                                        <td>{{ tramite.created|date:'d/m/Y' }}</td>
+                                        <td>{{ tramite.tramite.servicio }}</td>
+                                        <td>
+                                            {% if tramite.estatus.nombre == "ACEPTADA" %}
+                                                <span class="badge bg-info"><i class="fas fa-check-circle"></i> {{tramite.estatus.nombre}}</span>
+                                            {% elif tramite.estatus.nombre == "AUTORIZADA" %}
+                                                <span class="badge badge-outline-success"><i class="fas fa-check-circle"></i> {{tramite.estatus.nombre}}</span>
+                                            {% elif tramite.estatus.nombre == "GUARDADA" %}
+                                                <span class="badge badge-soft-warning"><i class="fas fa-dot-circle"></i> {{tramite.estatus.nombre}}</span>
+                                            {% elif tramite.estatus.nombre == "ENVIADA" %}
+                                                <span class="badge bg-primary"><i class="fas fa-paper-plane"></i> {{tramite.estatus.nombre}}</span>
+                                            {% elif tramite.estatus.nombre == "RECHAZADA" %}
+                                                <span class="badge badge-outline-danger"><i class="fas fa-times-circle"></i> {{tramite.estatus.nombre}}</span>
+                                            {% elif tramite.estatus.nombre == "EN REVISION" %}
+                                                <span class="badge badge-soft-primary"><i class="fas fa-tasks"></i> {{tramite.estatus.nombre}}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if tramite.usuario_reviso %}
+                                                {{tramite.usuario_reviso.get_full_name}}
+                                            {% else %}
+                                                <span>-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                                    data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    {% if tramite.estatus.nombre == 'GUARDADA' or tramite.estatus.nombre == 'RECHAZADA' %}
+                                                        <a id="btnEditarSolicitud{{tramite.id}}" href="{% url 'tramites_app:solicitud-tramites' tramite_id=tramite.tramite.id pk=tramite.id action='editar' %}" class="dropdown-item">
+                                                            <i class="fas fa-edit me-2 text-muted vertical-middle"></i>Editar solicitud
+                                                        </a>
+                                                        <a id="btnEnviarSolicitud{{tramite.id}}" onclick="enviar_solicitud_tramite('{{tramite.id}}', '{{tramite.estatus.nombre}}')" class="dropdown-item">
+                                                            <i class="fas fa-paper-plane me-2 text-muted vertical-middle"></i>Enviar solicitud
+                                                        </a>
+                                                    {% endif %}
+                                                    <a id="btnVerSolicitud{{tramite.id}}" onclick="ver_solicitud('{{tramite.id}}','{{tramite.tramite.servicio}}','{{tramite.estatus.nombre}}','{{tramite.observaciones}}', 'consultar')" class="dropdown-item">
+                                                        <i class="fas fa-eye me-2 text-muted vertical-middle"></i>Ver solicitud
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para rechazar solicitudes -->
+    <div class="modal fade" id="mdl-autorizacion_solicitudes" tabindex="-1" role="dialog" aria-labelledby="autorizacion_solicitudesLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered"  role="document" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="lblValidarSolicitudes" class="modal-title ">Aceptar solicitudes</h4>
+                    <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-autorizacion_visitas" method="POST">
+                        <input type="hidden" id="solicitud-id" name="solicitud-id">
+                        <input type="hidden" id="requisito-detalle-id" name="requisito-detalle-id">
+                        {% csrf_token %}
+                        <div class="row px-3 mb-2">
+                            <div class="col">
+                                <label class="etiqueta-combo" for="solicitud-estatus">Estatus</label>
+                                <select id="solicitud-estatus" name="solicitud-estatus" class="form-control selectize-select selectized" onchange="cambio_estatus_solicitud()" placeholder="Estatus" required>
+                                    <option value="ACEPTADA">SOLICITUD ACEPTADA</option>
+                                    <option value="RECHAZADA">SOLICITUD RECHAZADA</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="vista_rechazo_solicitudes" class="d-none">
+                            <div class="row px-2 mb-2">
+                                <div class="col">
+                                    <div class="form-floating">
+                                        <textarea name="solicitud-observaciones" id="solicitud-observaciones" class="form-control input-area-rec float-label" rows="3" cols="3" placeholder=" " maxlength="500">
+                                        </textarea>
+                                        <label for="solicitud-observaciones">Motivo del rechazo</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pull-right">
+                            <div class="col">
+                                <button type="button" id="btnGuardarAutorRechSolicitudes" class="btn fondo-boton">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para ver solicitudes -->
+    <div class="modal fade" id="mdl-ver_solicitudes" tabindex="-1" role="dialog" aria-labelledby="ver_solicitudesLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg"  role="document" >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title ">Visualizar solicitudes</h4>
+                    <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <b>Trámite</b><br>
+                            <span id="ver_solicitudes-tramite">-</span>
+                        </div>
+                        <div class="col">
+                            <b>Estatus</b><br>
+                            <span id="ver_solicitudes-estatus">-</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <b>Observaciones</b><br>
+                            <span id="ver_solicitudes-comentarios">Sin observaciones</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2 d-none">
+                        <div class="form-floating col">
+                            <input id="search-ver_solicitudes" name="ver_solicitudes" type="text" class="float-label form-control input-rec" placeholder="Buscar">
+                            <label>Buscar</label>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <table id="dt-ver_solicitudes" class="table table-sm table-hover p-0 w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="all text-center">No.</th>
+                                        <th class="all">Requisito</th>
+                                        <th class="all text-center">¿Es obligatorio?</th>
+                                        <th class="all text-center">Estatus</th>
+                                        <th class="all text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="vistaAutorizarSolicitud" class="row pull-right mb-2 d-none">
+                        <div class="col">
+                            <button type="button" id="btnAutorizarSolicitud" class="btn fondo-boton" onclick="autorizar_solicitudes()">Autorizar Solicitud</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/datatables.init.js' %}"></script>
+    <script src="{% static 'custom/js/render-table.js' %}"></script>
+    <script src="{% static 'custom/js/simple-table.js' %}"></script>
+
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/sweetalert2/sweetalert2.all.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.chained.min.js' %}"></script>
+    <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+    <script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/multiselect/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+    <script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Plugins js -->
+    <script src="{% static 'assets/libs/dropzone/min/dropzone.min.js' %}"></script>
+    <!-- Init js-->
+    <script src="{% static 'assets/js/pages/form-fileuploads.init.js' %}"></script>
+
+    <script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+    <script>
+        // Constantes Plugin SweetAlert2
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-outline-secondary waves-effect gris-oscuro',
+                cancelButton: 'btn btn-outline-secondary waves-effect gris-oscuro'
+            },
+            buttonsStyling: false
+        })
+
+        var datos_modal_anterior = [];
+
+        var select_estatus = $("#solicitud-estatus").selectize();
+        var selectize_estatus = select_estatus[0].selectize;
+
+        $(document).ready(function() {
+            render_table('#dt-solicitudes_tramite', '#search-solicitudes_tramite', []);
+
+            render_table('#dt-solicitudes_tramite_admon', '#search-solicitudes_tramite_admon', []);
+
+            selectize_estatus.setValue(0);
+        });
+
+        function enviar_solicitud(solicitud_id, estatus)
+        {
+            let estado = 1;
+            if (estatus == "GUARDADA")
+                estado = 0;
+
+            let formulario = document.getElementById("frm-solicitudes");
+            let fd = new FormData(formulario);
+            fd.append("solicitud_id", solicitud_id);
+            fd.append("solicitud_rechazada", estado);
+
+            $.ajax({
+                url: "{% url 'tramites_app:enviar-solicitud-tramite' %}",
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (!result.error)
+                    {
+                        toastr.success("Solicitud enviada correctamente");
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                    else
+                        return toastr.error(result.msj);
+                },
+                error: function (error) {
+                    toastr.error(error);
+                }
+            });
+        }
+
+        function enviar_solicitud_tramite(solicitud_id, estatus) {
+            if (estatus == "RECHAZADA")
+            {
+                swalWithBootstrapButtons.fire({
+                    title: '¿Seguro que desea volver a enviar la solicitud?',
+                    text: "¡Será enviada nuevamente para su revisión!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Si, adelante.',
+                    cancelButtonText: 'No, cancelar.',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        enviar_solicitud(solicitud_id, estatus);
+                    }
+                })
+            }
+            else {
+                enviar_solicitud(solicitud_id, estatus);
+            }
+        }
+        function limpiar_form_autorizacion_solicitudes() {
+            let formulario = document.getElementById('form-autorizacion_visitas');
+            formulario.reset();
+
+            $("#solicitud-observaciones").val("");
+
+            selectize_estatus.setValue(0);
+
+            if (!$("#vista_rechazo_solicitudes").hasClass("d-none"))
+                $("#vista_rechazo_solicitudes").addClass("d-none");
+        }
+
+        function rechazar_solicitud(solicitud_id) {
+            $("#solicitud-observaciones").val("");
+            $("#solicitud-id").val(solicitud_id);
+            $("#mdl-autorizacion_solicitudes").modal("show");
+        }
+
+        function cambio_estatus_solicitud() {
+            if (!$("#vista_rechazo_solicitudes").hasClass("d-none"))
+                $("#vista_rechazo_solicitudes").addClass("d-none");
+
+            if($("#solicitud-estatus").val() == "RECHAZADA" || $("#solicitud-estatus").val() == "Archivo rechazado")
+            {
+                $("#vista_rechazo_solicitudes").removeClass("d-none");
+            }
+        }
+
+        $("#btnGuardarAutorRechSolicitudes").on("click", function() {
+            var t = $("#form-autorizacion_visitas")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-autorizacion_visitas");
+                let fd = new FormData(formulario);
+
+                let estatus_autorizacion = false;
+                if($("#solicitud-estatus").val() == "Archivo autorizado" || $("#solicitud-estatus").val() == "Archivo rechazado")
+                {
+                    estatus_autorizacion = true;
+                }
+
+                let msj_respuesta = "Solicitud aceptada correctamente";
+                if(estatus_autorizacion)
+                {
+                    msj_respuesta = "Requisito aceptado correctamente";
+                }
+
+                if($("#solicitud-estatus").val() == "RECHAZADA" || $("#solicitud-estatus").val() == "Archivo rechazado")
+                {
+                    msj_respuesta = "Solicitud rechazada correctamente";
+                    if(estatus_autorizacion)
+                        msj_respuesta = "Requisito rechazado correctamente";
+                    
+                    if($("#solicitud-observaciones").val().trim() == "")
+                    {
+                        return toastr.error("Debe establecer un motivo de rechazo");
+                    }
+                }
+
+                $.ajax({
+                    url: "{% url 'tramites_app:aceptar-solicitudes-requisitos' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            toastr.success(msj_respuesta);
+
+                            if(estatus_autorizacion) {
+                                if($("#mdl-autorizacion_solicitudes").is(":visible")) {
+                                    $('#mdl-autorizacion_solicitudes').modal("hide");
+                                }
+
+                                actualizar_datos_solicitud(datos_modal_anterior[0], "autorizar");
+                            }
+                            else {
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1000);
+                            }
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        });
+
+        function autorizar_solicitudes() {
+            var t = $("#frm-solicitudes")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("frm-solicitudes");
+                let fd = new FormData(formulario);
+                fd.append("solicitud_id", datos_modal_anterior[0]);
+
+                $.ajax({
+                    url: "{% url 'tramites_app:autorizacion-solicitudes' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            toastr.success(result.msj);
+                            
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        }
+                        else
+                        {
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        }
+        
+        function ver_solicitud(solicitud_id, tramite, estatus, observaciones, accion) {
+            $("#vistaAutorizarSolicitud").removeClass("d-none");
+
+            actualizar_datos_solicitud(solicitud_id, accion);
+
+            $("#ver_solicitudes-tramite").html(tramite);
+            $("#ver_solicitudes-estatus").html(estatus);
+
+            if(observaciones != "" && observaciones != "None")
+                $("#ver_solicitudes-comentarios").html(observaciones);
+            else
+                $("#ver_solicitudes-comentarios").html("Sin observaciones");
+            
+            if (accion == "consultar")
+                $("#vistaAutorizarSolicitud").addClass("d-none");
+            
+            $("#mdl-ver_solicitudes").modal("show");
+
+            datos_modal_anterior = []
+            datos_modal_anterior.push(solicitud_id);
+            datos_modal_anterior.push(tramite);
+            datos_modal_anterior.push(estatus);
+            datos_modal_anterior.push(observaciones);
+            datos_modal_anterior.push(accion);
+        }
+
+        function visualizar_modal_anterior() {
+            ver_solicitud(datos_modal_anterior[0], datos_modal_anterior[1], datos_modal_anterior[2], datos_modal_anterior[3], datos_modal_anterior[4]);
+        }
+
+        $('#mdl-autorizacion_solicitudes').on('hidden.bs.modal', function (e) {
+            let lbl_modal_autorizacion =  $("#lblValidarSolicitudes").text();
+            $("#lblValidarSolicitudes").html("Aceptar solicitudes");
+
+            // Limpiar seletize
+            // var select_estatus = $('#solicitud-estatus').selectize()[0].selectize;
+            selectize_estatus.clearOptions();
+
+            // Agregar nuevas opciones a selectize
+            // se instancian las opciones
+            var opciones_aceptar_solicitudes = [
+                {
+                    value: 'ACEPTADA',
+                    text: 'SOLICITUD ACEPTADA'
+                },
+                {
+                    value: 'RECHAZADA',
+                    text: 'SOLICITUD RECHAZADA'
+                }
+            ];
+
+            // Se agregan las opciones
+            selectize_estatus.addOption(opciones_aceptar_solicitudes);
+
+            // Limpiar formulario
+            limpiar_form_autorizacion_solicitudes();
+
+            $("#solicitud-id").val("");
+            $("#requisito-detalle-id").val("");
+
+            // Validar si se esta en la vista del modal de ver solicitudes no genere bucle cuando se 
+            // cierre el modal
+            if(lbl_modal_autorizacion != "Aceptar solicitudes")
+                visualizar_modal_anterior();
+            
+            $("#solicitud-id").val("");
+        });
+
+        function opciones_autorizar() {
+            // Limpiar seletize
+            selectize_estatus.clearOptions();
+
+            // Agregar nuevas opciones a selectize
+            // se instancian las opciones
+            var opciones_autorizar_requisitos = [
+                {
+                    value: 'Archivo autorizado',
+                    text: 'REQUISITO AUTORIZADO'
+                },
+                {
+                    value: 'Archivo rechazado',
+                    text: 'REQUISITO RECHAZADO'
+                }
+            ];
+
+            // Se agregan las opciones
+            selectize_estatus.addOption(opciones_autorizar_requisitos);
+        }
+
+        function rechazar_archivo(detalle_solicitud_id) {
+            $("#lblValidarSolicitudes").html("Autorizar requisitos");
+
+            opciones_autorizar();
+
+            selectize_estatus.setValue('Archivo rechazado');
+
+            cambio_estatus_solicitud();
+
+            // Limpiar formulario
+            $("#solicitud-observaciones").val("");
+
+            $("#requisito-detalle-id").val(detalle_solicitud_id);
+
+            // Se oculta el modal actual
+            $("#mdl-ver_solicitudes").modal("hide");
+
+            // Se muestra el modal para visualizar el contenido de la decision
+            $("#mdl-autorizacion_solicitudes").modal("show");
+        }
+
+        function autorizar_archivo(detalle_solicitud_id) {
+            opciones_autorizar();
+
+            selectize_estatus.setValue('Archivo autorizado');
+
+            $("#requisito-detalle-id").val(detalle_solicitud_id);
+
+            $("#btnGuardarAutorRechSolicitudes").click();
+        }
+
+        function actualizar_datos_solicitud(solicitud_id, accion = "consultar") {
+            var contador = 1;
+            $('#dt-ver_solicitudes').DataTable().destroy();
+
+            var dt_ver_solicitudes = $('#dt-ver_solicitudes').DataTable({
+                destroy: true,
+                sDom: "rtip",
+                ajax: {
+                    url : "{% url 'tramites_app:listado-detalles-solicitud' %}",
+                    type : "POST",
+                    data : {
+                        "csrfmiddlewaretoken": document.getElementsByName("csrfmiddlewaretoken")[0].value,
+                        "solicitud_id": solicitud_id
+                    }
+                },
+                columns: [
+                    { data: 'requisito__id' },
+                    { data: 'requisito_nombre' },
+                    { data: 'es_obligatorio' },
+                    { data: 'estatus' },
+                    { data: 'id' },
+                ],
+                order: [0, 'ASC'],
+                pageLength : 10,
+                lengthMenu: [10, 25, 50, 100, 'Todos'],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                columnDefs: [
+                    {
+                        "targets": 0,
+                        "width": "10%",
+                        "render": function(data, type, row)
+                        {
+                            let button = contador;
+                            contador++;
+                            return button;
+                        }
+                    },
+                    {
+                        "targets": 1,
+                        "width": "40%"
+                    },
+                    {
+                        "targets": 2,
+                        "width": "10%",
+                        "render": function(data, type, row)
+                        {
+                            let respuesta = `<span class="badge bg-light text-dark"><i class="far fa-dot-circle"></i> Opcional</span>`;
+                            if(row.es_obligatorio)
+                            {
+                                respuesta = `<span class="badge badge-outline-success"><i class="fas fa-check-circle"></i> Obligatorio</span>`;
+                            }
+                            return respuesta;
+                        }
+                    },
+                    {
+                        "targets": 3,
+                        "width": "20%",
+                        "render": function(data, type, row)
+                        {
+                            let respuesta = "";
+                            if (row.estatus == "Archivo capturado") {
+                                respuesta = `<span class="badge bg-primary">` + row.estatus + `</span>`;
+                            } else if (row.estatus == "Archivo autorizado") {
+                                respuesta = `<span class="badge badge-outline-info">` + row.estatus + `</span>`;
+                            } else if (row.estatus == "Archivo rechazado") {
+                                respuesta = `<span class="badge badge-outline-danger">` + row.estatus + `</span>`;
+                            } else if (row.estatus == "Archivo actualizado") {
+                                respuesta = `<span class="badge badge-outline-warning"><i class="fas fa-exclamation mrgnR5"></i>` + row.estatus + `</span>`;
+                            }
+                            else {
+                                respuesta = `<span class="badge badge-outline-dark">` + row.estatus + `</span>`;
+                            }
+                            return respuesta;
+                        }
+                    },
+                    {
+                        "orderable": false,
+                        "targets": 4,
+                        "searchable": false,
+                        "width": "20%",
+                        "render": function(data, type, row)
+                        {
+                            let button = `
+                                <div class="btn-group dropdown">
+                                    <a href="javascript: void(0);" class="table-action-btn dropdown-toggle arrow-none btn btn-light btn-sm"
+                                        data-bs-toggle="dropdown" aria-expanded="false" style="background-color: #00000000; border: 0px solid;"><i class="mdi mdi-dots-horizontal"></i></a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                `;
+                            
+                            if (row.ruta_archivo != "" && row.ruta_archivo != null) {
+                                button += `
+                                    <a id="btnVerArchivo` + row.id + `" href="{{request.scheme}}://{{request.get_host}}/` + row.ruta_archivo.slice(2) + `" class="dropdown-item" target="_blank" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom" data-tippy="" data-original-title="Ver archivo">
+                                        <i class="fas fa-eye me-2 text-muted font-18 vertical-middle"></i> Archivo
+                                    </a>
+                                `;
+                            }
+
+                            if (row.estatus != "Archivo autorizado" && accion != "consultar") {
+                                
+                                if (row.estatus != "Archivo rechazado")
+                                {
+                                    button += `
+                                        <a id="btnRechazarArchivo` + row.id + `" class="dropdown-item" onclick="rechazar_archivo('` + row.id + `')">
+                                            <i class="fas fa-times me-2 text-muted vertical-middle"></i>Rechazar requisito
+                                        </a>
+                                    `;
+                                    button += `
+                                    <a id="btnAutorizarArchivo` + row.id + `" class="dropdown-item" onclick="autorizar_archivo('` + row.id + `')">
+                                        <i class="fas fa-check-double me-2 text-muted vertical-middle"></i>Autorizar requisito
+                                    </a> `;
+                                }
+                            }
+
+                            if (row.estatus == "Archivo rechazado" && row.usuario__username == "{{user_login}}") {
+                                button += `
+                                    <a id="btnEditarRequisito` + row.id + `" class="dropdown-item" href="{{request.scheme}}://{{request.get_host}}/solicitud-tramites/{{tramite_id}}/` + datos_modal_anterior[0] + `/edicion">
+                                        <i class="fas fa-edit me-2 text-muted vertical-middle"></i>Editar requisito
+                                    </a>
+                                `;
+                            }
+
+                            if(row.observaciones)
+                            {
+                                button += `
+                                    <a id="btnObservacionesArchivo` + row.id + `" class="dropdown-item item-tooltip" data-toggle="tooltip" data-placement="right" title="` + row.observaciones + `">
+                                        <i class="fas fa-comment-dots me-2 text-muted vertical-middle"></i>Observaciones
+                                    </a>
+                                `;
+                            }
+
+                            button += `</div></div>`;
+
+                            if (accion == "consultar" && (row.ruta_archivo == '' || row.ruta_archivo == null))
+                            {
+                                button = '<small id="inputAlert' + row.id + '" class="form-text text-muted">No capturado</small>';
+
+                                if(row.es_obligatorio)
+                                {
+                                    button = '<small id="inputAlert' + row.id + '" class="form-text text-muted font-red">¡No capturado!</small>';
+                                }
+                            }
+
+                            return button;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                },
+                rowCallback: function(row, data, index){
+                    $(row).find('td:eq(0)').css('text-align', 'center');
+                    $(row).find('td:eq(2)').css('text-align', 'center');
+                    $(row).find('td:eq(3)').css('text-align', 'center');
+                    $(row).find('td:eq(4)').css('text-align', 'center');
+                }
+            });
+
+            $('#search-ver_solicitudes').on("keyup click", function () {
+                dt_ver_solicitudes.tables().search($(this).val()).draw();
+            });
+
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+                $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+
+            dt_ver_solicitudes.order([0, "ASC"]).draw();
+        }
+    </script>
+{% endblock extrajs %}

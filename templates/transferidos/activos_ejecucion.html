@@ -1,0 +1,132 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Activos Ejecucion {{ hoy|date:'d-m-y' }} {% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Activos Ejecucion</h4>  
+        </div>
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                
+                <div class="dropdown float-end" style="top: 40px;">
+                    <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-dots-vertical"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a id="btn-csv" href="/excel-activos-ejecucion/" class="dropdown-item">
+                            <i class="mdi mdi-download"></i> Descargar CSV</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-floating col-md-12">
+                        <input id="search1" type="text" class="float-label form-control input-rec" placeholder=".">
+                        <label>Buscar</label>
+                    </div>
+                </div>
+
+                <div class="table-responsive pt-3">
+                    <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" id="datatable1">
+                        <thead>
+                            <tr>
+                                <td class="all">RFC</td>
+                                <td class="all">Nombre</td>
+                                <td class="all">Programa</td>
+                                <td class="all">Fecha</td>
+                                <td class="all">Dias</td>
+                                <td class="all">Metodo Envío</td>
+                                <td class="all">Estatus</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for programa in programacion %}
+                            <tr>
+                                
+                                <td>{{ programa.rfc }}</td>
+				<td data-bs-toggle="tooltip" data-bs-placement="top" title="{{ programa.nombre }}">{{ programa.nombre|truncatechars:35 }}</td>
+                                <td>{{ programa.programa }}</td>
+                                <td>{{programa.fecha|date:'d/m/Y' }}</td>
+                                <td>{% dias_seguimiento programa.fecha %}</td>
+                                <td>
+                                    {% if programa.metodo_envio is not None %}
+                                    {{ programa.metodo_envio }}
+                                    {% endif %}
+                                </td>
+                                <td>ACTIVO</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'custom/js/render-table.js' %}"></script>
+<script src="{% static 'js/bootstrap-datatables/buttons.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+        render_table('#datatable1', '#search1', []);
+
+		/* var table1 = $('#datatable1').DataTable({
+            dom: "Bfrtip",
+            buttons: [
+                { extend: "copy", text: "Copiar", className: "btn btn-outline-dark btn-sm rounded-pill" },
+                { extend: "pdf", text: "PDF", className: "btn btn-outline-primary btn-sm rounded-pill" },
+                { extend: "excel", text: "Excel", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "csv", text: "CSV", className: "btn btn-outline-success btn-sm rounded-pill" },
+                { extend: "print", text: "Imprimir", className: "btn btn-outline-dark btn-sm rounded-pill" },
+            ],
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+            
+        }); */
+		
+    });
+</script>
+{% endblock extrajs %}

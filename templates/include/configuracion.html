@@ -1,0 +1,80 @@
+<div class="right-bar">
+    <div data-simplebar class="h-100">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs nav-bordered nav-justified" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link py-2 active" data-bs-toggle="tab" href="#settings-tab" role="tab">
+                    <i class="mdi mdi-cog-outline d-block font-22 my-1"></i>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content pt-0">
+            <div class="tab-pane active" id="settings-tab" role="tabpanel">
+                <h6 class="fw-medium px-3 m-0 py-2 font-13 text-uppercase bg-light">
+                    <span class="d-block py-1">Personalizar</span>
+                </h6>
+
+                <div class="p-3">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Cambia el color y la posicón del menu</strong>.
+                    </div>
+
+                    <!-- menu position -->
+                    <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Posicón del menu</h6>
+
+                    <div class="form-check form-switch mb-1">
+                        <!-- <input type="checkbox" class="form-check-input" id="menu-horizontal-check" -->
+                         <!-- /> -->
+                        <!-- <label class="form-check-label" for="menu-horizontal-check">Horizontal</label> -->
+						
+						<button type="button" class="btn btn-success rounded-pill waves-effect waves-light" id="menu-horizontal-check">Horizontal</button>
+                     </div>
+ 
+                     <div class="form-check form-switch mb-1">
+                         <!-- <input type="checkbox" class="form-check-input" id="menu-vertical-check"  -->
+                          <!-- /> -->
+                         <!-- <label class="form-check-label" for="menu-vertical-check">Vertical</label> -->
+						 
+						 <button type="button" class="btn btn-success rounded-pill waves-effect waves-light" id="menu-vertical-check">Vertical</button>
+                     </div>
+
+                    <!-- Topbar -->
+                    <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Barra de Navegacion</h6>
+
+                    <div class="form-check form-switch mb-1">
+                        <input type="checkbox" class="form-check-input" name="topbar-color" value="light" id="lighttopbar-check" />
+                        <label class="form-check-label" for="lighttopbar-check">Claro</label>
+                    </div>
+
+                    <div class="form-check form-switch mb-1">
+                        <input type="checkbox" class="form-check-input" name="topbar-color" value="dark" id="darktopbar-check" />
+                        <label class="form-check-label" for="darktopbar-check">Oscuro</label>
+                    </div>
+
+                     <!-- Left Sidebar-->
+                    <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Menu Vertical</h6>
+
+                    <div class="form-check form-switch mb-1">
+                        <input type="checkbox" class="form-check-input" name="leftsidebar-color" value="light" id="light-check" />
+                        <label class="form-check-label" for="light-check">Claro</label>
+                    </div>
+
+                    <div class="form-check form-switch mb-1">
+                        <input type="checkbox" class="form-check-input" name="leftsidebar-color" value="dark" id="dark-check" />
+                        <label class="form-check-label" for="dark-check">Oscuro</label>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button class="btn btn-primary" id="btReset">Default</button>
+                    </div> 
+
+                </div>
+
+            </div>
+        </div>
+
+    </div> <!-- end slimscroll-menu-->
+</div>

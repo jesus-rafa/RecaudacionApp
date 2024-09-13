@@ -1,0 +1,320 @@
+{% load humanize %}
+{% load tagsJuridico %}
+
+<div class="modal-dialog modal-lg" tabindex="-1" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4 class="modal-title">Juicio</h4>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <form id="form_ver_demanda" action="{% url 'juridico_app:ver-demanda' object.id %}" method="POST"
+      enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col">
+            Carpeta:
+            <br>
+            <label><b>{{ verDemanda.carpeta }}</b></label>
+          </div>
+          <div class="col">
+            Expediente:
+            <br>
+            <label><b>{{ verDemanda.expediente }}</b></label>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            Tipo:
+            <br>
+            <label><b>{{ verDemanda.juicio }}</b></label>
+          </div>
+          <div class="col">
+            Subtipo:
+            <br>
+            <label><b>{{ verDemanda.subtipo }}</b></label>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            Tribunal:
+            <br>
+            <label><b>{{ verDemanda.tribunal }}</b></label>
+          </div>
+          <div class="col">
+            Estado procesal:
+            <br>
+            <label><b>{{ verDemanda.estado_procesal }}</b></label>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            Abogado dictaminador:
+            <br>
+            <label><b>{{ verDemanda.dictaminador }}</b></label>
+          </div>
+          <div class="col">
+            Dias restantes:
+            <br>
+            {% with None as dias %}
+            {% dias_restantes verDemanda.fecha_interno as dias %}
+            {% if dias > 10 %}
+            <div class="enTiempo"> {{ dias }}</div>
+            {% elif dias >= 5 and dias < 10%} <div class="atrasado">{{ dias }}
+          </div>
+          {% elif dias > 0 and dias < 5%} <div class="vencer">{{ dias }}
+        </div>
+        {% elif dias <= 0 %} <div class="vencido">{{ dias }}
+      </div>
+      {%endif %}
+      {% endwith %}
+      {% comment %} <label>{% dias_restantes verDemanda.fecha_interno %}</label> {% endcomment %}
+  </div>
+</div>
+
+<div class="row mb-3">
+  <ul class="nav nav-tabs nav-bordered">
+    <li class="nav-item">
+      <a href="#tab-01" id="tab-head-01" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+        ESTADO PROCESAL
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#tab-02" id="tab-head-02" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+        DETALLE
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="#tab-03" id="tab-head-03" data-bs-toggle="tab" aria-expanded="false" class="nav-link">
+        PROCESOS
+      </a>
+    </li>
+  </ul>
+</div>
+<div class="tab-content">
+  <div class="tab-pane fade active show" id="tab-01">
+    <div class="track mb-3">
+      {% for activo in procesal_Seguimiento_Activo %}
+      {% for proceso in procesal_Seguimiento %}
+      {% if not proceso.etapa_id == activo.etapa_id %}
+      <div class="step active">
+        <span class="icon"> </span>
+        <span class="text">{{proceso.etapa}}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
+      {% for proceso in procesal_Seguimiento_Activo %}
+      <div class="step active">
+        <span class="icon" style="background: white;border: 7px solid #002060;">
+          <span style="
+                    border: 10px solid #002060;
+                    border-radius: 60px;
+                    background: 0 0;
+                    animation: pulse 3s ease-out;
+                    animation-iteration-count: infinite;
+                    top: -27px;
+                    position: absolute;
+                    width: 80px;
+                    height: 80px;
+                    right: -27px;">
+          </span>
+        </span>
+        <span class="text">{{proceso.etapa}}</span>
+      </div>
+      {% endfor %}
+      {% for item in etapas %}
+      <div class="step active">
+        <span class="icon"> </span>
+        <span class="text">{{ item.nombre }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <br>
+    <br>
+    <div class="track">
+      {% for proceso in etapas_secundarias %}
+      <div class="step active">
+        <span class="icon"> </span>
+        <span class="text">{{proceso.rubro.nombre}}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-02">
+    <div class="row mb-3">
+      {% if verDemanda.resolucion_impg is not None and verDemanda.resolucion_impg != '' %}
+      <div class="col-6 mb-2">
+        Resolucion impugnada:
+        <br>
+        <label><b>{{ verDemanda.resolucion_impg}}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.cuantia is not None and verDemanda.cuantia != '' %}
+      <div class="col-6 mb-2">
+        Cuantia:
+        <br>
+        <label><b>{{ verDemanda.cuantia|intcomma }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.materia is not None and verDemanda.materia != '' %}
+      <div class="col-6 mb-2">
+        Materia:
+        <br>
+        <label><b>{{ verDemanda.materia }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.contribuyente is not None and verDemanda.contribuyente != '' %}
+      <div class="col-6 mb-2">
+        Contribuyente:
+        <br>
+        <label><b>{{ verDemanda.contribuyente}}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.abogado_prom is not None and verDemanda.abogado_prom != '' %}
+      <div class="col-6 mb-2">
+        Abogado Promovente:
+        <br>
+        <label><b>{{ verDemanda.abogado_prom }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.resolucion_rec is not None and verDemanda.resolucion_rec != '' %}
+      <div class="col-6 mb-2">
+        Resolucion Recurrida:
+        <br>
+        <label><b>{{ verDemanda.resolucion_rec }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.fecha_aviso is not None and verDemanda.fecha_aviso != '' %}
+      <div class="col-6 mb-2">
+        Aviso:
+        <br>
+        <label><b>{{ verDemanda.fecha_aviso|date:'d/m/Y' }}</b></label>
+      </div>
+      {%endif %}
+      <div class="col-6 mb-2">
+        Notificacion:
+        <br>
+        <label><b>{{ verDemanda.fecha_notificacion|date:'d/m/Y' }}</b></label>
+      </div>
+      <div class="col-6 mb-2">
+        Vencimiento interno:
+        <br>
+        <label><b>{{ verDemanda.fecha_interno|date:'d/m/Y' }}</b></label>
+      </div>
+      <div class="col-6 mb-2">
+        Vencimiento fatal:
+        <br>
+        <label><b>{{ verDemanda.fecha_fatal|date:'d/m/Y' }}</b></label>
+      </div>
+      {% if verDemanda.fecha_resolucion is not None and verDemanda.fecha_resolucion != '' %}
+      <div class="col-6 mb-2">
+        Resolucion:
+        <br>
+        <label><b>{{ verDemanda.fecha_resolucion|date:'d/m/Y' }}</b></label>
+      </div>
+      {%endif %}
+      {% if verDemanda.autoridad_rec is not None and verDemanda.autoridad_rec != '' %}
+      <div class="col-6 mb-2">
+        Autoridad Recurrida:
+        <br>
+        <label><b>{{ verDemanda.autoridad_rec|truncatechars:40 }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.fecha_contestacion is not None %}
+      <div class="col-6">
+        Contestacion:
+        <br>
+        <label><b>{{ verDemanda.fecha_contestacion|date:'d/m/Y' }}</b></label>
+      </div>
+      {% endif %}
+      {% if verDemanda.oficio is not None and verDemanda.oficio != '' %}
+      <div class="col-6">
+        Oficio contestacion:
+        <br>
+        <label><b>{{ verDemanda.oficio}}</b></label>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-03">
+    <div class="tab-content">
+      <div class="table-responsive mt-15">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr class="text-dark">
+              <th>FECHA</th>
+              <th>ESTADO PROCESAL</th>
+              <th>COMENTARIOS</th>
+              <!-- <th>ARCHIVO</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            {% for proceso in procesal %}
+            <tr>
+              <td>{{ proceso.modified|date:'d/m/Y' }}</td>
+              <td>{{ proceso.rubro.nombre }}</td>
+              <td>
+                {{ proceso.comentario }}
+              </td>
+              <td>
+                <!-- <a href
+                          title="Proceso" tabindex="0" data-plugin="tippy" data-tippy-placement="top"
+                          class="btn btn-info btn-xs" target="_self">
+                          <i class="fas fa-file"></i>
+                        </a> -->
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+            {% for proceso in procesal1 %}
+            <tr>
+              <td>{{ proceso.created|date:'d/m/Y' }}</td>
+              <td>{{ proceso.id_proceso.rubro.nombre }}</td>
+              <td>
+                {{ proceso.valor }}
+              </td>
+              <!--  <td>
+                        <button onclick="Subir_Archivos('{% url 'juridico_app:subir-archivos-juridico' proceso.id_proceso %}')"
+                          title="Agregar Archivos" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                          class="btn btn-primary btn-xs" target="_blank">
+                          <i class="mdi mdi-file-document-multiple-outline"></i>
+                        </button>
+                      </td> -->
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+    Cancelar
+  </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% block extrajs %}
+<script>
+  $(document).ready(function () {
+    console.log('a')
+  });
+
+  function Subir_Archivos(myURL) {
+    $('#mdView').load(myURL, function () {
+
+      $(this).modal('show');
+
+    });
+  }
+</script>
+{% endblock extrajs %}

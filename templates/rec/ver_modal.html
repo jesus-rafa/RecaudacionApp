@@ -1,0 +1,184 @@
+{% load tags %}
+{% load l10n %}
+{% load humanize %}
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header p-0 px-3 pt-3">
+            <!-- <h4 class="modal-title">Detalle: </h4> -->
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+            <ul class="nav nav-tabs nav-bordered">
+                <li class="nav-item">
+                    <a href="#detalle-20" id="detalle-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                        class="nav-link active">
+                        Detalle
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#historial-20" id="historial-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                        class="nav-link">
+                        Historial
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content p-0 px-3 py-2">
+                <div class="tab-pane fade active show pt-2" id="detalle-20">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">RFC:</p>
+                            <label><b>{{ detail.rfc }}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Tipo de persona:</p>
+                            <label><b>{{ detail.get_tipo_persona }}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Número de cuenta:</p>
+                            <label><b>{{ detail.numero_cuenta }}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Contribuyente:</p>
+                            <label><b>{{ detail.get_contribuyente }}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">CURP:</p>
+                            <label><b>{{detail.Curp}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Fecha de nacimiento:</p>
+                            <label><b>{% if detail.fecha_nacimiento %}{{detail.fecha_nacimiento|date:'d/m/Y'}}{% else %}-{% endif %}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <p class="font-11 m-0">Dirección:</p>
+                            <label><b>{{ detail.calle|title }}&nbsp;{% if detail.numero_ext > 0 %}#{{detail.numero_ext}}{% endif %}{% if detail.numero_int > 0 %}&nbsp;-&nbsp;int.{{detail.numero_int}}{% endif %},&nbsp;col.{{ detail.colonia|title }}{% if detail.cp %},&nbsp;C.P.&nbsp;{{detail.cp}}{% endif %},&nbsp;{{ detail.municipio|title }},&nbsp;{{detail.estado}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Nacionalidad:</p>
+                            <label><b>{{ detail.nacionalidad }}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Sexo:</p>
+                            <label><b>{% if detail.sexo.upper == 'F' %}Femenino{% elif detail.sexo.upper == 'M' %}Masculino{% else %}N/A{% endif %}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Correo electrónico:</p>
+                            <label><b>{{detail.Correo}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Télefono:</p>
+                            <label><b>{{detail.Telefono}}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Adeudo:</p>
+                            <label><b>$ {{detail.adeudo|intcomma}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Fecha de alta:</p>
+                            <label><b>{{detail.fecha_alta|date:'d/m/Y'}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Fecha del último pago:</p>
+                            <label><b>{{detail.fecha_ultimo_pago|date:'d/m/Y'}}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Usuario:</p>
+                            <label><b>{{detail.usuario}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Interlocutor:</p>
+                            <label><b>{{detail.interlocutor}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Objeto contrato:</p>
+                            <label><b>{{detail.objeto_contrato}}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Clave:</p>
+                            <label><b>{{detail.clave}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Sub clave:</p>
+                            <label><b>{{detail.SubClave}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Importe de baja:</p>
+                            <label><b>$ {{detail.importe_baja|intcomma}}</b></label>
+                        </div>
+                    </div>
+                    <hr class="m-0 p-0 my-1 color_white">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <p class="font-11 m-0">Fecha de carga:</p>
+                            <label><b>{{detail.created|date:'d/m/Y H:i a'}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Periodo / Ejercicio:</p>
+                            <label><b>{{detail.get_period}}&nbsp;/&nbsp;{{detail.ejercicio}}</b></label>
+                        </div>
+                        <div class="col">
+                            <p class="font-11 m-0">Área:</p>
+                            <label><b>{{detail.area}}</b></label>
+                            <p><b>({% get_user_info detail.usuario %})</b></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade pt-2" id="historial-20">
+                    <div class="row">
+                        <div class="col">
+                            {% if historial %}
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>RFC</th>
+                                            <th>Cuenta</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in historial %}
+                                        <tr>
+                                            <td>{{ row.rfc }}</td>
+                                            <td>{{ row.numero_cuenta }}</td>
+                                            <td>{{ row.created|date:'d/m/Y H:i a'}}</td>
+                                        </tr>                                
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div> -->
+    </div>
+</div>
+
+
+{% block extrajs %}
+
+
+
+{% endblock extrajs %}

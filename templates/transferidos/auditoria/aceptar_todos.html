@@ -1,0 +1,35 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Aceptar</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_aceptar_todos" action="{% url 'transferidos_app:aceptar-todos' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                <div class="row" id="datos_generales">                
+                    <div class="col-md-6">
+                        <div class="text-center mb-2">
+                            Oficio: <h4><strong id="lbOficio" class="sateg-negritas"></strong></h4>
+                            {{ form.folio }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center mb-2">
+                            RFC: <h4><strong id="lbRFC" class="sateg-negritas"></strong></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary waves-effect gris-oscuro" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+

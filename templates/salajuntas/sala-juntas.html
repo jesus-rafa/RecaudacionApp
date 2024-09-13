@@ -1,0 +1,1845 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Agenda Salas de Juntas {% endblock title %}
+
+{% block head %}
+
+
+{% endblock head %}
+
+{% block content %}
+<link type="text/css" href="css/bootstrap.min.css" />
+<link type="text/css" href="css/bootstrap-timepicker.min.css" />
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css"> -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap4.min.css">
+
+<style>
+    {% for sala in catalogos_salas %}
+        .{{ sala.color_name }} {
+            background-color: {{ sala.color }} !important;
+            letter-spacing: 0.5px;
+        }
+    {% endfor %}
+    th{
+        font-size: 9pt;
+        font-weight: bold;
+    }
+    td{
+        font-size: 9pt;
+    
+        /* background: #AAA; */
+        /* font-weight: bold; */
+        max-width: 0;
+        overflow: scroll !important;
+        /* padding: 5px; */
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        border: none;
+    }
+    
+    .pull-left
+    {
+        float: left;
+    }
+    .d-inline {
+        display: inline;
+    }
+    .crear-event:hover{
+        border-bottom: 1px solid #000 !important;
+    }
+    .scrol{
+        overflow-x: hidden !important;
+        overflow-y: scroll !important; 
+    }
+    .fondo-boton:hover{
+        color: #020B0D;
+    }
+    .nav-item {
+        cursor: pointer;
+    }
+    .swal2-modal .swal2-confirm {
+        background-color: transparent !important;
+        font-size: .875rem !important;
+    }
+    .swal2-modal .swal2-confirm:hover {
+        background-color: #353535 !important;
+        font-size: .875rem !important;
+    }
+    .mrgn3BT
+    {
+        margin-bottom: 3px;
+    }
+    .mw-50 {
+        max-width: 50%;
+    }
+
+    
+</style>
+    <div class="content">
+        <!-- Start Content-->
+        <div class="container-fluid">
+            <!-- start page title -->
+           
+            <!-- end page title -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-12 d-flex">
+                                    <ul class="col-12 nav nav-tabs nav-bordered">
+                                        <li class="nav-item">
+                                            <a id="sala_general-tab" data-bs-toggle="tab" aria-expanded="false" 
+                                               class="nav-link mx-0 px-2"
+                                               aria-controls="sala_general" aria-selected="false"
+                                               onclick="regresar_sala_general()">
+                                               <i class="fa fa-check-square-o"></i>
+                                               Salas
+                                            </a>
+                                        </li>
+                                        {% for sala in catalogos_salas %}
+                                            <li class="nav-item">
+                                                <a id="sala_{{sala.id}}-tab" data-bs-toggle="tab" aria-expanded="false" 
+                                                    class="nav-link d-flex mx-0 px-2"
+                                                    aria-controls="sala_{{sala.id}}" aria-selected="false"
+                                                    onclick="cambio_sala_tab('{{sala.id}}')">
+                                                    <i class="fa fa-check-square-o"></i>
+                                                    <span style="margin-right: 10px;"  title="{{sala.detalle_descripcion}}"
+                                                    data-plugin="tippy">{{ sala.descripcion }}</span>
+                                                    <div class="{{ sala.color_name }}  rounded mt-1 " style=" width: 10px; height: 8px; margin-right: 10px;"></div>                                                         
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                        <button class="btn waves-effect gris-oscuro fondo-boton mx-0 px-2" id="btn-new-event">
+                                            <i class="fas fa-plus" ></i> Evento
+                                        </button>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div id="external-events">
+                                        <form id="frm-filtro_salas">
+                                            {% csrf_token %}
+                                            <div class="mb-1 d-flex flex-row-reverse">
+                                                <div class="col-md-11 " style="font-size: 50px; ">
+                                                    <input type="hidden" name="filter-salas" id="filter-salas">
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <div class="col-lg-12 d-flex ">
+                                            <p class="etiqueta-combo" style="font-size: 12px; margin-left: 3px; margin-top: -6px; letter-spacing: 1px;">Categorias:</p><!--margin-top: 20px;-->
+                                            {% for categoria_color in categorias  %}
+                                                <div class=" col-8 d-flex  " style="margin-left: 10px;">
+                                                    <ul class="m-0 p-0 ">
+                                                        <li class=" col-12"  style="font-size: 11px; list-style: none; letter-spacing: 1px;">{{categoria_color.descripcion}}  </li>
+                                                    </ul>
+                                                    <div class="  text-end" style="  height: 10px;">
+                                                        <div class="{{ categoria_color.color }}  rounded" style="margin-left: 10px; margin-top: 3px; width: 20px; height: 8px;"></div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <!-- <br> -->
+                                        <!-- <div class="col-md-11 mx-auto">
+                                            <button class="btn btn-outline-secondary waves-effect gris-oscuro gris-oscuro w-100 mx-auto" id="btn-new-event">
+                                                <i class="fas fa-plus" ></i> Crear Evento
+                                            </button>
+                                        </div> -->
+                                    </div>
+                                </div> <!-- end col-->
+                                <div class="col-lg-12 mt-1">
+                                    <div id="calendar" ></div>
+                                </div> <!-- end col -->
+                            </div>  <!-- end row -->
+                        </div> <!-- end card body-->
+                    </div> <!-- end card -->
+                    <!-- Add New Event MODAL -->
+                    <div class="modal fade" id="event-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Reuniones</h4>
+                                    <button type="button" class="btn waves-effect gris-oscuro fondo-boton close" data-bs-dismiss="modal" style="font-size: 11pt;" aria-label="Close">
+                                        <span aria-hidden="true" style="font-size: 11pt; font-weight: bold;">&times;</span> Cerrar
+                                    </button>
+                                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"> Cerrar</button> -->
+                                </div>
+                                <div class="modal-body px-4 pb-4 pt-0">
+                                    <form class="needs-validation panel" name="event-form" id="form-event" enctype="multipart/form-data" novalidate>                                    
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id_evento" id="id_evento">
+                                        <input type="hidden" name="capacidad_personas_sala" id="capacidad_personas_sala">
+                                        <div class="row">
+                                            <div class="col px-4">
+                                                <div class="form-floating">
+                                                    <input name="event-title" id="event-title" type="text" class="float-label form-control input-rec write_evento crear-event" maxlength="255" placeholder="Nombre Evento" required />
+                                                    <div class="invalid-feedback">Proporcione un nombre de evento válido</div>
+                                                    <label class="write_evento" for="event-title">Evento</label>
+                                                </div>
+                                                <label class="read_evento" for="read-evento">Evento<b><p id="read-evento"></p></b></label>
+                                                <small id="emailHelp" class="form-text text-muted pull-right m-0 p-0 mt-1">**Reunión para un máximo de <b id="alerta_total_personas_reunion">{% if obj_sala_default %}{{ obj_sala_default.capacidad_sala }}{% endif %} personas.</b></small>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4">
+                                                <div class="form-floating">
+                                                    <textarea class="form-control input-area-rec float-label write_evento crear-event" cols="2" rows="2" placeholder="Descripción del evento" name="descripcion_evento" id="descripcion_evento" maxlength="500"></textarea>
+                                                    <label class="form-label write_evento" for="descripcion_evento">Descripción del evento</label>
+                                                </div>
+                                                <label class="read_evento" for="read-desc_evento">Descripción del evento <b><p id="read-desc_evento"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row px-3">
+                                            <div class="col">
+                                                <label class="etiqueta-combo write_evento mrgn3BT" for="categoria">Categoría</label>
+                                                <select id="categoria" name="categoria" class="form-control selectize-select selectized write_evento" placeholder="Categoría del evento" required>
+                                                    <!-- <option value="">Categoría del evento</option> -->
+                                                    {% for categoria in categorias %}    
+                                                        <option value="{{ categoria.id }}">{{categoria.descripcion}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Seleccione una categoría de evento válida</div>
+                                                <label class="form-label read_evento" for="categoria">Categoría <b><p id="read-categoria"></p></b></label>
+                                            </div>
+                                            <div class="col">
+                                                <label class="etiqueta-combo write_evento mrgn3BT" for="responsable_reunion">Responsable de la reunión</label>
+                                                <select id="responsable_reunion" name="responsable_reunion" class="form-control selectize-select selectized write_evento" placeholder="Responsable de la reunión" onchange="buscar_correo_notificacion()" required>
+                                                    <!-- <option value="0">------------------</option> -->
+                                                    {% for usuario in usuarios %}    
+                                                        <option value="{{ usuario.id }}">{{usuario.get_full_name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">Proporcione un responsable del evento</div>
+                                                <label class="form-label read_evento" for="read-responsable_reunion">Responsable del evento<b><p id="read-responsable_reunion"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2 read_evento">
+                                            <div class="col px-4">
+                                                <label class="form-label">Cuándo</label>
+                                                <b><p><span id="read-dia_fecha_reunion"></span>&nbsp;&nbsp;<span id="read-fecha_reunion"></span>&nbsp;&nbsp;de&nbsp;&nbsp;<span id="read-horario_inicio"></span>&nbsp;&nbsp;a&nbsp;&nbsp;<span id="read-horario_final"></span>&nbsp;(Hora central - Ciudad de México)</p></b>
+                                            </div>
+                                            <!-- Vista de lectura componentes horario -->
+                                            <!-- <div class="col-md-12">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" style="margin-left: 35px;">Fecha</label>
+                                                        <div style="margin-left: 32px;"><b><p id="read-fecha_reunion"></p></b></div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" style="margin-left: 17px;">Horario</label>
+                                                        <div class="row">
+                                                            <div class="col-md-4" style="margin-left: 16px;">
+                                                                <div class="read_evento"><b><p id="read-horario_inicio"></p></b></div>
+                                                            </div>
+                                                            <div class="col-md-2"><span> a </span></div>
+                                                            <div class="col-md-4">
+                                                                <div class="read_evento"><b><p id="read-horario_final"></p></b></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <div class="row mb-1 write_evento px-3">
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" id="fecha_reunion" class="form-control input-rec write_evento" placeholder="fecha de reunión" name="fecha_reunion" required>
+                                                    <label for="fecha_reunion">Fecha inicio</label>
+                                                    <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <br>
+                                                <select name="hora_inicio" id="hora_inicio" class="form-control selectize-select mx-auto selectized write_evento" placeholder="Hora inicio" required>
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <br>
+                                                <select name="hora_final" id="hora_final" class="form-control selectize-select mx-auto selectized write_evento" placeholder="Hora inicio">
+                                                    <!-- <option value="">Hora fin</option> -->
+                                                    {% for horas in horas_disponibles %}
+                                                        <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-floating">
+                                                    <input type="text" id="fecha_reunion_fin" class="form-control input-rec write_evento" name="fecha_reunion_fin" placeholder="Fecha fin" required>
+                                                    <label for="fecha_reunion">Fecha fin</label>
+                                                    <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                </div>
+                                            </div>
+                                            <!-- Vista de lectura componentes horario -->
+                                            <!-- <div class="col-12 d-flex mx-auto write_evento"><label class="form-label" style="font-size: 12px;margin-left: 35px;">Horario</label></div> -->
+                                            <!-- <div class="col-12 mb-3 d-flex">
+                                                <div class="d-inline" style="margin-left: 30px;">
+                                                    <div class="form-floating">
+                                                        <input type="text" id="fecha_reunion" class="form-control input-rec write_evento" name="fecha_reunion"  style="max-width: 85%; text-align: center;" required>
+                                                        <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                        <label for="fecha_reunion">Fecha inicio de reunión</label>
+                                                    </div>
+                                                </div>
+                                                <div class="d-inline" style="margin-right: 30px;width: 111px;">
+                                                    <div class="form-floating">
+                                                        <select name="hora_inicio" id="hora_inicio" class="form-control selectize-select mx-auto selectized write_evento" required>
+                                                            <option value="">Hora inicio</option>
+                                                            {% for horas in horas_disponibles %}
+                                                                <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <label for="hora_final">Hora fin</label>
+                                                    </div>
+                                                </div>
+                                                <span class="d-inline m-1 write_evento"> a </span>
+                                                <div class="d-inline" style="margin-left: 33px;width: 111px;">
+                                                    <div class="form-floating">
+                                                        <select name="hora_final" id="hora_final" class="form-control selectize-select mx-auto selectized write_evento">
+                                                            <option value="">Hora fin</option>
+                                                            {% for horas in horas_disponibles %}
+                                                                <option value="{{ horas.value }}">{{ horas.hora }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        <label for="hora_final">Hora fin</label>
+                                                    </div>
+                                                </div>
+                                                <div class="mx-auto">
+                                                    <div class="form-floating">
+                                                        <input type="text"  id="fecha_reunion_fin" class="form-control input-rec write_evento crear-event" name="fecha_reunion_fin" style="max-width: 85%; text-align: center;" required>
+                                                        <div class="invalid-feedback">Seleccione una fecha válida </div>
+                                                        <label for="fecha_reunion_fin">Fecha fin de reunión</label>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <div class="row mb-1 px-3">
+                                            <div class="col-3">
+                                                <br class="write_evento">
+                                                <div class="form-check">
+                                                    <input class="form-check-input " type="checkbox" id="requiere_coffe_break" name="requiere_coffe_break">
+                                                    <label class="form-check-label" style="margin-left: 5px;" for="requiere_coffe_break">
+                                                        Coffe break&nbsp;&nbsp;<span class="vista-requiere_coffe_break"> para</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-3 vista-requiere_coffe_break">
+                                                <!-- <div class="form-floating d-flex"> -->
+                                                <input name="total_participantes" id="total_participantes" type="number" class="float-label form-control input-rec write_evento d-inline text-center mw-50" value="0" placeholder="No. participantes" min="0" step="1" oninput="this.value = !!this.value && Math.abs(this.value) >= 0 ? Math.abs(this.value) : null" /><i class="fas fa-users ml-1 write_evento"></i>
+                                                <div class="invalid-feedback">El total de participantes debe ser mayor a cero</div>
+                                                <label class="write_evento" for="event-title"></label>
+                                                <!-- </div> -->
+                                                <label class="read_evento" for="read-total_participantes"><b><p id="read-total_participantes"></p></b></label>
+                                            </div>
+                                            <div class="col-6 vista-msj_noti_reuniones d-none">
+                                                <small id="emailHelp" class="form-text text-muted">Nota: Se enviará correo a la dirección <b><span id="correo_noti_coffe_break"></span></b> notificando la solicitud del coffe break conforme a los detalles del evento.</small>
+                                            </div>
+                                            <div id="vista_sala_cambio_sala" class="col-6 d-none">
+                                                <div class="form-floating mb-2">
+                                                    <select name="slct_cambio_sala" id="slct_cambio_sala" class="form-control selectize-select selectized write_evento">
+                                                        {% for salas in catalogos_salas %}
+                                                            <option value="{{ salas.id }}" style="letter-spacing: 1px;">{{ salas.descripcion }} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <label class="form-label write_evento" for="slct_cambio_sala">Sala</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4 vista-requiere_coffe_break">
+                                                <div class="form-floating">
+                                                    <textarea class="form-control input-area-rec float-label write_evento crear-event" cols="2" rows="2" placeholder="Detalle del coffe break" name="detalles_coffe_break" id="detalles_coffe_break" maxlength="500"></textarea>
+                                                    <label class="write_evento" for="detalles_coffe_break">Detalles del coffe break</label>
+                                                </div>
+                                                <label class="read_evento" for="detalles_coffe_break">Detalles del coffe break <b><p id="read-detalles_coffe_break"></p></b></label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col px-4">
+                                                <label class="form-label" style="font-size: 12px;">
+                                                    Participantes&nbsp;&nbsp;/&nbsp;&nbsp;<a id="btn-descargar-listado-asistencia" target="_blank">Descargar lista de asistencia</a>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2 write_evento px-3">
+                                            <div class="col-6">
+                                                <div class="form-floating">
+                                                    <input type="text" class="float-label form-control input-rec" placeholder="Nombre participante" name="participante_nombre" id="participante_nombre" maxlength="500" onblur="set_init_position_text(this)" />
+                                                    <label class="form-label" for="participante_nombre">Nombre</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="form-floating">
+                                                    <input type="text" class="float-label form-control input-rec" placeholder="Correo participante" name="participante_correo" id="participante_correo" maxlength="500" />
+                                                    <label class="form-label" for="participante_correo">Correo electrónico</label>
+                                                </div>
+                                            </div>
+                                            <div class="col text-left">
+                                                <br>
+                                                <!-- <button id="btnAgregarParticipante" type="button" class="btn border-bottom waves-effect gris-oscuro write_evento crear-event">
+                                                    <i class="far fa-user-plus me-2 text-muted font-18 vertical-middle"></i> Agregar
+                                                </button> -->
+                                                <button type="button" class="btn waves-effect gris-oscuro w-100 fondo-boton mx-auto" style="font-size: 9pt;" id="btnAgregarParticipante">
+                                                    <i class="fas fa-plus"></i> Agregar
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col px-4">
+                                                <div class="table-responsive">
+                                                    <table id="tblParticipantes" class="table table-hover m-0 table-centered nowrap w-100 table-sm" width="100%">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="all" style="border: none;">#</th>
+                                                                <th class="all" style="border: none;">NOMBRE</th>
+                                                                <th class="all" style="border: none;">CORREO ELECTRÓNICO</th>
+                                                                <th class="all" style="border: none;">ACCIONES</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12 text-end">
+                                                <button type="submit" class="btn waves-effect gris-oscuro fondo-boton mx-auto" id="btn-save-event">
+                                                    <img class="loading-indicator" src="{% static 'images/loader-dark.gif' %}" style="width: 20px; display: none">
+                                                    <i class="far fa-calendar-check mr-2" aria-hidden="true"></i> Guardar Evento
+                                                </button>
+                                                <button type="button" class="btn waves-effect gris-oscuro fondo-boton mx-auto" id="btn-delete-event">
+                                                    <i class="far fa-calendar-times mr-2"></i> Eliminar evento
+                                                </button>
+                                                <button type="button" class="btn waves-effect gris-oscuro fondo-boton mx-auto" id="btn-edit-event">
+                                                    <i class="fas fa-angle-right mr-2"></i> Editar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <form id="frm-buscar_evento">{% csrf_token %}</form>
+                                </div>
+                            </div> <!-- end modal-content-->
+                        </div> <!-- end modal dialog-->
+                    </div> <!-- end modal-->
+                </div> <!-- end col-12 -->
+            </div> <!-- end row -->
+        </div> <!-- container -->
+    </div> <!-- content -->
+    <style>
+        .fc-header-toolbar{
+            font-size: 10px !important;
+        }
+
+        .fc-header-toolbar button{
+           
+            background: none !important;
+            color: #0e3627 !important;
+            border: none !important;
+            font-weight: 900 !important;
+            font-size: 14px !important;
+        }
+
+        .fc-header-toolbar button:hover{
+            background-color: rgb(66, 66, 66) !important;
+            color: white !important;
+        }
+
+        .fc-col-header-cell a{
+            color: black;
+        }
+
+        .fc-daygrid-day-top a{
+            color: rgb(73, 70, 69);
+        }
+
+        .eventos{
+            background: none;
+            border: #44CF9C;
+        }
+        #calendar {
+            max-width: 1100px;
+            /* margin: 40px auto; */
+        }
+
+        .hov:hover{
+            background-color: #EBEBEB;
+        }
+
+        .d-none
+        {
+            display: none;
+        }
+        
+        .fc .fc-button:hover, .fc .fc-list-event-title a, a.fc-event, a.fc-event:hover {
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .underline:hover{
+            border-bottom: 1px solid rgb(71, 70, 70);
+        }
+    </style>
+{% endblock content %}
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'assets/libs/fullcalendar/main.min.js' %} "></script>
+
+    <script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+    <script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+    <script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js' %}"></script>
+    <script src="{% static 'assets/libs/devbridge-autocomplete/jquery.autocomplete.min.js' %}"></script>
+
+    <!-- Calendar init -->
+    <script src="{% static 'assets/libs/fullcalendar/locales-all.min.js' %} "></script>
+    <script src="{% static 'assets/libs/fullcalendar/locales/es.js' %} "></script>
+    <script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+
+    <!-- Init js-->
+    <script src="{% static 'assets/js/pages/form-pickers.init.js' %}"></script>
+
+    <!-- App js -->
+    <script src="{% static 'assets/js/app.min.js' %}"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Datatable-Jquery -->
+    <script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+    <script src="{% static 'custom/js/render-table.js' %}"></script>
+    <!-- blockUI -->
+    <script type="text/javascript" src="{% static 'assets/libs/blockUI/jquery.blockUI.js' %}"></script>
+    <!-- functions general -->
+    <script src="{% static 'custom/js/functions.js' %}"></script>
+    
+    <script type="text/javascript">
+        // Constantes Plugin SweetAlert2
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-outline-secondary waves-effect gris-oscuro',
+                cancelButton: 'btn btn-outline-secondary waves-effect gris-oscuro'
+            },
+            buttonsStyling: false
+        })
+        // Variable contenedora de  la instancia del calendario
+        var calendarObj = null;
+
+        // Se inicializan los componentes select del modal
+        var select_hora_final = $("#hora_final").selectize();
+        var selectize_hora_fin = select_hora_final[0].selectize;
+        
+        var select_horal_ini = $("#hora_inicio").selectize();
+        var selectize_hora_ini = select_horal_ini[0].selectize;
+
+        var select_categoria = $("#categoria").selectize();
+        var selectize_categoria = select_categoria[0].selectize;
+
+        var select_reponsable_reunion = $("#responsable_reunion").selectize();
+        var selectize_responsable_reunion = select_reponsable_reunion[0].selectize;
+
+        var select_cambio_sala = $("#slct_cambio_sala").selectize();
+        var selectize_cambio_sala = select_cambio_sala[0].selectize;
+
+        var days_week = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+        // Se inicializan las variables goblalmente de las acciones que puede realizar el usuario con sesión
+        // Cada campo recibe una bandera donde:
+        // 1: Puede realizar la acción
+        // 0: No puede realizar la acción
+        var accion_agregar = {{accion_agregar}};
+        var accion_cambiar_horario = {{accion_cambiar_horario}};
+        var accion_eliminar = {{accion_eliminar}};
+
+        var usuarios_activos = [
+            {% for usuario in usuarios %}
+                {
+                    value: "{{usuario.get_full_name}}",
+                    data: "{{usuario.id}}",
+                },
+            {% endfor %}
+        ]
+
+        var mes_anyos = ["mes","Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        // Se inicializa en vacío los datos de los participantes
+        // Recibe json:
+        // [{"nombre": "usuario", "correo": "correo@dominio.com"},{...}]
+        var dataSet = [];
+        $(document).ready(function() {
+		    $('.sp_date').hide();
+            // se oculta la alerta
+            $('.alert-success').fadeOut(6000);
+
+            // Ocultar label modal consulta
+            $(".read_evento").addClass("d-none");
+
+            // Inicializar la variable en true para ver las columnas
+            sessionStorage.setItem('col_visible', "visible");
+            sessionStorage.setItem("leyenda_requiere_coffe_break", "mostrar");
+
+            // Se ocultan los botones de cambiar horario y descarga de listado de asistencia al cargar la pág
+            $('#btn-edit-event').hide();
+            $("#btn-descargar-listado-asistencia").hide();
+
+            if(accion_agregar == 0)
+            {
+                $('#btn-new-event').hide();
+                $('#btn-save-event').hide();
+            }
+
+            if(accion_cambiar_horario == 0)
+            {
+                $('#btn-edit-event').hide();
+            }
+
+            if(accion_eliminar == 0)
+            {
+                $('#btn-delete-event').hide();
+            }
+
+            $("#participante_nombre").autocomplete({
+                lookup: usuarios_activos,
+                onSelect: function(suggestion) {
+                    let formulario = document.getElementById("frm-buscar_evento");
+                    let fd = new FormData(formulario);
+                    fd.append("id_usuario", suggestion.data);
+
+                    $.ajax({
+                        url: "{% url 'sala_app:buscar-correo-usuario' %}",
+                        type: "POST",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            if (!result.error)
+                            {
+                                $("#participante_correo").val(result.data);
+                            }
+                            else
+                                return toastr.error(result.msj);
+                        },
+                        error: function (error) {
+                            toastr.error(error);
+                        }
+                    });
+                },
+                onSearchComplete: function(query, suggestions) {
+                    if (!suggestions.length) {
+                        $("#participante_correo").val("");
+                    }
+                }
+            })
+
+            // Inicialización del calendario
+            !function (l) {
+            'use strict';
+            function e() {
+                this.$body = l('body'),
+                this.$modal = l('#event-modal'),
+                this.$calendar = l('#calendar'),
+                this.$formEvent = l('#form-event'),
+                this.$btnNewEvent = l('#btn-new-event'),
+                this.$btnEditEvent = l('#btn-edit-event'),
+                this.$btnDeleteEvent = l('#btn-delete-event'),
+                this.$btnSaveEvent = l('#btn-save-event'),
+                this.$modalTitle = l('#modal-title'),
+                // this.$calendarObj = null, // Se coloco la variable del calendario de manera global
+                this.$selectedEvent = null,
+                this.$newEventData = null
+            }
+            e.prototype.onEventClick = function (e) {
+                // Se valida si el usuario puede cambiar de horario
+                if(accion_eliminar == 1)
+                {
+                    $('#btn-delete-event').show();
+                }
+                this.$formEvent[0].reset(),
+                this.$formEvent.removeClass('was-validated'),
+                this.$newEventData = null,
+                // this.$btnDeleteEvent.show(),
+                this.$modalTitle.text('Edit Event'),
+                this.$modal.show(),
+                this.$btnSaveEvent.show(),
+                this.$selectedEvent = e.event,
+                l('#event-title').val(this.$selectedEvent.title),
+                this.$btnEditEvent.hide(),
+                l('#event-category').val(this.$selectedEvent.classNames[0]);
+
+                // Oculta la vista del campo de detalles de coffe break
+                if (!$(".vista-requiere_coffe_break").hasClass("d-none"))
+                {
+                    $(".vista-msj_coffe_break").addClass("d-none");
+                    $(".vista-requiere_coffe_break").addClass("d-none");
+                }
+
+                // Si se tiene un valor mayor a cero en el campo id del evento se refiere a un evento ya captura de lo contrario es un nuevo evento
+                if(this.$selectedEvent.id > 0)
+                {
+                    if(accion_cambiar_horario == 1)
+                    {
+                        $('#btn-edit-event').show();
+                        $("#btn-delete-event").show();
+                    }
+                    // this.$btnEditEvent.show();
+                    // ocultamos el botón de guardar
+                    $('#btn-save-event').hide();
+
+                    var a = document.getElementById('btn-descargar-listado-asistencia');
+                    let evento = this.$selectedEvent.id.toString();
+                    let url = '/descargarListadoAsist-reuniones/' + evento;
+                    a.setAttribute("href", url);
+
+                    // Ocultan componentes a modo consulta
+                    $(".write_evento").removeClass("d-none");
+                    $(".read_evento").removeClass("d-none");
+
+                    $(".write_evento").addClass("d-none");
+
+                    // Inhabilita el check de requiere coffe break para evitar ser seleccionado.
+                    document.getElementById("requiere_coffe_break").disabled = true;
+
+                    let formulario = document.getElementById("frm-buscar_evento");
+                    let fd = new FormData(formulario);
+                    fd.append("id_evento", this.$selectedEvent.id);
+
+                    $.ajax({
+                        url: "{% url 'sala_app:buscar-reuniones' %}",
+                        type: "POST",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            if (!result.error)
+                            {
+                                document.getElementById("read-evento").innerText = result.data.evento.toUpperCase();
+                                document.getElementById("read-categoria").innerText = result.data.categoria.toUpperCase();
+
+                                let desc_evento = "Sin descripción";
+                                if(result.data.descripcion_evento != "" && result.data.descripcion_evento != null)
+                                {
+                                    desc_evento = result.data.descripcion_evento;
+                                }
+                                
+                                let a_fecha_reunion = result.data.fecha_reunion.split("/");
+                                let mes = get_name_month(a_fecha_reunion[1] - 0);
+                                let res_fecha_reunion = a_fecha_reunion[0] + " de " + mes + " del " + a_fecha_reunion[2];
+                                
+                                document.getElementById("read-dia_fecha_reunion").innerText = get_name_day_by_date(result.data.fecha_reunion_formato);
+                                document.getElementById("read-horario_inicio").innerText = get_formato_hora_larga(result.data.hora_ini_reunion);
+                                document.getElementById("read-horario_final").innerText = get_formato_hora_larga(result.data.hora_fin_reunion);
+                                document.getElementById("read-fecha_reunion").innerText = res_fecha_reunion;
+                                document.getElementById("read-desc_evento").innerText = desc_evento;
+                                document.getElementById("read-responsable_reunion").innerText = result.data.responsable_reunion.toUpperCase();
+                                document.getElementById('read-total_participantes').innerText = result.data.total_participantes + " personas";
+
+                                // Valiamos si se tiene algo en el campo de detalles coffe break
+                                let detalles_coffe_break = "Sin detalles del coffe break";
+                                if(result.data.detalles_coffe_break != "" && result.data.detalles_coffe_break != null)
+                                {
+                                    detalles_coffe_break = result.data.detalles_coffe_break;
+                                }
+
+                                document.getElementById('read-detalles_coffe_break').innerText = detalles_coffe_break;
+
+                                if(result.data.requiere_coffe_break)
+                                {
+                                    // Activamos el check de requiere coffe break
+                                    // $("#requiere_coffe_break").prop("checked", true);
+                                    // Mostramos el campo del detalle de coffe break
+                                    $(".vista-requiere_coffe_break").removeClass("d-none");
+                                    $(".vista-msj_coffe_break").removeClass("d-none");
+                                }
+                                else
+                                {
+                                    // Desactivamos el check de requiere coffe break
+                                    // $("#requiere_coffe_break").prop("checked", false);
+
+                                    // Oculta la vista del campo de detalles de coffe break
+                                    if (!$(".vista-requiere_coffe_break").hasClass("d-none"))
+                                    {
+                                        $(".vista-requiere_coffe_break").addClass("d-none");
+                                        $(".vista-msj_coffe_break").addClass("d-none");
+                                    }
+                                }
+
+                                // Le agregamos la opción de acción al json con el listado de participantes
+                                // Donde si el valor de la columna de acciones es cero no puede editar y es
+                                // una vista de solo lectura
+                                let consecutivo = 1;
+                                result.listado_participantes.forEach(function (element) {
+                                    element.consecutivo = consecutivo;
+                                    element.acciones = 0;
+                                    consecutivo += 1;
+                                })
+
+                                // Seteamos la variable de json global que tiene el listado de participantes
+                                dataSet = result.listado_participantes;
+
+                                // Llamamos la función que actualiza el listado de participantes
+                                cargar_datos_participantes();
+                                sessionStorage.col_visible = "no-visible";
+
+                                // Llamamos a la función que valida si conforme a la fecha y hora es posible editar o eliminar el evento
+                                if(!validar_fecha_hora(result.data.fecha_reunion_formato, result.data.hora_ini_reunion))
+                                {
+                                    $("#btn-edit-event").hide();
+                                    $("#btn-delete-event").hide();
+                                }
+
+                                // Validar si el usuario puede ver el botón de descarga lista de participantes
+                                if(result.vista_listado_participantes)
+                                {
+                                    $("#btn-descargar-listado-asistencia").show();
+                                }
+                            }
+                            else
+                                return toastr.error(result.msj);
+                        },
+                        error: function (error) {
+                            toastr.error(error);
+                        }
+                    });
+                }
+            },
+            e.prototype.onSelect = function (e) {
+                // Oculta la vista del campo de detalles de coffe break
+                if (!$(".vista-requiere_coffe_break").hasClass("d-none"))
+                {
+                    $(".vista-msj_coffe_break").addClass("d-none");
+                    $(".vista-requiere_coffe_break").addClass("d-none");
+                }
+
+                // Se valida si el usuario tiene permiso de agregar un nuevo evento
+                if (accion_agregar == 1)
+                {
+                    this.$formEvent[0].reset(),
+                    this.$formEvent.removeClass('was-validated'),
+                    this.$selectedEvent = null,
+                    this.$newEventData = e,
+                    this.$btnDeleteEvent.hide(),
+                    this.$modalTitle.text('Add New Event'),
+                    this.$modal.show(),
+                    calendarObj.unselect()
+                }
+            },
+            e.prototype.init = function () {
+                this.$modal = new bootstrap.Modal(document.getElementById('event-modal'), {
+                    keyboard: !1
+                });
+                var e = new Date(l.now());
+                new FullCalendar.Draggable(document.getElementById('external-events'), {
+                    itemSelector: '.external-event',
+                    eventData: function (e) {
+                        return {
+                        title: e.innerText,
+                        className: l(e).data('class')
+                        }
+                    }
+                });
+                var t = [
+                {
+                    title: 'Meeting with Mr. Shreyu',
+                    start: new Date(l.now() + 158000000),
+                    end: new Date(l.now() + 338000000),
+                    className: 'bg-warning'
+                },
+                {
+                    title: 'Interview - Backend Engineer',
+                    start: e,
+                    end: e,
+                    className: 'bg-success'
+                },
+                {
+                    title: 'Phone Screen - Frontend Engineer',
+                    start: new Date(l.now() + 168000000),
+                    className: 'bg-info'
+                },
+                {
+                    title: 'Buy Design Assets',
+                    start: new Date(l.now() + 338000000),
+                    end: new Date(l.now() + 405600000),
+                    className: 'bg-primary'
+                }
+                ],
+                a = this;
+                calendarObj = new FullCalendar.Calendar(a.$calendar[0], {
+                    locale: "es",
+                    weekends: false,
+                    allDaySlot: false,
+                    slotDuration: '00:30:00',
+                    slotMinTime: '08:30:00',
+                    slotMaxTime: '23:00:00',
+                    slotLabelFormat: {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        omitZeroMinute: false,
+                        meridiem: 'short',
+                        // weekday: 'long'
+                    },
+                    columnHeaderFormat: {
+                        weekday: 'long'
+                    },
+                    titleFormat: { 
+                        month: 'long',
+                        year: 'numeric',
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    },
+                    views: {
+                        timeGridFourDay: {
+                            type: 'timeGrid',
+                            duration: { 
+                                days: 4 
+                            },
+                            buttonText: '4 day'
+                        }
+                    },
+                    // themeSystem: 'bootstrap',
+                    bootstrapFontAwesome: !1,
+                    initialView: 'timeGridWeek',
+                    handleWindowResize: !0,
+                    height: $(window).height() - 200,
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    customButtons: {
+                        prev: {
+                            text: 'Prev',
+                            click: function() {
+
+                                cambio_sala("prev");
+                            }
+                        },
+                        next: {
+                            text: 'Next',
+                            click: function() {
+                                
+                                cambio_sala("next");
+                            }
+                        },
+                    },
+                    initialEvents: t,
+                    editable: !1, 
+                    droppable: !0,
+                    selectable: !0,
+                    dateClick: function (e) {
+                        a.onSelect(e)
+                    },
+                    eventClick: function (e) {
+                        a.onEventClick(e)
+                    }
+                }),
+                calendarObj.render(),
+                a.$btnNewEvent.on('click', function (e) {
+                    a.onSelect({
+                        date: new Date,
+                        allDay: !0
+                    })
+                }),
+                a.$formEvent.on('submit', function (e) {
+                e.preventDefault();
+                var t = a.$formEvent[0];
+                if (t.checkValidity()) {
+
+                    let a_fecha_reunion_fin = $("#fecha_reunion_fin").val().split(",");
+                    let mes_fecha_fin = get_value_month(a_fecha_reunion_fin[1].trim());
+                    let fecha_reunion_fin = a_fecha_reunion_fin[2].trim() + "-" + mes_fecha_fin + "-" + a_fecha_reunion_fin[0].trim();
+
+                    let a_fecha_reunion = $("#fecha_reunion").val().split(",");
+                    let mes_fecha_reunion = get_value_month(a_fecha_reunion[1].trim());
+                    let fecha_reunion = a_fecha_reunion[2].trim() + "-" + mes_fecha_reunion + "-" + a_fecha_reunion[0].trim();
+
+                    if(dataSet.length <= 0)
+                        return toastr.error("Debe agregar al menos un participante a la reunión");
+
+                    if($("#categoria").val() == 0)
+                        return toastr.error("Debe seleccionar una categoría");
+
+                    if($("#responsable_reunion").val() == 0)
+                        return toastr.error("Debe seleccionar un usuario responsable");
+
+                    if($("#hora_inicio").val() == 0)
+                        return toastr.error("Debe seleccionar una hora de inicio de la reunión");
+
+                    if($("#hora_final").val() == 0)
+                        return toastr.error("Debe seleccionar una hora de fin de la reunión");
+
+                    let diferencia_dias = get_total_days(fecha_reunion, fecha_reunion_fin);
+                    diferencia_dias += 1;
+
+                    let last_lap = diferencia_dias - 1;
+
+                    let base_fecha_reunion_ini = fecha_reunion;
+                    let base_fecha_reunion_fin = fecha_reunion_fin;
+
+                    for (let index = 0; index < diferencia_dias; index++) {
+                        if (index > 0)
+                        {
+                            fecha_reunion = sumarDias(base_fecha_reunion_ini, index + 1);
+                            fecha_reunion_fin = sumarDias(base_fecha_reunion_fin, index + 1);
+                        }
+                        // console.log(fecha_reunion);
+                    
+                        if(!validar_fecha_hora(fecha_reunion, $("#hora_inicio").val()))
+                        {
+                            toastr.error("Horario no disponible (" + fecha_reunion + ", " + $("#hora_inicio").val() + " a " + $("#hora_final").val() + ")");
+                        }
+                        else
+                        {
+                            let formulario = document.getElementById("form-event");
+                            let fd = new FormData(formulario);
+                            fd.append("filter-salas", $("#filter-salas").val());
+                            fd.append("listado_participantes", JSON.stringify(dataSet));
+
+                            fd.append("fecha_ini_reunion", fecha_reunion);
+                            fd.append("fecha_fin_reunion", fecha_reunion_fin);
+
+                            // Se bloquea el formulario donde será enviado la información para evitar cualquier cambio durante el envío de la  info
+                            blockInteraction("btn-save-event");
+
+                            $.ajax({
+                                url: "{% url 'sala_app:crear-reuniones' %}",
+                                type: "POST",
+                                data: fd,
+                                processData: false,
+                                contentType: false,
+                                success: function (result) {
+                                    if (!result.error)
+                                    {
+                                        if ($("#filter-salas").val() == $("#slct_cambio_sala").val())
+                                        {
+                                            calendarObj.addEvent({
+                                                id: result.data.id,
+                                                title: $("#event-title").val(),
+                                                start: new Date($("#fecha_reunion").val() + " " + $("#hora_inicio").val() + ":00"),
+                                                end: new Date($("#fecha_reunion").val() + " " + $("#hora_final").val() + ":00"),
+                                                className: result.data.color_categoria
+                                            })
+
+                                            calendarObj.render();
+                                        }
+                                        else
+                                        {
+                                            a.$selectedEvent && (
+                                                a.$selectedEvent.remove(), 
+                                                a.$selectedEvent = null
+                                            )
+                                        }
+
+                                        if(last_lap == index)
+                                        {
+                                            // ocultamos el modal
+                                            a.$modal.hide();
+
+                                            // Desbloqueamos el formulario
+                                            unblockInteraction("btn-save-event");
+
+                                            // Actualizamos el calendario
+                                            cambio_sala();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        unblockInteraction("btn-save-event");
+                                        return toastr.error(result.msj);
+                                    }
+                                },
+                                error: function (error) {
+                                    unblockInteraction("btn-save-event");
+                                    toastr.error(error);
+                                }
+                            });
+                        }
+                    }
+                } else 
+                    e.stopPropagation(),
+                    t.classList.add('was-validated')
+                }),
+                l(a.$btnDeleteEvent.on('click', function (e) {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Seguro que desea eliminar el evento?',
+                        text: "¡Esta acción no podrá revertirse!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, adelante.',
+                        cancelButtonText: 'No, cancelar.',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let formulario = document.getElementById("frm-buscar_evento");
+                            let fd = new FormData(formulario);
+                            fd.append("id_evento", a.$selectedEvent.id);
+                            fd.append("filter-salas", $("#filter-salas").val());
+
+                            $.ajax({
+                                url: "{% url 'sala_app:eliminar-reuniones' %}",
+                                type: "POST",
+                                data: fd,
+                                processData: false,
+                                contentType: false,
+                                success: function (result) {
+                                    if (!result.error)
+                                    {
+                                        a.$selectedEvent && (
+                                            a.$selectedEvent.remove(), 
+                                            a.$selectedEvent = null, 
+                                            a.$modal.hide()
+                                        )
+                                        
+                                        return toastr.success("Registro eliminado correctamente");
+                                    }
+                                    else
+                                        return toastr.error(result.msj);
+                                },
+                                error: function (error) {
+                                    toastr.error(error);
+                                }
+                            });
+                        }
+                    })
+                })),
+                l(a.$btnEditEvent.on('click', function() {
+
+                    $("#id_evento").val(a.$selectedEvent.id);
+
+                    let formulario = document.getElementById("frm-buscar_evento");
+                    let fd = new FormData(formulario);
+                    fd.append("id_evento", a.$selectedEvent.id);
+                    fd.append("cambiar_horario", true);
+
+                    $.ajax({
+                        url: "{% url 'sala_app:buscar-reuniones' %}",
+                        type: "POST",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                            if (!result.error)
+                            {
+                                if(!validar_fecha_hora(result.data.fecha_reunion_formato, result.data.hora_ini_reunion))
+                                {
+                                    return toastr.error("No puede cambiar el horario de reunión que ya paso");
+                                }
+
+                                // ocultamos el botón 
+                                $("#btn-descargar-listado-asistencia").hide();
+
+                                $(".write_evento").removeClass("d-none");
+                                $(".read_evento").removeClass("d-none");
+                                $("#vista_sala_cambio_sala").removeClass("d-none");
+                                $(".vista-msj_coffe_break").addClass("d-none");
+
+                                // Mostrar todos componentes para cada campo
+                                $(".read_evento").addClass("d-none");
+
+                                selectize_categoria.setValue(result.data.categoria_id);
+                                selectize_responsable_reunion.setValue(result.data.usuario_responsable_id);
+                                selectize_hora_ini.setValue(result.data.hora_ini_reunion);
+                                selectize_hora_fin.setValue(result.data.hora_fin_reunion);
+                                $("#event-title").val(result.data.evento);
+                                $("#descripcion_evento").val(result.data.descripcion_evento);
+                                $("#total_participantes").val(result.data.total_participantes);
+                                $("#detalles_coffe_break").val(result.data.detalles_coffe_break);
+                                $("#fecha_reunion").val(covertir_fecha_formato_dia_mes_anyo(result.data.fecha_reunion_formato));
+                                $("#fecha_reunion_fin").val(covertir_fecha_formato_dia_mes_anyo(result.data.fecha_reunion_formato));
+
+                                $(".vista-requiere_coffe_break").removeClass("d-none");
+                                $(".vista-msj_coffe_break").removeClass("d-none");
+                                document.getElementById("requiere_coffe_break").disabled = false;
+                                
+                                if(result.data.requiere_coffe_break)
+                                {
+                                    // $("#requiere_coffe_break").prop("checked", true);
+                                    $(".vista-requiere_coffe_break").removeClass("d-none");
+                                    $(".vista-msj_coffe_break").removeClass("d-none");
+                                }
+                                else
+                                {
+                                    // $("#requiere_coffe_break").prop("checked", false);
+                                    $(".vista-requiere_coffe_break").addClass("d-none");
+                                    $(".vista-msj_coffe_break").addClass("d-none");
+                                }
+
+                                let consecutivo = 1;
+                                result.listado_participantes.forEach(function (element) {
+                                    element.consecutivo = consecutivo;
+                                    element.acciones = 1;
+                                    consecutivo += 1;
+                                })
+
+                                dataSet = result.listado_participantes;
+
+                                sessionStorage.col_visible = "visible";
+
+                                cargar_datos_participantes();
+
+                                // Ocultar y mostrar botones
+                                a.$btnSaveEvent.show(),
+                                a.$btnDeleteEvent.hide(),
+                                a.$btnEditEvent.hide();
+
+                                // Bandera para mostrar la leyenda del coffe break
+                                sessionStorage.setItem("leyenda_requiere_coffe_break", "No-mostrar");
+                                $(".vista-msj_coffe_break").addClass("d-none");
+                            }
+                            else
+                                return toastr.error(result.msj);
+                        },
+                        error: function (error) {
+                            toastr.error(error);
+                        }
+                    });
+                }))
+            },
+            l.CalendarApp = new e,
+            l.CalendarApp.Constructor = e
+            }(window.jQuery),
+            function () {
+                'use strict';
+                window.jQuery.CalendarApp.init()
+            }();
+
+            // Función para eliminar todos los eventos al calendario
+            calendarObj.removeAllEvents();
+            
+            {% if reuniones %}
+                {% for reunion in reuniones %}
+                    // Agregamos la capacidad de personas por sala
+                    $("#capacidad_personas_sala").val("{{ reunion.sala.capacidad_sala }}")
+                    // Agregar evento
+                    calendarObj.addEvent({
+                        id: "{{ reunion.id }}",
+                        title: "{{ reunion.evento }}",
+                        start: new Date("{{ reunion.fecha_hora_inicio_reunion }}"),
+                        end: new Date("{{ reunion.fecha_hora_fin_reunion }}"),
+                        className: "{{ reunion.categoria.color }}"
+                    })
+                {% endfor %}
+            {% endif %}
+
+            selectize_hora_fin.setValue(0);
+
+            selectize_hora_ini.setValue(0);
+
+            selectize_categoria.setValue(0);
+
+            selectize_responsable_reunion.setValue(0);
+
+            selectize_cambio_sala.setValue({{ sala_default }});
+
+            $("#fecha_reunion").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd, MM, yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $("#fecha_reunion_fin").datepicker({
+                language: 'es',    
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                todayBtn: true,
+                format: "dd, MM, yyyy",
+                startDate: new Date(),
+                daysOfWeekDisabled: "0,6",
+            });
+
+            $(".vista-requiere_coffe_break").addClass("d-none");
+            $(".vista-msj_coffe_break").addClass("d-none");
+
+            if(sessionStorage.getItem('hora_inicio') !== undefined && sessionStorage.getItem('hora_inicio'))
+            {
+                selectize_cambio_sala.setValue(sessionStorage.getItem('sala_reunion'));
+                $("#filter-salas").val(sessionStorage.getItem('sala_reunion'));
+
+                $('#btn-new-event').click();
+
+                selectize_hora_fin.setValue(sessionStorage.getItem('hora_final'));
+                selectize_hora_ini.setValue(sessionStorage.getItem('hora_inicio'));
+                $("#fecha_reunion").val(sessionStorage.getItem('fecha_reunion'));
+                $("#fecha_reunion_fin").val(sessionStorage.getItem('fecha_reunion'));
+            }
+
+            cambiar_tab("{{sala_default}}");
+        });
+
+        function set_init_position_text(input) {
+            input.setSelectionRange(0, 0);
+        }
+
+        /* Función que suma o resta días a una fecha, si el parámetro
+           días es negativo restará los días*/
+        function sumarDias(fecha, dias) {
+            let fecha_formato = new Date(fecha);
+            fecha_formato.setDate(fecha_formato.getDate() + dias);
+
+            let anio = fecha_formato.getFullYear();
+            let month = fecha_formato.getMonth() + 1;
+            let day = fecha_formato.getDate();
+
+            return anio + "-" + month.toString().padStart(2, '0') + "-" + day.toString().padStart(2, '0');
+        }
+
+        function get_total_days(fecha_reunion, fecha_reunion_fin)
+        {
+            let fecha_ini = new Date(fecha_reunion).getTime();
+            let fecha_fin = new Date(fecha_reunion_fin).getTime();
+            let diferencia = fecha_fin - fecha_ini;
+            return diferencia / (1000 * 60 * 60 * 24);
+        }
+
+        function get_name_day_by_date(date)
+        {
+            var d = new Date(date);
+            return days_week[d.getDay()];
+        }
+
+        function cambio_sala_tab(sala) {
+            // Actualizamos el valor de la sala
+            $("#filter-salas").val(sala);
+
+            // Se manda llamar al cambio de sala
+            cambio_sala();
+        }
+
+        function cambiar_tab(sala)
+        {
+            // Actualizamos el valor de la sala
+            $("#filter-salas").val(sala);
+            
+            $(".nav-link").removeClass("active");
+
+            $("#sala_" + sala +"-tab").addClass("active");
+        }
+
+        function deshabilitaRetroceso() {
+            window.location.hash="no-back-button";
+            window.location.hash="Again-No-back-button" //chrome
+            window.onhashchange=function(){window.location.hash="no-back-button";}
+        }
+
+        $("#total_participantes").on("change", function() {
+            if(parseInt($("#total_participantes").val()) > parseInt($("#capacidad_personas_sala").val()))
+            {
+                $("#total_participantes").val("0");
+                return toastr.error('El total de participantes ingresados esta excediendo la capacidad máxima de la sala');
+            }
+        })
+
+        function validar_fecha_hora(fecha_actual, hora_actual)
+        {
+            let respuesta = true;
+
+            var today = get_today();
+            if(today > fecha_actual)
+            {
+                respuesta = false;
+            }
+
+            if(today == fecha_actual)
+            {
+                let current_time = get_current_time();
+                let a_current_time = current_time.split(":");
+
+                let horario_ini = hora_actual;
+                let a_horario_ini = horario_ini.toString().split(":");
+
+                if (parseInt(a_current_time[0]) >= parseInt(a_horario_ini[0]) && parseInt(a_current_time[1]) > parseInt(a_horario_ini[1]))
+                {
+                    respuesta = false;
+                }
+            }
+
+            return respuesta;
+        }
+
+        // get today in format YYYY-mm-dd
+        function get_today()
+        {
+            let today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            return yyyy + '-' + mm + '-' + dd;
+        }
+
+        function get_current_time()
+        {
+            let today = new Date();
+
+            return today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        }
+
+        // Recibe una fecha en str en formato "YYYY-mm-dd"
+        function covertir_fecha_formato_dia_mes_anyo(fecha)
+        {
+            let a_fecha = fecha.split("-");
+            let mes  = get_name_month(a_fecha[1] - 0);
+            return a_fecha[2] + ", " + mes + ", " + a_fecha[0];
+        }
+
+        function get_formato_hora_larga(hora)
+        {
+            let a_hora = hora.split(":");
+            let meridiem = " a.m.";
+            let hora_test = a_hora[0] - 0;
+            if (hora_test > 12)
+            {
+                meridiem = " p.m.";
+                hora_test = hora_test - 12;
+                hora_test = hora_test.toString().padStart(2, "0");
+            }
+            else
+            {
+                hora_test = a_hora[0];
+            }
+
+            return hora_test + ":" + a_hora[1] + meridiem;
+        }
+
+        function get_name_month(int_month) {
+            return mes_anyos[int_month];
+        }
+
+        function get_value_month(str_month) {
+            return mes_anyos.indexOf(str_month).toString().padStart(2, '0');
+        }
+
+        $("#hora_final").on("change", function() {
+            if($('#event-modal').is(":visible"))
+            {
+                if($("#hora_inicio").val() != 0)
+                {
+                    if($("#hora_final").val() <= $("#hora_inicio").val())
+                    {
+                        return toastr.error('La hora fin de reunión no debe ser mayor o igual a la hora final');
+                    }
+                }
+                else
+                {
+                    return toastr.error('Debe establecer primero una hora de inicio');
+                }
+            }
+        });
+
+        function editar_participante(nombre, correo) 
+        {
+            $("#participante_correo").val(correo);
+            $("#participante_nombre").val(nombre);
+
+            var params = {
+                key: 'correo',
+                value: correo
+            }
+
+            dataSet.some(function(item, index) {
+                return (dataSet[index][params.key] === params.value) ? !!(dataSet.splice(index, 1)) : false;
+            });
+
+            // Eliminar el participante del listado
+            let consecutivo = 1;
+            dataSet.forEach(function (element) {
+                element.consecutivo = consecutivo;
+                consecutivo += 1;
+            })
+            
+            return cargar_datos_participantes();
+        }
+
+        function eliminar_participantes(correo) 
+        {
+            var params = {
+                key: 'correo',
+                value: correo
+            }
+
+            dataSet.some(function(item, index) {
+                return (dataSet[index][params.key] === params.value) ? !!(dataSet.splice(index, 1)) : false;
+            });
+
+            // Eliminar el participante del listado
+            let consecutivo = 1;
+            dataSet.forEach(function (element) {
+                element.consecutivo = consecutivo;
+                consecutivo += 1;
+            })
+            
+            return cargar_datos_participantes();
+        }
+
+        $("#participante_correo").on("change", function() {
+            if ($("#participante_nombre").val() == "")
+            {
+                $("#participante_correo").val("");
+                return toastr.error("Debe primero agregar un nombre del participante");
+            }
+
+            correo = $("#participante_correo").val();
+
+            emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
+
+            if (!emailRegex.test(correo))
+            {
+                $("#participante_correo").val("");
+                return toastr.error("Formato incorrecto de correo electrónico [" + correo + "]");
+            }
+        })
+
+        $("#btnAgregarParticipante").on("click", function() {
+            if ($("#participante_nombre").val() != "")
+            {
+                if($("#participante_correo").val() != "")
+                {
+                    // Validar si existe en la lista el elemento a agregar
+                    let existe_item = dataSet.find( item => item.correo === $("#participante_correo").val() );
+                    
+                    if (existe_item)
+                    {
+                        return toastr.error('Ya se ingreso un asistente con el correo ingresado');
+                    }
+                }
+
+                let consecutivo = dataSet.length + 1;
+                
+                dataSet.push({"nombre": $("#participante_nombre").val().toUpperCase(), "correo": $("#participante_correo").val(), "acciones": "1", "consecutivo": consecutivo});
+
+                $("#participante_nombre").val("");
+                $("#participante_correo").val("");
+                cargar_datos_participantes();
+            }
+            else
+            {
+                return toastr.error('Debe agregar al menos el nombre del participante');
+            }
+        });
+
+        $("#fecha_reunion").on("change", function() {
+            $("#fecha_reunion_fin").val($("#fecha_reunion").val());
+        })
+
+        $("#requiere_coffe_break").on("click", function() {
+            $(".vista-requiere_coffe_break").removeClass("d-none");
+            if(sessionStorage.getItem("leyenda_requiere_coffe_break") == "mostrar")
+                $(".vista-msj_coffe_break").removeClass("d-none");
+
+            if(!$("#requiere_coffe_break").prop("checked"))
+            {
+                $(".vista-requiere_coffe_break").addClass("d-none");
+                
+                if(sessionStorage.getItem("leyenda_requiere_coffe_break") == "mostrar")
+                    $(".vista-msj_coffe_break").addClass("d-none");
+
+                var input = $('#total_participantes');
+                input.prop("required", true);
+                input.prop("min", 1);
+                // var textarea = $('#detalles_coffe_break');
+                // textarea.prop("required", true);
+            }
+            else 
+            {
+                $("#total_participantes").val(0);
+                $("#detalles_coffe_break").val("");
+
+                var input = $('#total_participantes');
+                input.removeProp("required");
+                input.prop("min", 0);
+                // var textarea = $('#detalles_coffe_break');
+                // textarea.removeProp("required");
+            }
+        });
+
+        $('#event-modal').on('shown.bs.modal', function (e) {
+            cargar_datos_participantes();
+            sessionStorage.setItem("leyenda_requiere_coffe_break", "mostrar");
+        });
+
+        $('#event-modal').on('hidden.bs.modal', function (e) {
+            selectize_hora_fin.setValue(0);
+            selectize_hora_ini.setValue(0);
+            selectize_categoria.setValue(0);
+            selectize_responsable_reunion.setValue(0);
+
+            let sala_default = $("#filter-salas").val();
+            selectize_cambio_sala.setValue(sala_default);
+
+            $("#id_evento").val("");
+
+            dataSet = [];
+            $("#btn-edit-event").hide();
+            if(accion_agregar == 1)
+            {
+                $('#btn-save-event').show();
+            }
+            $("#btn-descargar-listado-asistencia").hide();
+            document.getElementById("requiere_coffe_break").disabled = false;
+                            
+            unblockInteraction("btn-save-event");
+            $(".write_evento").removeClass("d-none");
+            $(".read_evento").removeClass("d-none");
+
+            $(".read_evento").addClass("d-none");
+            $("#vista_sala_cambio_sala").addClass("d-none");
+            $(".vista-msj_coffe_break").removeClass("d-none");
+
+            sessionStorage.col_visible = "visible";
+
+            sessionStorage.removeItem("hora_inicio");
+            sessionStorage.removeItem("hora_final");
+            sessionStorage.removeItem("sala_reunion");
+            sessionStorage.removeItem("total_participantes");
+            sessionStorage.removeItem("fecha_reunion");
+            sessionStorage.setItem("leyenda_requiere_coffe_break", "mostrar");
+
+            $(".vista-msj_noti_reuniones").addClass("d-none");
+        })
+
+        function cargar_datos_participantes()
+        {
+            var column_defs = [
+                {
+                    "visible": false,
+                    "orderable": false,
+                    "searchable": false,
+                    "targets": 3,
+                    "width": "10%" 
+                }, {
+                    "targets": 2,
+                    "width": "35%" 
+                }, {
+                    "targets": 0,
+                    "width": "10%" 
+                }
+            ];
+            
+            if(sessionStorage.col_visible == "visible") {
+                column_defs = [
+                    {
+                        "visible": true,
+                        "orderable": false,
+                        "targets": 3,
+                        "width": "10%",
+                        "render": function(data, type, row) {
+                            let button = "";
+                            if(row.acciones == 1)
+                            {
+                                button += `
+                                    <button id="btEditarParticipante" title="Editar"  tabindex="0" data-plugin="tippy" data-tippy-placement="bottom" class="btn fondo-boton btn-xs p-0 mr-2" onclick="editar_participante('` + row.nombre + `', '` + row.correo + `')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button id="btEliminarParticipante" title="Eliminar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom" class="btn fondo-boton btn-xs" onclick="eliminar_participantes('` + row.correo + `')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                `;
+                            }
+                            else
+                            {
+                                button = "";
+                            }
+                            return button;
+                        }
+                    }, {
+                        "targets": 2,
+                        "width": "35%" 
+                    }, {
+                        "targets": 0,
+                        "width": "10%" 
+                    }
+                ];
+            }
+            // console.log(column_defs);
+
+            $('#tblParticipantes').DataTable().destroy();
+
+            var tbl_Participantes = $('#tblParticipantes').DataTable({
+                destroy: true,
+                sDom: "rtip",
+                data: dataSet,
+                columns: [
+                    { data: 'consecutivo'},
+                    { data: 'nombre' },
+                    { data: 'correo' },
+                    { data: 'acciones' }
+                ],
+                pageLength : 5,
+                lengthMenu: [5, 10, 20, 50, 100, 'Todos'],
+                language: {
+                    decimal: "",
+                    emptyTable: "No hay información",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+                    infoFiltered: "(Filtrado de _MAX_ total entradas)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "Mostrar _MENU_ Entradas",
+                    loadingRecords: "Cargando...",
+                    processing: "Procesando...",
+                    search: "Buscar:",
+                    zeroRecords: "Sin resultados encontrados",
+                    paginate: {
+                        previous: "<i class='mdi mdi-chevron-left'>",
+                        next: "<i class='mdi mdi-chevron-right'>",
+                    },
+                },
+                columnDefs: column_defs,
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+                }
+            });
+
+            tbl_Participantes.on("click", "thead tr td", function (event) {
+                let indexColumn = $(this).closest("td").index();
+
+                $("thead > tr  > td").each(function (index, td) {
+                    this.classList.remove("negrita");
+                });
+
+                if ($.inArray(parseInt(indexColumn), myCols) === -1)
+                $(this).closest("td").addClass("negrita");
+            });
+
+            $(".dataTables_length select").addClass("form-select form-select-sm"),
+                $(".dataTables_length select").removeClass(
+                "custom-select custom-select-sm"
+            ),
+            $(".dataTables_length label").addClass("form-label");
+        }
+
+        function regresar_sala_general() {
+            sessionStorage.removeItem("hora_inicio");
+            sessionStorage.removeItem("hora_final");
+            sessionStorage.removeItem("sala_reunion");
+            sessionStorage.removeItem("total_participantes");
+            sessionStorage.removeItem("fecha_reunion");
+
+            window.location.href = "{% url 'sala_app:salageneral' %}";
+        }
+
+        function buscar_correo_notificacion() {
+            // correo_noti_coffe_break
+            if($("#responsable_reunion").val() != "")
+            {
+                if ($(".vista-msj_noti_reuniones").hasClass("d-none"))
+                    $(".vista-msj_noti_reuniones").removeClass("d-none");
+
+                let formulario = document.getElementById("frm-buscar_evento");
+                let fd = new FormData(formulario);
+                fd.append("usuario_responsable_id", $("#responsable_reunion").val());
+
+                $.ajax({
+                    url: "{% url 'sala_app:buscar-correo-notificacion' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            document.getElementById('correo_noti_coffe_break').innerText = result.correo_notificacion;
+                        }
+                        else
+                            return toastr.error(result.msj);
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+            {
+                document.getElementById('correo_noti_coffe_break').innerText = "";
+            }
+        }
+
+        function cambio_sala(action = "") 
+        {
+            var view = calendarObj.view; // calendarObj is the reference to the fullcalendar
+            var obj_month_start = new Date(view.activeStart);
+            var obj_month_end = new Date(view.activeEnd);
+
+            if($("#filter-salas").val() != "")
+            {
+                let sala_default = $("#filter-salas").val();
+                selectize_cambio_sala.setValue(sala_default);
+            
+                let formulario = document.getElementById("frm-buscar_evento");
+                let fd = new FormData(formulario);
+                fd.append("filter-anyo_ini", obj_month_start.getFullYear());
+                fd.append("filter-anyo_fin", obj_month_end.getFullYear());
+                fd.append("filter-mes_ini", obj_month_start.getMonth() + 1);
+                fd.append("filter-mes_fin", obj_month_end.getMonth() + 1);
+                fd.append("filter-salas", $("#filter-salas").val());
+
+                $.ajax({
+                    url: "{% url 'sala_app:consulta-reuniones' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        if (!result.error)
+                        {
+                            // Agregamos la capacidad de personas por sala
+                            $("#capacidad_personas_sala").val(result.sala[0].capacidad_sala)
+
+                            $("#alerta_total_personas_reunion").html(result.sala[0].capacidad_sala + " personas.");
+                            
+                            // Función para eliminar todos los eventos al calendario
+                            calendarObj.removeAllEvents();
+
+                            if(result.data)
+                            {
+                                result.data.forEach(element => {
+                                    // Agregar evento
+                                    calendarObj.addEvent({
+                                        id: element.id,
+                                        title: element.evento,
+                                        start: new Date(element.fecha_reunion + " " + element.hora_ini_reunion + ":00"),
+                                        end: new Date(element.fecha_reunion + " " + element.hora_fin_reunion + ":00"),
+                                        className: element.color_categoria
+                                    })
+                                });
+                            }
+
+                            calendarObj.render()
+
+                            if(action == "prev")
+                                calendarObj.prev();
+
+                            if(action == "next")
+                                calendarObj.next();
+
+                            // return toastr.success(result.msj);
+                        }
+                        else
+                            return toastr.error(result.msj);
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock extrajs %}

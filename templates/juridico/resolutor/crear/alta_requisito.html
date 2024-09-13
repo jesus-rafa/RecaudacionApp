@@ -1,0 +1,60 @@
+{% load static %}
+{% load tags %}
+
+<!-- Modal crear requerimiento-->
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Requisitos resolutor</h4>
+            <button type="button" class="btn fondo-boton waves-effect gris-oscuro close" data-bs-dismiss="modal" style="font-size: 10pt;" aria-label="Close">
+                <span aria-hidden="true" style="font-size: 10pt; font-weight: bold;">&times;</span> cerrar
+            </button>
+        </div>
+        <div class="modal-body p-0 px-3">
+            <div class="">
+                <input type="hidden" name="tramite"/>
+                <form action="{% url 'juridico_app:resolutorRequisito-alta' id %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row mb-2">
+                        <div class="col">
+                            <div class="form-floating">
+                                {{form.nombre}}
+                                <label>{{form.nombre.label}}</label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-check">
+                                <label>{{form.obligatorio.label}}</label>
+                                {{form.obligatorio}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="etiqueta-combo">{{form.tramite.label}}</label>
+                            {{form.tramite}}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <div class="mb-2">
+                                <label>{{form.formato_default.label}}</label>
+                                {{form.formato_default}}
+                            </div>
+                            <div class="divArchivo d-none">
+                                <label>{{form.archivo.label}}</label>
+                                {{form.archivo}}
+                            </div>                           
+                        </div>
+                    </div>
+                    <div class="row mb-2 px-2 pull-right">
+                        <div class="col">
+                            <button type="button" class="btn fondo-boton waves-effect gris-oscuro mr-2" data-bs-dismiss="modal"> Cancelar </button>
+                            <button type="submit" class="btn fondo-boton waves-effect gris-oscuro"> Guardar </button>
+                        </div>
+                    </div>
+                </form>  
+            </div>
+        </div>
+    </div>
+</div>

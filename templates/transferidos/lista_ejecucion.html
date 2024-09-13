@@ -1,0 +1,656 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load permissions %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Ejecucion {% endblock title %}
+
+{% block head %} 
+<!-- Plugins css -->
+<link href="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'assets/libs/flatpickr/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+  <!-- third party css -->
+  <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+  <link href="{% static 'assets/libs/datatables.net-select-bs5/css//select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+  <!-- third party css end -->
+
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                {% has_perms request.user 'add_programa_transferidos' as add_programa_transferidos %}
+				{% has_perms request.user 'change_programa_transferidos' as change_programa_transferidos %}
+				
+				{% if add_programa_transferidos is True %}
+                <button id="btNew" onclick="Add_Modal('{% url 'transferidos_app:alta-contribuyente-2' %}')" class="btn btn-primary rounded-pill"
+                    target="_blank">
+                    <i class="fe-user-plus"></i> Agregar Contribuyente
+                </button>
+				{% endif %}
+                
+            </div>
+            <h4 class="page-title">Ejecucion</h4>
+        </div>
+    </div>
+</div>   
+
+{% if messages %}
+     {% for message in messages %}
+         <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+             {{ message|safe }}
+         </div>
+     {% endfor %}
+{% endif %}
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="col-md-8">
+                    <ul class="nav nav-pills navtab-bg nav-justified">
+                        <li class="nav-item">
+                            <a href="#home-20" id="home-20-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link active show">
+                                <i class="fas fa-files-o"></i>
+                                Propuestas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-40" id="profile-40-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                <i class="fas fa-times-rectangle-o"></i>
+                                Activos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-50" id="profile-50-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                <i class="fas fa-times-rectangle-o"></i>
+                                Rechazados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#profile-80" id="profile-80-tab" data-bs-toggle="tab" aria-expanded="false"
+                                class="nav-link">
+                                <i class="fas fa-times-rectangle-o"></i>
+                                Solicitudes de Apoyo
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <br>
+                <div class="tab-content">
+                    <div class="tab-pane fade active show" id="home-20">
+                        <div class="table-responsive">
+                            <table id="datatable1" class="table table-sm  table-striped table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Oficio</th>
+                                        <th>RFC</th>
+                                        <th>Nombre</th>
+                                        <th>Programa</th>
+                                        <th>Presuntiva</th>
+                                        <th>Recaudado</th>
+                                        <th>Fecha Creacion</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in transferidos %}
+                                    <tr>
+                                        <td>
+                                            {{ programa.id }}
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                        <td>
+                                            {% if programa.recaudado != None %}
+                                            $ {{ programa.recaudado|unlocalize|intcomma }}
+                                            {% else %}
+                                            $ 0.00
+                                            {% endif %}
+                                        </td>
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}</td>
+                                        <td>
+                                            <h5><span class="badge bg-warning">PENDIENTE</span></h5>
+                                        </td>
+                                        <td>
+                                            <div class="text-center flex">
+                                                <button id="btOption"
+                                                    onclick="Opcion_Modal('{% url 'transferidos_app:opcion' %}', '{{ programa.id }}');"
+                                                    title="Aceptar/Rechazar" tabindex="0" data-plugin="tippy"
+                                                    data-tippy-placement="left" class="btn btn-success btn-xs" target="_blank">
+                                                    <i class="fa fa-check"></i> <i class="fa fa-times"></i>
+                                                </button>
+                                                {% getProgramaID programa.folio as myID %}
+                                                <a href="{% url 'programacion_app:ver-reporte-2' myID %}"
+                                                    title="Reporte" tabindex="0" data-plugin="tippy"
+                                                    data-tippy-placement="left" class="btn btn-primary btn-xs" target="_self">
+                                                    <i class="ti-file"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-40">
+                        <div class="table-responsive">
+                            <table id="datatable2" class="table table-sm table-striped table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>RFC</th>
+                                        <th>Nombre</th>
+                                        <th>Programa</th>
+                                        <th>Presuntiva</th>
+                                        <th>Fecha</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in activos %}
+                                    <tr>
+                                        <td>
+                                            {{ programa.id }}
+                                        </td>
+                                        <td>
+                                            {{ programa.rfc }}
+                                        </td>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}</td>
+                                        <td><h5><span class="badge bg-success">{{ programa.estatus }}</span></h5></td>
+                                        <td>
+                                            <div class="text-center">
+                                                {% if programa.comentarios %}
+                                                <div id="{{ programa.rfc}}_{{programa.id }}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                                                        <div class="modal-content">
+                                                            <div class="modal-body p-4">
+                                                                <div class="text-center">
+                                                                    <i class="dripicons-information h1 text-info"></i>
+                                                                    <h4 class="mt-2">Comentarios</h4>
+                                                                    <p class="mt-3">{{ programa.comentarios }}</p>
+                                                                    <button type="button" class="btn btn-info my-2" data-bs-dismiss="modal">Cerrar</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+                                                <div class="text-center">
+                                                    <button type="button" 
+                                                        class="btn btn-info btn-xs" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#{{ programa.rfc}}_{{programa.id }}">
+                                                        <i class="far fa-comment-alt"></i>
+                                                    </button>
+                                                </div>
+                                                {% endif %}
+
+                                                {% if change_programa_transferidos is True %}
+                                                <button id="btUpdate"
+                                                    onclick="Update_Modal('{% url 'transferidos_app:editar-contribuyente-2' programa.id %}')"
+                                                    title="Editar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-warning btn-xs" target="_blank">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                {% endif %}
+
+                                                <button id="btUpdate"
+                                                    onclick="Publish_Modal('{% url 'transferidos_app:asignar-auditoria' %}', '{{ programa.id }}')"
+                                                    title="Asignar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                    class="btn btn-soft btn-success btn-xs" target="_blank">
+                                                    <i class="fa fa-paper-plane"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-50">
+                        <div class="table-responsive">
+                            <table id="datatable3" class="table table-sm  table-striped table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>id</th>
+                                        <th>RFC</th>
+                                        <th>Nombre</th>
+                                        <th>Programa</th>
+                                        <th>Presuntiva</th>
+                                        <th>Fecha</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for programa in rechazados %}
+                                    <tr>
+                                        <td>
+                                            {{ programa.id }}
+                                        </td>
+                                        <td>
+                                            {{ programa.rfc }}
+                                        </td>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td>${{ programa.presuntiva|unlocalize|intcomma }}</td>
+
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}</td>
+                                        <td><h5><span class="badge bg-danger">{{ programa.estatus }}</span></h5></td>
+                                        <td>
+                                            <div class="text-center">				
+                                                <button
+                                                    onclick="Aceptar_All('{% url 'transferidos_app:aceptar-todos' %}', '{{programa.id}}');"
+                                                    title="Aceptar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                    class="btn btn-success btn-xs" target="_blank"><i
+                                                        class="fa fa-check"></i>
+                                                </button>
+                                
+                                                {% getProgramaID programa.folio as myID %}
+                                                {% if myID != 0 %}
+                                                <a href="{% url 'programacion_app:ver-reporte-2' myID %}" 
+                                                    title="Reporte" tabindex="0" data-plugin="tippy" data-tippy-placement="left" 
+                                                    class="btn btn-primary btn-xs" target="_self"><i class="ti-file"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-80">
+                        <div class="table-responsive">
+                            <table id="datatable8" class="table table-sm  table-striped table-bordered p-0">
+                                <thead>
+                                    <tr>
+                                        <th>Oficio</th>
+                                        <th>RFC</th>
+                                        <th>Nombre</th>
+                                        <th>Programa</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Estatus</th>
+                                        <th>Solicitud</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% has_perms request.user 'add_detalle' as add_detalle %}
+                                    {% has_perms request.user 'add_archivos' as add_archivos %}
+
+                                    {% for programa in solicitud_apoyo %}
+                                    <tr>
+                                        <td>
+                                            {{ programa.folio }}
+                                        </td>
+                                        <td>{{ programa.rfc }}</td>
+                                        <td>{{ programa.nombre }}</td>
+                                        <td>{{ programa.programa }}</td>
+                                        <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>
+                                            {{programa.fecha|date:'d/m/Y' }}</td>
+                                        <td>
+                                            <h5><span class="badge bg-warning">SOLICITUD</span></h5>
+                                        </td>
+                                        <td>
+                                            <button id="btCancel"
+                                                onclick="Cancel_Modal('{% url 'programacion_app:alta-detalle' programa.id %}', '{{ programa.id }}', '{{ programa.folio }}')"
+                                                title="Rechazar" tabindex="0" data-plugin="tippy" data-tippy-placement="left"
+                                                class="btn btn-warning btn-xs" target="_blank">
+                                                <i class="fa fa-reply"></i>
+                                            </button>
+
+
+                                            <button id="btDetail"
+                                                onclick="View_Modal('{% url 'programacion_app:ver-todo' programa.id %}')"
+                                                title="Detalle" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                class="btn btn-info btn-xs" target="_blank">
+                                                <i class="fe-eye"></i> 
+                                            </button>
+
+                                            <!-- {% if add_detalle is True %}
+                                            <button id="btAddDetail"
+                                                onclick="addDetail('{% url 'programacion_app:alta-detalle' programa.id %}', '{{ programa.id }}', '{{ programa.folio }}')"
+                                                data-toggle="tooltip" data-placement="top" title="Seguimiento"
+                                                class="btn btn-primary btn-sm" target="_blank"><i
+                                                    class="fa fa-list-ul"></i>
+                                            </button>
+                                            {% endif %} -->
+                                            <!-- {% if add_archivos is True %}
+                                            <button id="btFile"
+                                                onclick="addFiles('{% url 'programacion_app:alta-archivos' programa.id %}', '{{ programa.id }}', '{{ programa.folio }}')"
+                                                data-toggle="tooltip" data-placement="top" title="Archivos"
+                                                class="btn btn-primary btn-sm" target="_blank"><i class="ti-file"></i>
+                                            </button>
+                                            {% endif %} -->
+
+                                            <button id="btUpdate"
+                                                onclick="Publish_Modal('{% url 'transferidos_app:asignar-solicitud' %}', '{{ programa.id }}')"
+                                                title="Asignar" tabindex="0" data-plugin="tippy" data-tippy-placement="bottom"
+                                                class="btn btn-soft btn-success btn-xs" target="_blank">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'assets/libs/spectrum-colorpicker2/spectrum.min.js' %}"></script>
+<script src="{% static 'assets/libs/clockpicker/bootstrap-clockpicker.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+<!-- third party js -->
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-keytable/js/dataTables.keyTable.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-select/js/dataTables.select.min.js' %}"></script>
+<script src="{% static 'assets/libs/pdfmake/build/pdfmake.min.js' %}"></script>
+<script src="{% static 'assets/libs/pdfmake/build/vfs_fonts.js' %}"></script>
+<!-- third party js ends -->
+
+<script>
+    $(document).ready(function () {
+		$('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+        Get_Totales('#datatable1');
+
+        var myTable1 = data_table('#datatable1');
+        var myTable2 = data_table('#datatable2');
+        var myTable3 = data_table('#datatable3');
+        var myTable8 = data_table('#datatable8');
+        
+    });
+
+    function Get_Totales(myTable) {
+        
+        var presuntiva = 0;
+        var total = 0;
+        var total_contribuyentes = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $(myTable).find(selector).each(function (index, element) {
+                if(selector==='.col2'){
+                    var num = $(element).text().replace('$', '').replace(/,/g, '');
+                    var value =  parseFloat(num).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                    $(element).text('$ ' + value);
+
+                    sum += parseFloat(num);
+                }else{
+                    var num = $(element).text();
+                    sum += parseInt(num);
+                }
+            });
+
+            return sum;
+        };
+
+        $(myTable).find('.subtotal').each(function (index, element) {
+            if(index===1){
+                var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$ ' + total);
+            }else{
+                var total = getSum(index + 1);
+                $(this).text(total);
+            }
+        });
+        
+    }
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+        });
+    }
+
+    function Opcion_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+            
+			$("#lbOficio").html(myID);
+            $("#id_lista").val(myID);
+            	
+            $("#id_opcion").change(function() {
+                if($('#id_opcion').val() === 'RECHAZAR'){
+                    $('#id_comentarios').show();
+                    $('#id_comentarios').attr('required', true);
+                }else{
+                    $('#id_comentarios').hide();
+                    $('#id_comentarios').attr('required', false);
+                }
+            });
+
+            $(this).modal('show');
+        });
+    }
+
+    function Add_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Detail_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+
+            $('#id_programa_id').val(myID);
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+        
+            $(this).modal('show');
+        });
+    }
+	
+	function Publish_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+            
+			$("#lbSelected").html(myID);
+
+            $("#id_lista").val(myID);
+                   
+            $(this).modal('show');
+        });
+    }
+
+    function Cancel_Modal(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            var entries = 'Oficio: ' + myID;
+            $("#lbSelected2").html(entries);
+            
+            $("#lbTitle").html("Rechazar");
+            $("#btReject").html("Aceptar");
+            $('#id_comentarios').attr('required', true);
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID1').hide();
+            $('#id_fecha').hide();
+            $('#id_etapa').hide();
+            $('#lbFecha').hide();
+            $('#lbEtapa').hide();
+            $('#lbOficio').hide();
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#white");
+
+            $(this).modal('show');
+        });
+    }
+	
+	function Aceptar_All(myURL, myFolio) {
+        $('#mdView').load(myURL, function () {
+            
+			$("#lbAceptarTodos").html(myFolio);
+            $('#id_folio').val(myFolio);
+                   
+            $(this).modal('show');
+        });
+    }
+	
+	function Rechazar_All(myURL, myFolio) {
+        $('#mdView').load(myURL, function () {
+            
+			$("#lbRechazarTodos").html(myFolio);
+            $('#id_folio').val(myFolio);
+                   
+            $(this).modal('show');
+        });
+    }
+	
+	 function Update_Modal(myURL, myID) {
+        $('#mdView').load(myURL, function () {
+		
+            var value = $('#hfProgram').val();
+            $("#id_programa option[value='" + value + "']").attr('selected','selected');
+
+            $('#id_folio').prop('readonly', 'readonly');
+			
+			$('#id_rfc').prop('readonly', 'readonly');
+			$('#id_nombre').prop('readonly', 'readonly');
+			
+            $('#id_folio').hide();
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+	
+	 function addDetail(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID1').val(myFolio);
+            $('#tbID1').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+	
+	function addFiles(myURL, myID, myFolio) {
+        $('#mdView').load(myURL, function () {
+
+            $("#id_programa_id option[value='" + myID + "']").attr('selected', 'selected');
+            $("#id_programa_id").hide();
+
+            $('#tbID2').val(myFolio);
+            $('#tbID2').prop('disabled', 'disabled');
+
+            $('.date-picker-default').datepicker({
+                format: 'dd/mm/yyyy'
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+        });
+    }
+
+    function data_table(myTable){
+
+        $(myTable).DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            //order: [[ 6, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+    }
+</script>
+{% endblock extrajs %}

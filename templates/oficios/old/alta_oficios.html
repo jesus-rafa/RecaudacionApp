@@ -1,0 +1,67 @@
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Crear Oficio</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{% url 'oficios_app:alta-oficios' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body">
+
+                <div class="form-row">
+                    <div class="form-group col-md-9">
+                        <label>A quien va dirigido:</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Fecha Captura:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ form.folio }}
+                    </div>
+                </div>
+               
+                <div class="form-group">
+                    <label>Puesto:</label>
+                    {{ form.puesto }}
+                </div>
+                <div class="form-group">
+                    <label>Dependencia:</label>
+                    {{ form.dependencia }}
+                </div>
+                <div class="form-group">
+                    <label>Asunto:</label>
+                    {{ form.asunto }}
+                </div>
+               
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Enviado por:</label>
+                        {{ form.enviado }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Firma:</label>
+                        {{ form.firma }}
+                    </div>
+                </div>
+                
+            
+                
+            
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Crear</button>
+            </div>
+
+        </form>
+    </div>
+</div>

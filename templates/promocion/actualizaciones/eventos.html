@@ -1,0 +1,154 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Mercados {% endblock title %}
+
+{% block head %}
+<link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+            </div>
+            <h4 class="page-title">Actualizaciones</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="datatable1" class="table table-sm table-striped table-bordered p-0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Programa</th>
+                                <th>Direccion</th>
+                                <th>Ciudad</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                                <th>Total Contribuyentes</th>
+								<th>Responsable</th>
+                                <th>Estatus</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for evento in desarrollo %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'promocion_app:actualizaciones-admin' evento.id %}" 
+                                        class="btn btn-link" 
+                                        target="_self">
+                                        {{ evento.id_evento.nombre }}
+                                    </a>
+                                </td>
+                                <td>{{ evento.id_evento.id_programa }}</td>
+                                <td>{{ evento.id_evento.direccion }}</td>
+                                <td>{{ evento.id_evento.ciudad }}</td>
+                                <td>
+                                    <span class="sp_date">{{ evento.fecha_inicio|date:'Y/m/d' }}</span>{{ evento.fecha_inicio|date:'d/m/Y' }}
+                                </td>
+                                <td>
+                                    <span class="sp_date">{{ evento.fecha_fin|date:'Y/m/d' }}</span>{{ evento.fecha_fin|date:'d/m/Y' }}
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        {{ evento.sum_rfc }}
+                                    </div>
+                                   
+                                </td>
+								<td>
+                                    {% for user in evento.responsables.all %}
+										{{ user.get_full_name }}
+									{% endfor %}
+                                </td>
+                                <td>
+                                    {% if evento.estatus == 'NUEVO' %}
+                                        <span class="badge bg-success">{{ evento.estatus }}</span>  
+                                    {% elif evento.estatus == 'EN PROCESO' %}
+                                        <span class="badge bg-success">{{ evento.estatus }}</span> 
+                                    {% elif evento.estatus == 'CONCLUIDO' %}
+                                        <span class="badge bg-danger">{{ evento.estatus }}</span> 
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a onclick="View_Modal('{% url 'promocion_app:ver-mercado' evento.id %}', '{{ evento.id_evento.nombre }} - {{ evento.id_evento.ciudad }}')"
+                                        title="Ver Tramites" tabindex="0" data-plugin="tippy"
+                                        data-tippy-placement="top" class="btn btn-success btn-sm" target="_self">
+                                        <i class="far fa-file-excel"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+
+		$('.sp_date').hide();
+        $('.alert-success').fadeOut(6000);
+
+		var table1 = $('#datatable1').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                paginate: {
+                    previous: "<i class='mdi mdi-chevron-left'>",
+                    next: "<i class='mdi mdi-chevron-right'>",
+                },
+            },
+            order: [[ 4, 'desc' ]],
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        
+    });
+
+    function View_Modal(myURL, myEvento) {
+        $('#mdView').load(myURL, function () {
+            $('#lbEvento').html(myEvento);
+            $(this).modal('show');
+        });
+    }
+</script>
+
+{% endblock extrajs %}
+
+

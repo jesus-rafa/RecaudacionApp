@@ -1,0 +1,84 @@
+<div class="topnav">
+    <div class="container-fluid">
+        <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
+
+            <div class="collapse navbar-collapse" id="topnav-menu-content">
+                <ul class="navbar-nav">
+                    {% for item in menu %}
+
+                    {% if item.padre %}
+
+						{% ifchanged item.padre %}
+						<li class="nav-item dropdown">
+
+							<a class="nav-link dropdown-toggle arrow-none" href="#" id="{{ item.padre }}" role="button"
+								data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fe-grid me-1"></i> {{ item.padre }} <div class="arrow-down"></div>
+							</a>
+							<div class="dropdown-menu" aria-labelledby="{{ item.padre }}">
+
+								{% for child in menu %}
+								{% if item.padre == child.padre %}
+								<a href="{{ child.url }}" class="dropdown-item"><i class="{{ child.icono }} me-1"></i> 
+									{{child.nombre }}</a>
+
+								{% endif %}
+								{% endfor %}
+
+							</div>
+						</li>
+						{% endifchanged %}
+
+                    {% else %}
+						 {% if item.url == 'TABLEROS' %}
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle arrow-none" href="#" id="tableros" role="button"
+									data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="ti-palette me-1"></i> Tableros <div class="arrow-down"></div>
+								</a>
+								<div class="dropdown-menu" aria-labelledby="tableros">
+									<div class="dropdown">
+										
+											
+										
+											<a class="nav-link dropdown-toggle arrow-none" href="#" id="sidebarMultilevel2" role="button"
+												data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Padron Vehicular <div class="arrow-down"></div>
+											</a>
+											<div class="dropdown-menu" aria-labelledby="sidebarMultilevel2">
+												
+													<a href="{% url 'home_app:padron-vehicular' %}" class="dropdown-item">Padron Vehicular</a>
+													<a href="{% url 'home_app:reporte-vehicular' %}" class="dropdown-item">Reporte Vehicular</a>
+																   
+												
+											</div>
+											
+											<a href="{% url 'home_app:reporte-ingresos' %}" class="dropdown-item">Recursos Fiscales</a>
+											<a href="{% url 'home_app:REC' %}" class="dropdown-item">REC</a>
+										
+										
+								   </div>
+							   </div>
+							</li>
+							{% else %}
+
+							<li>
+								<a class="nav-link dropdown-toggle arrow-none" href="{{ item.url }}" role="button">
+									<i class="{{ item.icono }}"></i> {{ item.nombre }}
+								</a>
+							</li>
+
+							{% endif %}
+						{% endif %}
+
+                    {% endfor %}
+
+
+
+
+
+                </ul> <!-- end navbar-->
+            </div> <!-- end .collapsed-->
+        </nav>
+    </div> <!-- end container-fluid -->
+</div> <!-- end topnav-->

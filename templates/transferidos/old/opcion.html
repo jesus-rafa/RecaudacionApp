@@ -1,0 +1,36 @@
+<div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Aceptar/Rechazar</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form id="form_aceptar" action="{% url 'transferidos_app:opcion' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body">
+                <div class="form-group">
+                    {{ form.lista }}
+                    <div class="text-center">
+                        <h5><label id="lbOficio" for="lbOficio" class="text-success"></label></h5>
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.opcion }}
+                </div>
+                <div class="form-group">
+                    {{ form.comentarios }}
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+

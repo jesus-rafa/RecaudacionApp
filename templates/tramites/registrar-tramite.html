@@ -1,0 +1,114 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Nuevo Tramite {% endblock titulo %}
+
+{% block content %} 
+
+<!-- quill css -->
+<!-- <link href="{% static 'assets/libs/quill/quill.core.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'assets/libs/quill/quill.snow.css' %}" rel="stylesheet" type="text/css" /> -->
+
+<!-- App css -->
+<link href="{% static 'assets/css/config/creative/bootstrap.min.css' %}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+<link href="{% static 'assets/css/config/creative/app.min.css' %}" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
+
+<!-- <link href="{% static 'assets/css/config/creative/bootstrap-dark.min.css' %}" rel="stylesheet" type="text/css" id="bs-dark-stylesheet" />
+<link href="{% static 'assets/css/config/creative/app-dark.min.css' %}" rel="stylesheet" type="text/css" id="app-dark-stylesheet" /> -->
+
+<!-- <div class="content-page"> -->
+    <div class="content">
+
+        <!-- Start Content-->
+        <div class="container-fluid">
+            
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box">
+                        <div class="page-title-right">
+                            
+                        </div>
+                        <h4 class="page-title">Registrar trámite</h4>
+                    </div>
+                </div>
+            </div>     
+            <!-- end page title --> 
+
+            <!-- Right Sidebar -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+
+                            <div class="mt-4">
+
+                                <form  id="form_alta_pagos" action="{% url 'tramites_app:registrar-tramite' %}" method="POST">
+                                    {% csrf_token %}
+
+                                    <div class="row mb-2 px-4">
+                                        
+                                        <div class="col">
+                                            <div class="form-floating">
+                                                
+                                                {{form.servicio}}
+                                                <label >{{form.servicio.label}}</label>
+                                              
+                                            </div>
+                                        </div>
+
+                                    </div>  
+                                    
+                                                                        
+
+                                    <div>
+                                        <div class="text-end">
+                                            <!-- <button type="button" class="btn btn-success waves-effect waves-light"><i class="mdi mdi-content-save-outline"></i></button>
+                                            <button type="button" class="btn btn-success waves-effect waves-light"><i class="mdi mdi-delete"></i></button> -->
+                                            <button class="btn fondo-boton waves-effect waves-light" type="submit">  <i class="mdi mdi-send ms-2"></i> <span>Guardar</span></button>
+                                        </div>
+                                    </div>
+
+                                </form>
+                            </div> <!-- end card-->
+    
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div> <!-- end Col -->
+
+            </div><!-- End row -->
+            
+        </div> <!-- container -->
+
+    </div> <!-- content -->
+
+<!-- </div> -->
+
+ 
+
+{% endblock content %}
+
+{% block extrajs %}
+
+
+<!-- Quill js -->
+ <!-- <script src="{% static 'assets/libs/quill/quill.min.js' %}"></script> -->
+
+ <!-- App js -->
+ <script src="{% static 'assets/js/app.min.js' %}"></script>
+
+ <script  src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+ <script  src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+ <script  src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+
+ <script>
+     
+ </script>
+
+{% endblock extrajs %}

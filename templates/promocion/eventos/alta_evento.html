@@ -1,0 +1,90 @@
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Crear Evento</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_alta_evento" action="{% url 'promocion_app:crear-evento' %}" method="POST"
+            enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.nombre.label }}
+                            {{ form.nombre }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.id_programa.label }}
+                            {{ form.id_programa }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.direccion.label }}
+                            {{ form.direccion }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.ciudad.label }}
+                            {{ form.ciudad }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.tipo.label }}
+                            {{ form.tipo }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            {{ form.descripcion.label }}
+                            {{ form.descripcion }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btNew" type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        $("#form_alta_evento").submit(function (e) {
+
+            $("#btNew").attr("disabled", true);
+
+            return true;
+
+        });
+
+    });
+</script>

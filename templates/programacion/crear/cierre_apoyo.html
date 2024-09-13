@@ -1,0 +1,41 @@
+<div class="modal-dialog modal-dialog-centered md-detalle" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="lbTitle" class="modal-title add">Concluir Apoyo</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="form_cierre_apoyo" action="{% url 'programacion_app:cierre-apoyo' programa_id %}" method="POST">
+            {% csrf_token %}
+
+            <div class="modal-body p-4">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="">
+                            <label>Comentarios:</label>
+                            {{ form.comentarios }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btCerrarApoyo" class="btn btn-primary">Aceptar</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function () {
+
+        $("#form_cierre_apoyo").submit(function (e) {
+
+            $("#btCerrarApoyo").attr("disabled", true);
+            return true;
+
+        });
+    });
+</script>

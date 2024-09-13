@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Reporte Padrones {% endblock title %}
+
+
+{% block content %}
+<div class="page-title">
+    <div class="row">
+        <div class="col-sm-6">
+            <h4 class="mb-0">Reporte Padrones</h4>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb pt-0 pr-0 float-left float-sm-right ">
+                <li class="breadcrumb-item"><a href="#" class="default-color">Seguimiento</a></li>
+                <li class="breadcrumb-item active">Reporte Padrones</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+     {% for message in messages %}
+         <div class="text-center alert alert-success alert-dismissible fade show -{{ message.tags }}">
+             {{ message|safe }}
+         </div>
+     {% endfor %}
+{% endif %}
+ 
+<div class="row">
+    <div class="col-xl-12 mb-30">
+
+        <div class="card card-statistics h-100">
+            <div class="card-body">
+                <div class="tab round shadow">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active show" id="home-20-tab" data-toggle="tab" href="#home-20"
+                                role="tab" aria-controls="home-20" aria-selected="true"> <i class="fa fa-calendar"></i>
+                                Contribuyentes por Mes</a>
+                        </li>
+                        <!-- <li class="nav-item"> -->
+                            <!-- <a class="nav-link" id="profile-30-tab" data-toggle="tab" href="#profile-30" role="tab" -->
+                                <!-- aria-controls="profile-30" aria-selected="false"><i class="fa fa-files-o"></i>Enviados -->
+                            <!-- </a> -->
+                        <!-- </li> -->
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade active show" id="home-20" role="tabpanel"
+                            aria-labelledby="home-20-tab">
+                            <div class="table-responsive">
+                                <table id="datatable1" class="table table-striped  p-0">
+                                    <thead>
+                                        <tr>
+                                            <th>No. Control</th>
+                                            <th>No. Contribuyentes</th>
+                                            <th>Presuntiva</th>
+                                            <th>Recaudado</th>
+											<th>Porcentaje</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for programa in programacion %}
+                                        <tr>
+                                            <td>							
+												<a href="{% url 'padrones_app:reporte-detalle' programa.no_control %}" class="btn btn-link" target="_self">
+													{% get_month_2 programa.no_control %}
+												</a>
+                                            </td>
+                                            <td>
+                                                <div class="col1 text-center">
+                                                     {{ programa.sum_rfc }}
+                                                </div>
+                                            </td>
+                                            <td class="col2">{{ programa.sum_presuntiva|unlocalize }}</td>
+                                            
+                                            <td class="col3">
+												{% if programa.sum_recaudado %}
+													{{ programa.sum_recaudado|unlocalize }}
+												{% else %}
+													0
+												{% endif %}
+											</td>
+											<td class="col4 text-center">
+												{% if programa.porcentaje %}
+													{{ programa.porcentaje|unlocalize }}
+												{% else %}
+													0
+												{% endif %}
+											</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+									 <tfoot>
+                                        <tr>
+                                            <td><strong>Total</strong></td>
+                                            <td>
+                                                <div class="subtotal text-center">
+                                                </div>
+                                            </td>
+											<td>
+                                                <div class="subtotal">
+                                                </div>
+                                            </td>
+											<td colspan="2">
+                                                <div class="subtotal">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                    <!-- <tfoot> -->
+                                        <!-- <tr> -->
+                                            <!-- <th><strong>Subtotal</strong></th> -->
+                                            <!-- <th>AUDITORIA</th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="subtotal sum_auditoria_rfc_pendientes text-center"> -->
+
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="subtotal sum_auditoria_pendientes" colspan="3"></th> -->
+                                        <!-- </tr> -->
+                                        <!-- <tr> -->
+                                            
+                                            <!-- <th><strong>Subtotal</strong></th> -->
+                                            <!-- <th>EJECUCION</th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="subtotal sum_ejecucion_rfc_pendientes text-center"> -->
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="subtotal sum_ejecucion_pendientes" colspan="3"></th> -->
+                                        <!-- </tr> -->
+                                        <!-- <tr> -->
+                                            
+                                            <!-- <th><strong>Total</strong></th> -->
+                                            <!-- <th></th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="total_rfc_pendientes text-center"> -->
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="total_pendientes" colspan="3"></th> -->
+
+                                        <!-- </tr> -->
+                                    <!-- </tfoot> -->
+
+                                </table>
+
+                            </div>
+                        </div>
+
+                        <!-- <div class="tab-pane fade" id="profile-30" role="tabpanel" aria-labelledby="profile-30-tab"> -->
+                            <!-- <div class="table-responsive"> -->
+                                <!-- <table id="datatable2" class="table table-striped  p-0"> -->
+                                    <!-- <thead> -->
+                                        <!-- <tr> -->
+                                            <!-- <th>Oficio</th> -->
+                                            <!-- <th>Area</th> -->
+                                            <!-- <th>No. Contribuyentes</th> -->
+                                            <!-- <th>Presuntiva</th> -->
+                                            <!-- <th>Fecha Transferencia</th> -->
+                                        <!-- </tr> -->
+                                    <!-- </thead> -->
+                                    <!-- <tbody> -->
+                                        <!-- {% for programa in enviados %} -->
+                                        <!-- <tr> -->
+                                            <!-- <td> -->
+                                                <!-- {% replace_url programa.nuevo_folio as new_folio %} -->
+                                                <!-- <a href="{% url 'transferidos_app:admin-transferencias' new_folio %}" class="btn btn-link" target="_self">{{ programa.nuevo_folio}}</a> -->
+                                            <!-- </td> -->
+                                            <!-- <td>{{ programa.area }}</td> -->
+                                            
+                                            <!-- {% if programa.area == 'AUDITORIA' %} -->
+                                                <!-- <td> -->
+                                                    <!-- <div class="col1 text-center"> -->
+                                                        <!-- {{ programa.sum_rfc }} -->
+                                                    <!-- </div> -->
+                                                <!-- </td> -->
+                                                <!-- <td class="col2">{{ programa.sum_presuntiva|unlocalize }}</td> -->
+                                            <!-- {% else %} -->
+                                                <!-- <td> -->
+                                                    <!-- <div class="col3 text-center"> -->
+                                                        <!-- {{ programa.sum_rfc }} -->
+                                                    <!-- </div> -->
+                                                <!-- </td> -->
+                                                <!-- <td class="col4">{{ programa.sum_presuntiva|unlocalize }}</td> -->
+                                            <!-- {% endif %} -->
+                                            <!-- <td><span class="sp_date">{{ programa.fecha|date:'Y/m/d' }}</span>{{programa.fecha|date:'d/m/Y' }}</td> -->
+                                        <!-- </tr> -->
+                                        <!-- {% endfor %} -->
+                                    <!-- </tbody> -->
+                                    <!-- <tfoot> -->
+                                        <!-- <tr> -->
+                                            <!-- <th><strong>Subtotal</strong></th> -->
+                                            <!-- <th>AUDITORIA</th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="subtotal sum_auditoria_rfc_enviados text-center"> -->
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="subtotal sum_auditoria_enviados" colspan="2"></th> -->
+                                        <!-- </tr> -->
+                                        <!-- <tr> -->
+                                            
+                                            <!-- <th><strong>Subtotal</strong></th> -->
+                                            <!-- <th>EJECUCION</th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="subtotal sum_ejecucion_rfc_enviados text-center"> -->
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="subtotal sum_ejecucion_enviados" colspan="2"></th> -->
+                                        <!-- </tr> -->
+                                        <!-- <tr> -->
+                                            
+                                            <!-- <th><strong>Total</strong></th> -->
+                                            <!-- <th></th> -->
+                                            <!-- <th> -->
+                                                <!-- <div class="total_rfc_enviados text-center"> -->
+                                                <!-- </div> -->
+                                            <!-- </th> -->
+                                            <!-- <th class="total_enviados" colspan="2"></th> -->
+
+                                        <!-- </tr> -->
+                                    <!-- </tfoot> -->
+
+                                <!-- </table> -->
+
+
+                            <!-- </div> -->
+                        <!-- </div> -->
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal View -->
+<div class="modal fade" id="mdView" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+<!-- Modal Add -->
+<div class="modal fade" id="mdCreate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+<!-- Modal Detail -->
+<div class="modal fade" id="mdPublish" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'js/bootstrap-datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        
+		$('.sp_date').hide();
+
+        $('.alert-success').fadeOut(6000);
+
+		var myTable1 = $('#datatable1').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": ">",
+                    "previous": "<"
+                }
+            }            
+
+        });
+
+        var myTable2 = $('#datatable2').DataTable({
+            language: {
+                "decimal": "",
+                "emptyTable": "No hay información",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": "Mostrar _MENU_ Entradas",
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "search": "Buscar:",
+                "zeroRecords": "Sin resultados encontrados",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Ultimo",
+                    "next": ">",
+                    "previous": "<"
+                }
+            }            
+
+        });
+
+        
+		Get_Totales('#datatable1');
+    });
+
+
+    function Get_Totales(myTable) {
+        
+        var presuntiva = 0;
+        var total = 0;
+        var total_contribuyentes = 0;
+
+        var getSum = function (colNumber) {
+            var sum = 0;
+            var selector = '.col' + colNumber;
+
+            $(myTable).find(selector).each(function (index, element) {
+				if(selector==='.col4'){
+					var num = $(element).text().replace('$', '').replace(/,/g, '');
+                    var value =  parseFloat(num).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                    $(element).text('% ' + value);
+					
+                }else if(selector==='.col2' | selector==='.col3'){
+                    var num = $(element).text().replace('$', '').replace(/,/g, '');
+                    var value =  parseFloat(num).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                    $(element).text('$ ' + value);
+
+                    sum += parseFloat(num);
+			
+                }else{
+                    var num = $(element).text();
+                    sum += parseInt(num);
+                }
+            });
+
+            return sum;
+        };
+
+        $(myTable).find('.subtotal').each(function (index, element) {
+            if(index===0){
+				var total = getSum(index + 1);
+                $(this).text(total);
+                
+            }else{
+               var total = getSum(index + 1).toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                $(this).text('$ ' + total); 
+            }
+        });
+		
+		getSum(4);
+        
+    }
+
+    function View_Modal(myURL) {
+        $('#mdView').load(myURL, function () {
+
+            $(this).modal('show');
+        });
+    }
+
+    function Add_Modal(myURL) {
+        $('#mdCreate').load(myURL, function () {
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Detail_Modal(myURL, myID) {
+        $('#mdDetail').load(myURL, function () {
+
+            //alert(myID);
+            $('#id_programa_id').val(myID);
+
+            $('.date-picker-default').datepicker({ 
+                format: 'dd/mm/yyyy' 
+            });
+            $('.date-picker-default').css("background-color", "#f6f7f8");
+            
+
+
+            $(this).modal('show');
+
+        });
+    }
+
+    function Publish_Modal(myURL, myFolio) {
+        $('#mdPublish').load(myURL, function () {
+            
+			$("#lbSelected").html(myFolio);
+            $('#id_folio').val(myFolio);
+                   
+            $(this).modal('show');
+        });
+    }
+
+</script>
+
+{% endblock extrajs %}

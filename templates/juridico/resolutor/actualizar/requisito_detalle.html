@@ -1,0 +1,23 @@
+<div class="modal-dialog modal-lg modal-dialog-centered" tabindex="-1" aria-hidden="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Archivos</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-archivo" method="POST" action="{% url 'juridico_app:resolutorArchivo-alta' pk fk %}" enctype="multipart/form-data">
+                {% csrf_token %}                        
+                <div class="">
+                    <div class="">
+                        {{form.archivo}}
+                    </div>
+                    <button type="submit" class="btn fondo-boton waves-effect gris-oscuro float-end"> Guardar </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% block extrajs %}
+<script>
+</script>
+{% endblock extrajs %}

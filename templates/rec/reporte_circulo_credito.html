@@ -1,0 +1,136 @@
+{% extends 'base_new.html' %}
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block title %} Reporte Círculo Crédto {% endblock title %}
+
+{% block content %}
+<main>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                </div>
+                <h4 class="page-title"> Reporte Círculo Crédito </h4>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form id="frm-reporte_circulo_credito" action="{% url 'rec_app:descargar-reporte-circulo-credito' %}"
+                method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="tipo_persona"><b>Tipo de Persona</b></label>
+                        <select name="tipo_persona" id="tipo_persona" class="form-control selectize-select"
+                            placeholder="Tipo de Persona">
+                            <option value="F">PERSONA FÍSICA</option>
+                            <option value="M">PERSONA MORAL</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="anio"><b>Ejercicio</b></label>
+                        <select name="anio" id="anio" class="form-control selectize-select" placeholder="Año">
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="periodo"><b>Periodo</b></label>
+                        <select name="periodo" id="periodo" class="form-control selectize-select" placeholder="Periodo">
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <br>
+                        <button id="btnDescargar" type="submit" class="btn btn-outline-secondary waves-effect gris-oscuro" value="Descargar">
+                            <i class="fa fa-search"></i> Descargar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock content %}
+
+{% block extrajs %}
+<script src="{% static 'assets/libs/selectize/js/standalone/selectize.min.js' %}"></script>
+<script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+<script src="{% static 'assets/libs/bootstrap-maxlength/bootstrap-maxlength.min.js' %}"></script>
+<script src="{% static 'assets/libs/mohithg-switchery/switchery.min.js' %}"></script>
+<script src="{% static 'assets/js/pages/form-custom.init.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        var select_person_type = $("#tipo_persona").selectize();
+        var selectize_person_type = select_person_type[0].selectize;
+
+        var fecha = new Date();
+        // var anio = fecha.getFullYear();
+        // var periodo = fecha.getMonth();
+
+        var anio = 2025;
+        var periodo = 6;
+
+        var lista_ejercicios = [{'value':2022,'text':'2022'}];
+        var lista_periodos = [{'value':1,'text':'ENE'},
+                              {'value':2,'text':'FEB'},
+                              {'value':3,'text':'MAR'},
+                              {'value':4,'text':'ABR'},
+                              {'value':5,'text':'MAY'},
+                              {'value':6,'text':'JUN'},
+                              {'value':7,'text':'JUL'},
+                              {'value':8,'text':'AGO'},
+                              {'value':9,'text':'SEP'},
+                              {'value':10,'text':'OCT'},
+                              {'value':11,'text':'NOV'},
+                              {'value':12,'text':'DIC'}];
+
+        var select_anio = $(document.getElementById('anio'))[0].selectize;
+        var select_periodo = $(document.getElementById('periodo'))[0].selectize;
+
+        // Este reporte Inicia Diciembre 2022 hasta la fecha actual -1 mes
+        lista_ejercicios.forEach(function(elemento){
+            select_anio.addOption({value: elemento.value, text: elemento.text});
+        });
+        select_periodo.addOption({value: 12, text: 'DIC'});
+        select_periodo.setValue(12);
+
+        for (var i = anio; i >= 2022; i--) {
+            select_anio.addOption({value: i, text: i});
+        }
+        select_anio.setValue(2022);
+
+        $('#anio').change(function () {  
+            let ejericio = parseInt($(this).val());
+
+            if(ejericio === 2022){
+                select_periodo.setValue('');
+                select_periodo.clearOptions();
+                select_periodo.addOption({value: 12, text: 'DIC'});
+                select_periodo.setValue(12);
+
+            }else{
+                // Si es el ejericio actual y Enero no se debe consultar.
+                if(ejericio === anio && periodo === 0){
+                    select_periodo.setValue('');
+                    select_periodo.clearOptions();
+                    select_periodo.addOption({value: 0, text: 'SIN DATOS'});
+                    select_periodo.setValue(0);
+                }else{
+                    let periodos = [];
+                    if(ejericio === anio) periodos = lista_periodos.filter(e => e.value < (periodo + 1));
+                    else periodos = lista_periodos;
+                    
+                    select_periodo.setValue('');
+                    select_periodo.clearOptions();
+                    periodos.forEach(function(elemento){
+                        select_periodo.addOption({value: elemento.value, text: elemento.text});
+                    });
+                    select_periodo.setValue(1);
+                }
+            }
+        });
+    });
+</script>
+{% endblock extrajs %}

@@ -1,0 +1,179 @@
+{% load tags %}
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h6>Tramites y Servicios Realizados</h6>
+			
+			
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+		<div class="text-center">
+				<h6 id="lbRFC_modal"></h6>
+			</div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <div class="card card-statistics h-100">
+
+                        <div class="text-center">
+                            <br>
+                            <h5 class=""><strong>Estatales</strong></h5>
+
+                        </div>
+
+
+                        <div class="table-responsive mt-15">
+                            <table class="table center-aligned-table mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Tramite</th>
+                                        <th>Datos</th>
+										<th>Consultor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% regroup tramites_estatales by folio as list_tramites %}
+                                    {% for tramites in list_tramites %}
+                                    {% for visita in tramites.list %}
+                                    {% if visita.valor == 'on' %}
+                                    <tr>
+                                        {% ifchanged %}
+                                        <td>{{ visita.id_actividad.actividad }}</td>
+                                        <td>
+                                            <div class="checkbox checbox-switch switch-success">
+                                                <label>
+                                                    <input type="checkbox" checked disabled />
+                                                    <span></span>
+                                                    <b></b>
+                                                </label>
+                                            </div>
+                                        </td>
+										<td>
+										
+											<span class="badge badge-primary">{% get_user_info visita.usuario %}</span>
+										</td>
+                                        {% endifchanged %}
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endfor %}
+
+                                    {% regroup tramites_estatales by folio as list_tramites %}
+                                    {% for tramites in list_tramites %}
+                                    {% for visita in tramites.list %}
+                                    {% if visita.valor != 'on' %}
+                                    <tr>
+                                        {% ifchanged %}
+                                        <td>{{ visita.id_actividad.actividad }}</td>
+                                        <td>
+                                            {% for visita in tramites.list %}
+                                            <strong>
+                                                {{ visita.dato }}:
+                                            </strong>
+                                            {{ visita.valor }}
+                                            <br>
+                                            {% endfor %}
+                                        </td>
+										<td>
+										
+											<span class="badge badge-primary">{% get_user_info visita.usuario %}</span>
+										</td>
+                                        {% endifchanged %}
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group col-md-6">
+                    <div class="card card-statistics h-100">
+
+                        <div class="text-center">
+                            <br>
+                            <h5 class=""><strong>Federales</strong></h5>
+
+                        </div>
+                        <div class="table-responsive mt-15">
+                            <table class="table center-aligned-table mb-0">
+                                <thead>
+                                    <tr class="text-dark">
+                                        <th>Tramite</th>
+                                        <th>Datos</th>
+										<th>Consultor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% regroup tramites_federales by folio as list_tramites %}
+                                    {% for tramites in list_tramites %}
+                                    {% for visita in tramites.list %}
+                                    {% if visita.valor == 'on' %}
+                                    <tr>
+                                        {% ifchanged %}
+                                        <td>{{ visita.id_actividad.actividad }}</td>
+                                        <td>
+                                            <div class="checkbox checbox-switch switch-success">
+                                                <label>
+                                                    <input type="checkbox" checked disabled />
+                                                    <span></span>
+                                                    <b></b>
+                                                </label>
+                                            </div>
+                                        </td>
+										<td>
+										
+											<span class="badge badge-primary">{% get_user_info visita.usuario %}</span>
+										</td>
+                                        {% endifchanged %}
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endfor %}
+
+                                    {% regroup tramites_federales by folio as list_tramites %}
+                                    {% for tramites in list_tramites %}
+                                    {% for visita in tramites.list %}
+                                    {% if visita.valor != 'on' %}
+                                    <tr>
+                                        {% ifchanged %}
+                                        <td>{{ visita.id_actividad.actividad }}</td>
+                                        <td>
+                                            {% for visita in tramites.list %}
+                                            <strong>
+                                                {{ visita.dato }}:
+                                            </strong>
+                                                {{ visita.valor }}
+                                           
+                                            <br>
+                                            {% endfor %}
+                                        </td>
+										<td>
+										
+											<span class="badge badge-primary">{% get_user_info visita.usuario %}</span>
+										</td>
+                                        {% endifchanged %}
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+    </div>
+</div>

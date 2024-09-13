@@ -1,0 +1,157 @@
+{% extends 'base_new.html' %}
+
+{% load static %}
+{% load tags %}
+{% load humanize %}
+{% load l10n %}
+
+{% block titulo %} Insumos {% endblock titulo %}
+
+{% block head %}
+    <link href="{% static 'assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+{%endblock head %}
+
+{% block content %}
+<style>
+    .mrgR5 {
+        margin-right: 5px;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <a id="btnDescargarPlantilla" class="btn waves-effect gris-oscuro fondo-boton" href="{{request.scheme}}://{{request.get_host}}/media/insumos/Plantilla.csv" target="_blank">
+                    <i class="fas fa-file-download me-2 text-muted font-18 vertical-middle"></i>Descargar Plantilla
+                </a>
+            </div>
+            <h4 class="page-title">Insumos</h4>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12 mb-30">
+        <div class="card card-statistics h-100">
+            <form id="form-subir_programa_padrones" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row px-4 mb-2 mt-3">
+                    <div class="col-1"></div>
+                    <div class="col">
+                        <label class="mb-1" for="archivo_programa_padrones">Adjuntar archivo</label>
+                        <input type="file" name="archivo_programa_padrones" id="archivo_programa_padrones" class="form-control" accept=".csv" required>
+                        <small id="archivoInfoAyuda" class="form-text text-muted">Solo permite adjuntar archivo con extensión csv.</small>
+                        <div class="invalid-feedback">Debe adjuntar un archivo</div>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-1"></div>
+                    <div class="col">
+                        <div id="vista_errores_carga_informacion" class="d-none">
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>¡Atención!</strong> Se generaron algunos errores, favor de revisar los datos que no se cargaron.
+                                <br><a id="a-listado_errores" href="" target="_blank">Descargar lista de errores nuevamente</a>
+                                <br><br><b><small class="form-text text-muted">Nota: el archivo solo contiene los registros que no pudieron ser cargados en el sistema.</small></b>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+                <div class="row px-4">
+                    <div class="col-1"></div>
+                    <div class="col">
+                        <button type="button" id="btnSubirProgramasPadrones" class="btn btn-outline-secondary waves-effect pull-right" onclick="subir_archivo_programa_padrones()">
+                            <i class="fas fa-file-upload mrgR5"></i> Subir plantilla
+                        </button>
+                        <button id="btLoading" style="display: none;" class="btn btn-outline-secondary waves-effect pull-right"
+                            type="button" disabled>
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Ejecutando...
+                        </button>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrajs %}
+
+    <script>
+        $(document).ready(function () {
+            $('.sp_date').hide();
+
+            $('.alert-success').fadeOut(6000);
+        });
+
+        function subir_archivo_programa_padrones() {
+            var t = $("#form-subir_programa_padrones")[0];
+            if (t.checkValidity()) {
+                let formulario = document.getElementById("form-subir_programa_padrones");
+                let fd = new FormData(formulario);
+
+                $("#btLoading").show();
+                $("#btnSubirProgramasPadrones").hide();
+
+                $.ajax({
+                    url: "{% url 'padrones_app:carga-programa-padrones-masivo' %}",
+                    type: "POST",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (result) {
+                        $("#btLoading").hide();
+                        
+                        if (!result.error)
+                        {
+                            if (result.data != "")
+                            {
+                                $("#btnSubirProgramasPadrones").show();
+
+                                toastr.success("Archivo procesado correctamente");
+
+                                $("#archivo_programa_padrones").val("");
+
+                                $("#a-listado_errores").attr("href", "{{request.scheme}}://{{request.get_host}}/media/insumos/error_file_upload/" + result.data);
+                                $("#a-listado_errores").click();
+
+                                if ($("#vista_errores_carga_informacion").hasClass("d-none"))
+                                    $("#vista_errores_carga_informacion").removeClass("d-none");
+                            }
+                            else
+                            {
+                                toastr.success("Archivo cargado correctamente");
+
+                                if (!$("#vista_errores_carga_informacion").hasClass("d-none"))
+                                    $("#vista_errores_carga_informacion").addClass("d-none");
+
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1000);
+                            }
+                        }
+                        else
+                        {
+                            $("#btnSubirProgramasPadrones").show();
+
+                            return toastr.error(result.msj);
+                        }
+                    },
+                    error: function (error) {
+                        toastr.error(error);
+                    }
+                });
+            }
+            else
+                t.classList.add('was-validated');
+        }
+    </script>
+
+{% endblock extrajs %}
