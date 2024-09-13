@@ -103,7 +103,7 @@ class Registro_Civil_New(GlobalMixin, TemplateView):
             headers = {
                 'Content-Type': 'text/xml',
                 'SOAPAction': 'http://tempuri.org/Defun',
-                'Authorization': 'Basic a2lvc2Nvc1pvbmFaZXJvOktpb3NjMHNab25AMDIwMTc='
+                'Authorization': 'Basic *****='
             }
 
             try:
